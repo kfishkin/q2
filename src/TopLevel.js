@@ -91,8 +91,7 @@ class TopLevel extends React.Component {
         return <table><thead>{header}</thead><tbody>{body}</tbody></table>;
     }
 
-    dumpRecipes() {
-        let recipes = new Recipes();
+    dumpRecipes(recipes) {
         let buttonPart = <Button onClick={() => this.setState({spoilers: !this.state.spoilers})}>
             {this.state.spoilers ? "hide spoilers" : " show spoilers"}</Button>;
         let header = <tr>
@@ -175,13 +174,13 @@ class TopLevel extends React.Component {
                 ans = this.dumpPreps();
                 break;
             case 'dump recipes':
-                ans = this.dumpRecipes();
+                ans = this.dumpRecipes(new Recipes());
                 break;
             case 'dump step configs':
                 ans = this.dumpStepConfigs();
                 break;
             case 'guess':
-                ans = <GuessPage />;
+                ans = <GuessPage recipes={new Recipes()}/>;
                 break;
             default:
                 ans = <div>unknown current page</div>;
