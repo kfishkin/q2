@@ -1,0 +1,109 @@
+{
+    "recipes" : [
+        {
+            "recipeId" : 1,
+            "name" : "weak healing",
+            "followsFrom" : 0,
+            "steps": [
+                {
+                    "stepConfigId": 1,
+                    "ingredient": 3,
+                    "prep": 1
+                },
+                {
+                    "stepConfigId": 2,
+                    "ingredient": 2,
+                    "prep": 2
+                }
+            ]
+        },
+        {
+            "recipeId" : 2,
+            "name" : "medium healing",
+            "followsFrom": 1,
+            "steps": [
+                {
+                    "stepConfigId": 3,
+                    "ingredient": 8,
+                    "prep": 1
+                },
+                {
+                    "stepConfigId": 4,
+                    "ingredient": 5,
+                    "prep": 2
+                }
+            ]
+        },  
+        {
+            "recipeId" : 3,
+            "name" : "strong healing",
+            "followsFrom": 2,
+            "steps": [
+                {
+                    "stepConfigId": 5,
+                    "ingredient": 10,
+                    "prep": 4
+                },
+                {
+                    "stepConfigId": 6,
+                    "ingredient": 10,
+                    "prep": 6
+                }
+            ]
+        },     
+        {
+            "recipeId" : 4,
+            "name" : "beige cow",
+            "followsFrom": 0,
+            "steps": [
+                {
+                    "stepConfigId": 1,
+                    "ingredient": 4,
+                    "prep": 1
+                },
+                {
+                    "stepConfigId": 2,
+                    "ingredient": 3,
+                    "prep": 1
+                }
+            ]
+        },      
+        {
+            "recipeId" : 5,
+            "name" : "invisibility",
+            "followsFrom": 0,
+            "steps": [
+                {
+                    "stepConfigId": 1,
+                    "ingredient": 3,
+                    "prep": 1
+                },
+                {
+                    "stepConfigId": 2,
+                    "ingredient": 4,
+                    "prep": 2
+                },
+                {
+                    "stepConfigId": 3,
+                    "ingredient": 6,
+                    "prep": 2
+                },
+                {
+                    "stepConfigId": 4,
+                    "ingredient": 6,
+                    "prep": 5
+                },
+                {
+                    "stepConfigId": 5,
+                    "ingredient": 9,
+                    "prep": 4
+                },
+                {
+                    "stepConfigId": 6,
+                    "ingredient": 8,
+                    "prep": 6
+                }
+            ]
+        }                            
+    ]
+}

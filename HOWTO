@@ -1,0 +1,4 @@
+push:
+git push -u origin master
+add everything
+git add --all

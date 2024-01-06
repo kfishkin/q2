@@ -13,6 +13,8 @@ class NavMenu extends React.Component {
   render() {
     return (
 <div><Menu theme="light" mode="inline">
+<Menu.Item onClick={() => this.props.handleShowPage('guess')}><span>Guess at a recipe</span></Menu.Item>    
+<Menu.Item onClick={() => this.props.handleShowPage('dump recipes')}><span>dump recipes</span></Menu.Item>
 <Menu.Item onClick={() => this.props.handleShowPage('dump ingredients')}><span>dump ingredients</span></Menu.Item>
 <Menu.Item onClick={() => this.props.handleShowPage('dump preps')}><span>dump preparations</span></Menu.Item>
 <Menu.Item onClick={() => this.props.handleShowPage('dump step configs')}><span>dump step configs</span></Menu.Item>
