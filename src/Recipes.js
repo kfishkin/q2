@@ -48,5 +48,22 @@ class Recipes {
     Dump() {
         return Object.values(this.recipeMap);
     }
+
+    /*
+     * expands all the steps in the given recipe to include
+    * any that it inherits from weaker versions.
+    * Returns the expanded array of steps.
+    */
+   ExpandedSteps(recipeId) {
+    if (!recipeId) return [];
+    if (!(recipeId in this.recipeMap)) return [];
+    let recipe = this.recipeMap[recipeId];
+    if (!recipe.followsFrom) {
+        return recipe.steps;
+    }
+    let mine = recipe.steps;
+    let theirs = this.ExpandedSteps(recipe.followsFrom);
+    return theirs.concat(mine);
+   }
 }
 export default Recipes;
