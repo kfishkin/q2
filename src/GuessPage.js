@@ -138,7 +138,7 @@ class GuessPage extends React.Component {
                     <td><Select className={prepClass} options={prepItems} defaultValue={DEFAULT_LABEL} onSelect={(e, opt) => {onPrepSelect(e, opt)}}></Select></td>
                     <td><Select className={ingredClass} options={ingredItems} defaultValue={DEFAULT_LABEL} onSelect={(e, opt) => {onIngredSelect(e, opt)}}></Select></td>
                     <td>{numPossibilities}</td></tr>);
-            }
+            } else return <tr/>;
         });
 
         return (<table><thead>{header}</thead><tbody>{body}</tbody></table>);
