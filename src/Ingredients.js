@@ -5,7 +5,7 @@ class Ingredients {
         this.ingredientMap = {};
         ingredientConfig.ingredients.forEach((bundle) => {
             this.ingredientMap[bundle.ingredientId] = bundle;
-            console.log(bundle);
+            //console.log(bundle);
         });
     }
 

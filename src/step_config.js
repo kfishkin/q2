@@ -5,7 +5,7 @@ class StepConfigs {
         this.stepConfigMap = {};
         stepConfigId.step_configs.forEach((bundle) => {
             this.stepConfigMap[bundle.stepConfigId] = bundle;
-            console.log(bundle);
+            //console.log(bundle);
         });
     }
 

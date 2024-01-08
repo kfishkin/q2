@@ -16,14 +16,14 @@ class Recipes {
             let config = stepConfigs.byId(step.stepConfigId);
             if (!config) {
                 return 'recipe' + recipe.recipeId
-                  + ' step config #' + step.stepConfigId
-                  + ' not found '
+                    + ' step config #' + step.stepConfigId
+                    + ' not found '
             }
             let ingredient = ingredients.byId(step.ingrdient);
             if (!ingredient) {
                 return 'recipe ' + recipe.recipeId
-                  + ' step config # ' + step.stepConfigId
-                  + ' ingredient # ' + step.ingredient + ' not found';
+                    + ' step config # ' + step.stepConfigId
+                    + ' ingredient # ' + step.ingredient + ' not found';
             }
             // TOD: is this ingredient in the set of possibles
             // TODO: is this prep in the set of possibles
@@ -54,16 +54,22 @@ class Recipes {
     * any that it inherits from weaker versions.
     * Returns the expanded array of steps.
     */
-   ExpandedSteps(recipeId) {
-    if (!recipeId) return [];
-    if (!(recipeId in this.recipeMap)) return [];
-    let recipe = this.recipeMap[recipeId];
-    if (!recipe.followsFrom) {
-        return recipe.steps;
+    ExpandedSteps(recipeId) {
+        if (!recipeId) return [];
+        if (!(recipeId in this.recipeMap)) return [];
+        let recipe = this.recipeMap[recipeId];
+ 
+        // make a new copy, don't share it.
+        let mine = recipe.steps.map((step) => { return {...step}});
+        if (!recipe.followsFrom) {
+            return mine;
+        }
+        let theirs = this.ExpandedSteps(recipe.followsFrom);
+        return theirs.concat(mine);
     }
-    let mine = recipe.steps;
-    let theirs = this.ExpandedSteps(recipe.followsFrom);
-    return theirs.concat(mine);
-   }
+    AllRecipes() {
+        return this.recipeMap;
+    }
 }
+
 export default Recipes;

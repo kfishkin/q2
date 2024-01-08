@@ -36,6 +36,16 @@ span.spoiler {
   font-weight: bold;
 }
 
+div.guessed {
+  background-color: aquamarine;
+  padding: 2px;
+}
+
+div.unguessed {
+  /* background-color: red; */
+  padding: 2px;
+}
+
 div.header_detail {
   color: antiquewhite;
 }

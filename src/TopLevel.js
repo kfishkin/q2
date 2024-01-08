@@ -46,11 +46,10 @@ class TopLevel extends React.Component {
             body.push(<tr><td colspan="3">Start as per recipe # {recipe.followsFrom}</td></tr>);
         }
         recipe.steps.forEach((step) => {
-            let prepList = [];
             let configId = step.stepConfigId;
             let configBundle = stepConfigs.byId(configId);
             let ordinality = configBundle.ordinality;
-            configBundle.possiblePreps.forEach((prepId, index) => {
+            let prepList = configBundle.possiblePreps.map((prepId, index) => {
                 let prep = preps.byId(prepId);
                 let termText = "???";
                 let clz = "";
@@ -66,18 +65,17 @@ class TopLevel extends React.Component {
                 if (index > 0) {
                     termText = ", " + termText;
                 }
-                prepList.push(<span className={clz}>{termText}</span>);
+                return (<span className={clz}>{termText}</span>);
             });
             if (configBundle.possiblePreps > 0)
             numPossiblities *= configBundle.possiblePreps;
-            let ingredList = [];
-            configBundle.possibleIngredients.forEach((ingredId) => {
+            let ingredList = configBundle.possibleIngredients.map((ingredId) => {
                 let ingred = ingredients.byId(ingredId);
                 let term = <span>{ingredId}???</span>;
                 if (ingred && ingred.name) {
                     term = (this.state.spoilers &&  step.ingredient === ingredId) ? ingred.name.toUpperCase() : ingred.name;
                 }
-                ingredList.push(term);
+                return term;
             });
             if (configBundle.possibleIngredients > 0)
             numPossiblities *= configBundle.possibleIngredients;
@@ -100,12 +98,11 @@ class TopLevel extends React.Component {
             <th>followsFrom</th>
             <th>steps</th>
         </tr>;
-        let body = [];
         let ingrdients = new Ingredients();
         let preps = new Preps();
         let stepConfigs = new StepConfigs();
-        recipes.Dump().forEach((recipe) => {
-            body.push(<tr><td>{recipe.recipeId}</td><td>{recipe.name}</td>
+        let body  = recipes.Dump().map((recipe) => {
+            return (<tr><td>{recipe.recipeId}</td><td>{recipe.name}</td>
             <td>{this.renderFollowsFrom(recipe, recipes)}</td>
             <td>{this.renderSteps(recipe, stepConfigs, ingrdients, preps)}</td></tr>);
         });
@@ -116,18 +113,16 @@ class TopLevel extends React.Component {
     dumpIngredients() {
         let dumper = new Ingredients();
         let dump = dumper.Dump();
-        let inner = [];
-        dump.forEach((ingredient) => {
-            inner.push(<li>{ingredient.name}</li>);
+        let inner = dump.map((ingredient) => {
+            return (<li>{ingredient.name}</li>);
         });
         return <ul>{inner}</ul>;
     }
     dumpPreps() {
         let dumper = new Preps();
         let dump = dumper.Dump();
-        let inner = [];
-        dump.forEach((prep) => {
-            inner.push(<li>{prep.name}</li>);
+        let inner = dump.map((prep) => {
+            return (<li>{prep.name}</li>);
         });
         return <ul>{inner}</ul>;
     }
@@ -141,17 +136,14 @@ class TopLevel extends React.Component {
             <th>Id</th><th>ordinality</th><th>poss. ingrdients</th>
             <th>poss. preps</th><th># possibilities</th>
         </tr></thead>);
-        let body = [];
-        dump.forEach((config) => {
-            let ingreds = [];
-            config.possibleIngredients.forEach((ingredId) => {
-                ingreds.push(ingredsConfig.byId(ingredId).name);
+        let body = dump.map((config) => {
+            let ingreds = config.possibleIngredients.map((ingredId) => {
+                return (ingredsConfig.byId(ingredId).name);
             });
-            let preps = [];
-            config.possiblePreps.forEach((prepId) => {
-                preps.push(prepConfig.byId(prepId).name);
+            let preps = config.possiblePreps.map((prepId) => {
+                return (prepConfig.byId(prepId).name);
             });
-            body.push(<tr><td>{config.stepConfigId}</td>
+           return (<tr><td>{config.stepConfigId}</td>
                 <td>{config.ordinality}</td>
                 <td>{ingreds.join()}</td>
                 <td>{preps.join()}</td>
