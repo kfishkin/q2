@@ -63,22 +63,22 @@ class Attempt {
                 let aIngred = attStep.ingredient;
                 let aPrep = attStep.prep;
                 console.log('recipe step', rIndex, 'prep ', rPrep, 'ingred ', rIngred, ' vs. step ', attIndex, 'aPrep', aPrep, 'aIngred', aIngred);
-                if ((rIngred == aIngred) && (rIngred != ATTEMPT_UNKOWN)) {
+                if ((rIngred === aIngred) && (rIngred !== ATTEMPT_UNKOWN)) {
                     // we have either a winner, or a near-miss....
-                    if (rIndex == attIndex) {
+                    if (rIndex === attIndex) {
                         ingredScores[attIndex] = SCORE_HIT;
                         console.log('winner ingredient');
-                    } else if (ingredScores[attIndex] != SCORE_HIT) {
+                    } else if (ingredScores[attIndex] !== SCORE_HIT) {
                         ingredScores[attIndex] = SCORE_ELSEWHERE;
                         console.log('near-miss ingredient');
                     }
                 }
-                if ((rPrep == aPrep) && (rPrep != ATTEMPT_UNKOWN)) {
+                if ((rPrep === aPrep) && (rPrep !== ATTEMPT_UNKOWN)) {
                     // we have either a winner, or a near-miss....
-                    if (rIndex == attIndex) {
+                    if (rIndex === attIndex) {
                         prepScores[attIndex] = SCORE_HIT;
                         console.log('winner prep');
-                    } else if (prepScores[attIndex] != SCORE_HIT) {
+                    } else if (prepScores[attIndex] !== SCORE_HIT) {
                         prepScores[attIndex] = SCORE_ELSEWHERE;
                         console.log('near-miss prep');
                     }
