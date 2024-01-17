@@ -15,15 +15,16 @@ class TopLevel extends React.Component {
         super(props);
         this.state = {
             currentPage: 'none',
-            spoilers: false
+            spoilers: false,
+            fetchVal: "UNKNOWN"
+            // beFetch: fetch('https://jsonplaceholder.typicode.com/todos/1')
         }
     }
     handleShowPage(which) {
         console.log('show page', which);
         this.setState({ currentPage: which });
     }
-    componentDidMount() {
-        console.log('hello from didMount');
+    async componentDidMount() {
     };
 
     renderFollowsFrom(recipe, recipes) {
@@ -152,12 +153,34 @@ class TopLevel extends React.Component {
         });
         return <table>{header}<tbody>{body}</tbody></table>;
     }
+    BETest() {
+        if (this.state.fetchVal === "UNKNOWN") {
+        let beFetch = fetch('https://jsonplaceholder.typicode.com/todos/1')
+          .then(res => {
+            // res.status has http status code
+            // res.statusText has status text, e.g. 'ok'
+            if (res.ok) {
+                console.log('success on fetch');
+                res.json() // makes a new promise
+                .then(js => { console.log(js); 
+                   this.setState({fetchVal: JSON.stringify(js)}); });
+            } else {
+                console.log('error on fetch');
+            }
+          });
+        }
+        return( <div>hello from BEtest, val = {this.state.fetchVal}</div>);
+  
+    }
 
     renderContent() {
         var ans = "";
         switch (this.state.currentPage) {
             case 'none':
                 ans = <span>no current page</span>;
+                break;
+            case 'BE test':
+                ans = this.BETest();
                 break;
             case 'dump ingredients':
                 ans = this.dumpIngredients();

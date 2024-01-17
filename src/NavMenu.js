@@ -18,6 +18,7 @@ class NavMenu extends React.Component {
 <Menu.Item onClick={() => this.props.handleShowPage('dump ingredients')}><span>dump ingredients</span></Menu.Item>
 <Menu.Item onClick={() => this.props.handleShowPage('dump preps')}><span>dump preparations</span></Menu.Item>
 <Menu.Item onClick={() => this.props.handleShowPage('dump step configs')}><span>dump step configs</span></Menu.Item>
+<Menu.Item onClick={() => this.props.handleShowPage('BE test')}><span>BE test</span></Menu.Item>
 </Menu><p>Below the Menu</p></div>
     );
   }
