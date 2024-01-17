@@ -41,6 +41,15 @@ div.guessed {
   padding: 2px;
 }
 
+#userEntry input {
+  background-color: bisque;
+  width: 10em;
+}
+
+#userEntry span.ant-input-affix-wrapper {
+  width:10em;
+}
+
 div.unguessed {
   /* background-color: red; */
   padding: 2px;

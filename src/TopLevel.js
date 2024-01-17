@@ -4,6 +4,7 @@ import { VERSION } from './AboutPage';
 import { Button, Layout } from 'antd';
 import GuessPage from './GuessPage';
 import Ingredients from './Ingredients';
+import LoginPage from './LoginPage';
 import NavMenu from './NavMenu';
 import Preps from './Preps';
 import Recipes from './Recipes';
@@ -204,8 +205,12 @@ class TopLevel extends React.Component {
         }
         return ans;
     }
+
     render() {
         const { Header, Footer, Sider, Content } = Layout;
+        if (!this.state.playerInfo || !this.state.playerInfo.id) {
+            return <LoginPage/>
+        }
         return (
             <Layout>
                 <Header>
