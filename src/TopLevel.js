@@ -2,6 +2,7 @@ import React from 'react';
 import 'antd/dist/reset.css';
 import { VERSION } from './AboutPage';
 import { Button, Layout } from 'antd';
+import ConfigPage from './ConfigPage';
 import GuessPage from './GuessPage';
 import Ingredients from './Ingredients';
 import LoginPage from './LoginPage';
@@ -17,12 +18,13 @@ class TopLevel extends React.Component {
         this.state = {
             currentPage: 'none',
             spoilers: false,
-            fetchVal: "UNKNOWN"
+            fetchVal: "UNKNOWN",
+            beURI: process.env.BE_URI || "Unknown"
             // beFetch: fetch('https://jsonplaceholder.typicode.com/todos/1')
         }
     }
     handleShowPage(which) {
-        console.log('show page', which);
+        console.log(`show page ${which}`);
         this.setState({ currentPage: which });
     }
     async componentDidMount() {
@@ -155,6 +157,7 @@ class TopLevel extends React.Component {
         return <table>{header}<tbody>{body}</tbody></table>;
     }
     BETest() {
+        /*
         if (this.state.fetchVal === "UNKNOWN") {
         let beFetch = fetch('https://jsonplaceholder.typicode.com/todos/1')
           .then(res => {
@@ -170,6 +173,7 @@ class TopLevel extends React.Component {
             }
           });
         }
+        */
         return( <div>hello from BEtest, val = {this.state.fetchVal}</div>);
   
     }
@@ -206,11 +210,21 @@ class TopLevel extends React.Component {
         return ans;
     }
 
+    onNewStates(dict) {
+        console.log(`onNewStates: ${JSON.stringify(dict)}`);
+        this.setState(dict);
+    }
     render() {
         const { Header, Footer, Sider, Content } = Layout;
-        if (!this.state.playerInfo || !this.state.playerInfo.id) {
-            return <LoginPage/>
+        console.log(`current page = [${this.state.currentPage}]`);
+        console.log("be uri", this.state.beURI);
+        if (this.state.currentPage === 'config page') {
+            return <ConfigPage topState={this.state} onNewStates={(dict) => this.onNewStates(dict)}/>
         }
+        if (!this.state.playerInfo || !this.state.playerInfo.id) {
+            return <LoginPage handleShowPage={(which) => this.handleShowPage(which)}/>
+        }
+
         return (
             <Layout>
                 <Header>
