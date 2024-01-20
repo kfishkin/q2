@@ -5,15 +5,12 @@ import { Button, Form, Input } from 'antd';
 // props:
 // handleShowPage(x) call to set main page to x.
 // beGateway - be gateway
+// onLogin - func(handle, name) when logging in.
 
 class LoginPage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentHandle: null,
-      currentPassword: '',
-      currentEmail: '', // when making a new account
-      currentDisplayName: '', // when making a new account
       makingNewAccount: false,
       beGateway: this.props.beGateway,
       debugMessage: ""
@@ -118,7 +115,6 @@ class LoginPage extends React.Component {
             </Button>
           </Form.Item>
         </Form>
-        <Button onClick={(e) => this.toConfigPage()}>Go to the config page</Button>
       </div >
     )
   }
@@ -136,10 +132,15 @@ class LoginPage extends React.Component {
       this.state.beGateway.playerExists(handle, password)
         .then((v) => { 
           console.log('onFinish, v=', JSON.stringify(v));
-          component.setState({
-            debugMessage: `handle = ${handle}, name=${v.name}`
-          });
-          })
+          // a failed login comes back as an empty object.
+          if (!v.handle) {
+            component.setState({
+              debugMessage: `failed login for ${handle}`
+            });
+          } else {
+            component.props.onLogin(v.handle, v.name);
+          }
+        })
 
         .catch((e) => { 
           // happens on login fail
@@ -215,7 +216,6 @@ class LoginPage extends React.Component {
         <div>
           Or <button onClick={(e) => this.createUser()}>Create a new user</button>
         </div>
-        <Button onClick={(e) => this.toConfigPage()}>Go to the config page</Button>
       </div >
     );
   }

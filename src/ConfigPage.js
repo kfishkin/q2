@@ -2,20 +2,24 @@ import React from 'react';
 import { Button, Form, Input } from 'antd';
 
 
+
 // props:
-// topState - state at the top level
-// onNewStates - fn(dict of new states for top level)
+// beGateway - existing be gateway
 
 class ConfigPage extends React.Component {
+  //navigate = useNavigate();
 
   render() {
+    
     const onFinish = (values) => {
       console.log('Success:', values);
-      if (values && values.mongoDbConnStr && values.mongoDbConnStr !== this.props.mongoDbConnStr) {
-        console.log(`change mongoDbConnStr to ${values.mongoDbConnStr}`);
-        this.props.onNewStates( {
-          'mongoDbConnStr': values.mongoDbConnStr
-        })
+      if (values && values.beURI) {
+
+        console.log(`change beURI to ${values.beURI}`);
+        this.props.beGateway.setURI(values.beURI);
+        //return redirect("./fooble");
+
+
       }
     };
     const onFinishFailed = (errorInfo) => {
@@ -47,13 +51,13 @@ class ConfigPage extends React.Component {
           autoComplete="off"
         >
           <Form.Item
-            label="MongoDB connection string"
-            name="mongoDbConnStr"
-            initialValue={this.props.topState.mongoDbConnStr}
+            label="backend URI"
+            name="beURI"
+            initialValue={this.props.beGateway.getURI()}
             rules={[
               {
                 required: false,
-                message: 'Please input mongo',
+                message: 'Please input be URI',
               },
             ]}
           >

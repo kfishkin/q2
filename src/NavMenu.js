@@ -1,25 +1,25 @@
 import React from 'react';
 import { Menu } from 'antd';
 
-
+export const CONFIG_PAGE='config';
+export const LOGIN_PAGE='login';
+export const CRAFT_PAGE='craft';
+export const GAME_PAGE='game';
 // props:
-// handleShowPage(string) ask app to display the given page
+// pageTemplates - the page templates
+// showPageFunc - func to invoke to show a new page
 
 class NavMenu extends React.Component {
-
-  DumpIngredients() {
-    return <p>Dumping Ingredients</p>
-  }
   render() {
+    let menuItems = this.props.pageTemplates.map((template) => {
+      return (<Menu.Item onClick={(e) => this.props.showPageFunc(template.PageDescriptor())} disabled={template.IsEnabledNow()?"":"disabled"}>
+        <span>{template.SideBarText()}</span>
+      </Menu.Item>)
+    })
     return (
 <div><Menu theme="light" mode="inline">
-<Menu.Item onClick={() => this.props.handleShowPage('guess')}><span>Guess at a recipe</span></Menu.Item>    
-<Menu.Item onClick={() => this.props.handleShowPage('dump recipes')}><span>dump recipes</span></Menu.Item>
-<Menu.Item onClick={() => this.props.handleShowPage('dump ingredients')}><span>dump ingredients</span></Menu.Item>
-<Menu.Item onClick={() => this.props.handleShowPage('dump preps')}><span>dump preparations</span></Menu.Item>
-<Menu.Item onClick={() => this.props.handleShowPage('dump step configs')}><span>dump step configs</span></Menu.Item>
-<Menu.Item onClick={() => this.props.handleShowPage('BE test')}><span>BE test</span></Menu.Item>
-</Menu><p>Below the Menu</p></div>
+{menuItems}
+</Menu></div>
     );
   }
 }

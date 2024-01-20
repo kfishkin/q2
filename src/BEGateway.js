@@ -1,9 +1,15 @@
 
 class BEGateway {
     constructor(beURI) {
-        this.state = {
-            beURI: beURI
-        }
+        this.beURI = beURI;
+    }
+
+    getURI() {
+        return this.beURI;
+    }
+
+    setURI(newURI) {
+        this.beURI = newURI;
     }
 
     /**
@@ -13,7 +19,7 @@ class BEGateway {
     async playerExists(handle, password) {
         console.log(`checking if ${handle} player exists`);
         // TODO: SALT/encrypt password
-        const url = this.state.beURI 
+        const url = this.beURI 
             + "players/" + handle
             + "?pwd=" + password
         console.log('url', url);

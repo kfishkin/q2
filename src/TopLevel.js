@@ -4,19 +4,20 @@ import { VERSION } from './AboutPage';
 import { Button, Layout } from 'antd';
 import BEGateway from './BEGateway';
 import ConfigPage from './ConfigPage';
-import GuessPage from './GuessPage';
 import Ingredients from './Ingredients';
 import LoginPage from './LoginPage';
 import NavMenu from './NavMenu';
 import Preps from './Preps';
-import Recipes from './Recipes';
 import StepConfigs from './step_config';
+import PageTemplate from './PageTemplate';
+import { CONFIG_PAGE, GAME_PAGE, LOGIN_PAGE } from './NavMenu';
 
 
 class TopLevel extends React.Component {
     constructor(props) {
         super(props);
         const beURI = process.env.REACT_APP_BE_URI || "Unknown";
+        console.log(`baseURI=${beURI}`);
         this.state = {
             currentPage: 'none',
             spoilers: false,
@@ -182,32 +183,28 @@ class TopLevel extends React.Component {
   
     }
 
+    onLogin(handle, name) {
+        console.log(`logged in with handle ${handle}, name ${name}`);
+        this.setState({
+            playerInfo: {
+                id: handle,
+                displayName: name,
+            },
+            currentPage: GAME_PAGE
+        })
+    }
+
     renderContent() {
         var ans = "";
         switch (this.state.currentPage) {
-            case 'none':
-                ans = <span>no current page</span>;
+            case LOGIN_PAGE:
+                ans = <LoginPage beGateway={this.state.beGateway} onLogin={(handle,name) => this.onLogin(handle, name)}></LoginPage>; 
                 break;
-            case 'BE test':
-                ans = this.BETest();
-                break;
-            case 'dump ingredients':
-                ans = this.dumpIngredients();
-                break;
-            case 'dump preps':
-                ans = this.dumpPreps();
-                break;
-            case 'dump recipes':
-                ans = this.dumpRecipes(new Recipes());
-                break;
-            case 'dump step configs':
-                ans = this.dumpStepConfigs();
-                break;
-            case 'guess':
-                ans = <GuessPage recipes={new Recipes()}/>;
+            case CONFIG_PAGE:
+                ans = <ConfigPage beGateway={this.state.beGateway}></ConfigPage>;
                 break;
             default:
-                ans = <div>unknown current page</div>;
+                ans = <div>unknown current page ${this.state.currentPage}</div>;
                 break;
 
         }
@@ -220,23 +217,36 @@ class TopLevel extends React.Component {
     }
     render() {
         const { Header, Footer, Sider, Content } = Layout;
+        // make the tamples for the nav menu. could/should be done in the ctor,
+        // but those should be short and simple, and computers is fast.
+        //import { CONFIG_PAGE, CRAFT_PAGE, GAME_PAGE, LOGIN_PAGE } from './NavMenu';
+        let loggedIn = this.state.playerInfo && this.state.playerInfo.id;
+        let pageTemplates = [
+        new PageTemplate(LOGIN_PAGE, loggedIn ? "Logout": "Login", true),
+        new PageTemplate(GAME_PAGE, "Game", loggedIn),
+        new PageTemplate(CONFIG_PAGE, "Config", true)
+        ]
+
         console.log(`current page = [${this.state.currentPage}]`);
         console.log("be uri", this.state.beURI);
+        /*
         if (this.state.currentPage === 'config page') {
-            return <ConfigPage topState={this.state} onNewStates={(dict) => this.onNewStates(dict)}/>
+            return <ConfigPage beGateway={this.state.beGateway} topState={this.state} onNewStates={(dict) => this.onNewStates(dict)}/>
         }
         if (!this.state.playerInfo || !this.state.playerInfo.id) {
             return <LoginPage beGateway={this.state.beGateway} handleShowPage={(which) => this.handleShowPage(which)}/>
         }
+        */
+       let headerText = loggedIn ? `Welcome, ${this.state.playerInfo.displayName}` : "Please log in to start";
 
         return (
             <Layout>
                 <Header>
-                    <div className="header_detail"><p>Header text</p></div>
+                    <div className="header_detail"><p>{headerText}</p></div>
                 </Header>
                 <Layout>
                     <Sider><div className="sider"><NavMenu
-                        handleShowPage={(which) => this.handleShowPage(which)} /></div>
+                        pageTemplates={pageTemplates} showPageFunc={(which) => this.handleShowPage(which)} /></div>
                     </Sider>
                     <Content>{this.renderContent()}</Content>
                 </Layout>
