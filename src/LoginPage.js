@@ -5,7 +5,7 @@ import { Button, Form, Input } from 'antd';
 // props:
 // handleShowPage(x) call to set main page to x.
 // beGateway - be gateway
-// onLogin - func(handle, name) when logging in.
+// onLogin - func(handle, name, gameId) when logging in.
 
 class LoginPage extends React.Component {
   constructor(props) {
@@ -138,7 +138,7 @@ class LoginPage extends React.Component {
               debugMessage: `failed login for ${handle}`
             });
           } else {
-            component.props.onLogin(v.handle, v.name);
+            component.props.onLogin(v.handle, v.name, v.gameId ? v.gameId : "");
           }
         })
 

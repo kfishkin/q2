@@ -4,6 +4,7 @@ import { VERSION } from './AboutPage';
 import { Button, Layout } from 'antd';
 import BEGateway from './BEGateway';
 import ConfigPage from './ConfigPage';
+import GamePage from './GamePage';
 import Ingredients from './Ingredients';
 import LoginPage from './LoginPage';
 import NavMenu from './NavMenu';
@@ -183,12 +184,13 @@ class TopLevel extends React.Component {
   
     }
 
-    onLogin(handle, name) {
-        console.log(`logged in with handle ${handle}, name ${name}`);
+    onLogin(handle, name, gameId) {
+        console.log(`logged in with handle ${handle}, name ${name}, gameId ${gameId}`);
         this.setState({
             playerInfo: {
-                id: handle,
+                handle: handle,
                 displayName: name,
+                gameId: gameId
             },
             currentPage: GAME_PAGE
         })
@@ -203,8 +205,11 @@ class TopLevel extends React.Component {
             case CONFIG_PAGE:
                 ans = <ConfigPage beGateway={this.state.beGateway}></ConfigPage>;
                 break;
+            case GAME_PAGE:
+                ans = <GamePage playerInfo={this.state.playerInfo} beGateway={this.state.beGateway}></GamePage>
+                break;
             default:
-                ans = <div>unknown current page ${this.state.currentPage}</div>;
+                ans = <div>unknown current page '{this.state.currentPage}'</div>;
                 break;
 
         }
@@ -220,7 +225,7 @@ class TopLevel extends React.Component {
         // make the tamples for the nav menu. could/should be done in the ctor,
         // but those should be short and simple, and computers is fast.
         //import { CONFIG_PAGE, CRAFT_PAGE, GAME_PAGE, LOGIN_PAGE } from './NavMenu';
-        let loggedIn = this.state.playerInfo && this.state.playerInfo.id;
+        let loggedIn = this.state.playerInfo && this.state.playerInfo.handle;
         let pageTemplates = [
         new PageTemplate(LOGIN_PAGE, loggedIn ? "Logout": "Login", true),
         new PageTemplate(GAME_PAGE, "Game", loggedIn),
@@ -229,14 +234,6 @@ class TopLevel extends React.Component {
 
         console.log(`current page = [${this.state.currentPage}]`);
         console.log("be uri", this.state.beURI);
-        /*
-        if (this.state.currentPage === 'config page') {
-            return <ConfigPage beGateway={this.state.beGateway} topState={this.state} onNewStates={(dict) => this.onNewStates(dict)}/>
-        }
-        if (!this.state.playerInfo || !this.state.playerInfo.id) {
-            return <LoginPage beGateway={this.state.beGateway} handleShowPage={(which) => this.handleShowPage(which)}/>
-        }
-        */
        let headerText = loggedIn ? `Welcome, ${this.state.playerInfo.displayName}` : "Please log in to start";
 
         return (
