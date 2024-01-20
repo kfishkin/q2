@@ -2,6 +2,7 @@ import React from 'react';
 import 'antd/dist/reset.css';
 import { VERSION } from './AboutPage';
 import { Button, Layout } from 'antd';
+import BEGateway from './BEGateway';
 import ConfigPage from './ConfigPage';
 import GuessPage from './GuessPage';
 import Ingredients from './Ingredients';
@@ -15,11 +16,14 @@ import StepConfigs from './step_config';
 class TopLevel extends React.Component {
     constructor(props) {
         super(props);
+        const beURI = process.env.REACT_APP_BE_URI || "Unknown";
         this.state = {
             currentPage: 'none',
             spoilers: false,
             fetchVal: "UNKNOWN",
-            beURI: process.env.BE_URI || "Unknown"
+            beURI: beURI,
+            beGateway: new BEGateway(beURI)
+
             // beFetch: fetch('https://jsonplaceholder.typicode.com/todos/1')
         }
     }
@@ -222,7 +226,7 @@ class TopLevel extends React.Component {
             return <ConfigPage topState={this.state} onNewStates={(dict) => this.onNewStates(dict)}/>
         }
         if (!this.state.playerInfo || !this.state.playerInfo.id) {
-            return <LoginPage handleShowPage={(which) => this.handleShowPage(which)}/>
+            return <LoginPage beGateway={this.state.beGateway} handleShowPage={(which) => this.handleShowPage(which)}/>
         }
 
         return (

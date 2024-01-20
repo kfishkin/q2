@@ -4,16 +4,19 @@ import { Button, Form, Input } from 'antd';
 
 // props:
 // handleShowPage(x) call to set main page to x.
+// beGateway - be gateway
 
 class LoginPage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentUserName: null,
+      currentHandle: null,
       currentPassword: '',
       currentEmail: '', // when making a new account
       currentDisplayName: '', // when making a new account
-      makingNewAccount: false
+      makingNewAccount: false,
+      beGateway: this.props.beGateway,
+      debugMessage: ""
     }
   }
 
@@ -127,6 +130,23 @@ class LoginPage extends React.Component {
     }
     const onFinish = (values) => {
       console.log('Success:', values);
+      const handle = values.username;
+      const password = values.password;
+      const component = this;
+      this.state.beGateway.playerExists(handle, password)
+        .then((v) => { 
+          console.log('onFinish, v=', JSON.stringify(v));
+          component.setState({
+            debugMessage: `handle = ${handle}, name=${v.name}`
+          });
+          })
+
+        .catch((e) => { 
+          // happens on login fail
+          component.setState({
+            debugMessage: `failed login for ${handle}`
+          });
+        });
     };
     const onFinishFailed = (errorInfo) => {
       console.log('Failed:', errorInfo);
@@ -135,6 +155,7 @@ class LoginPage extends React.Component {
     return (
       <div>
         <h1>Login page</h1>
+        {this.state.debugMessage ? (<div>debugMessage = ${this.state.debugMessage}</div>):""}
         <Form
           name="basic"
           labelCol={{
