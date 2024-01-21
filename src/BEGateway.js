@@ -72,8 +72,12 @@ class BEGateway {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newPlayerData)
         };
-        const response = await fetch(url, requestOptions);
-        console.log('createPlayer: response = ' + response + ' ok = ', response.ok);
+        const response = await fetch(url, requestOptions).catch((e) => {
+            console.log(`createPlayer fetch exception ${e}`);
+            return {};
+
+        } );
+
         return response.ok ? response.json() : {};
     }
 }
