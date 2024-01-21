@@ -196,17 +196,26 @@ class TopLevel extends React.Component {
         })
     }
 
+    onCreateGame(gameId, name) {
+        console.log(`onCreateGame: gameId = [${gameId}], name = [${name}]`);
+        var newInfo = { ...this.state.playerInfo};
+        newInfo.gameId = gameId;
+        this.setState({playerInfo: newInfo});
+    }
+
     renderContent() {
         var ans = "";
         switch (this.state.currentPage) {
             case LOGIN_PAGE:
-                ans = <LoginPage beGateway={this.state.beGateway} onLogin={(handle,name) => this.onLogin(handle, name)}></LoginPage>; 
+                ans = <LoginPage beGateway={this.state.beGateway} onLogin={(handle,name) => this.onLogin(handle, name)}
+                  playerInfo={this.state.playerInfo}></LoginPage>; 
                 break;
             case CONFIG_PAGE:
                 ans = <ConfigPage beGateway={this.state.beGateway}></ConfigPage>;
                 break;
             case GAME_PAGE:
-                ans = <GamePage playerInfo={this.state.playerInfo} beGateway={this.state.beGateway}></GamePage>
+                ans = <GamePage playerInfo={this.state.playerInfo} beGateway={this.state.beGateway}
+                onCreateGame={(id,name) => this.onCreateGame(id, name)}></GamePage>
                 break;
             default:
                 ans = <div>unknown current page '{this.state.currentPage}'</div>;
@@ -222,7 +231,7 @@ class TopLevel extends React.Component {
     }
     render() {
         const { Header, Footer, Sider, Content } = Layout;
-        // make the tamples for the nav menu. could/should be done in the ctor,
+        // make the templates for the nav menu. could/should be done in the ctor,
         // but those should be short and simple, and computers is fast.
         //import { CONFIG_PAGE, CRAFT_PAGE, GAME_PAGE, LOGIN_PAGE } from './NavMenu';
         let loggedIn = this.state.playerInfo && this.state.playerInfo.handle;

@@ -28,5 +28,34 @@ class BEGateway {
         //console.log('body =', JSON.stringify(response.body));
         return response.json();
     }
+
+    /**
+     * Gets a suggested game name. Resolves to a string
+     */
+    async suggestGameName() {
+        const url = this.beURI 
+        + "games/name";
+    console.log('suggestGameName: url', url);
+    const response = await fetch(url);
+    console.log('suggestGameName: response = ' + response + ' ok = ', response.ok);
+    //console.log('body =', JSON.stringify(response.body));
+    return response.text(); 
+    }
+
+    /**
+     * Creates a new game. Returns the game object as a dict.
+     */
+    async createGame(name) {
+        const url = this.beURI 
+        + "games";
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: name })
+        }
+        const response = await fetch(url, requestOptions);
+        console.log('createGame: response = ' + response + ' ok = ', response.ok);
+        return response.json();
+    }
 }
 export default BEGateway;

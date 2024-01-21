@@ -6,6 +6,7 @@ import { Button, Form, Input } from 'antd';
 // handleShowPage(x) call to set main page to x.
 // beGateway - be gateway
 // onLogin - func(handle, name, gameId) when logging in.
+// playerInfo - current player info
 
 class LoginPage extends React.Component {
   constructor(props) {
@@ -119,10 +120,21 @@ class LoginPage extends React.Component {
     )
   }
 
+  showLogoutPage(playerInfo) {
+    return (
+      <div>
+        <span>{playerInfo.displayName}</span>, are you sure you want to logout?
+      </div>
+    )
+  }
+
 
   render() {
     if (this.state.makingNewAccount) {
       return this.showNewAccountPage();
+    }
+    if (this.props.playerInfo && this.props.playerInfo.handle) {
+      return this.showLogoutPage(this.props.playerInfo);
     }
     const onFinish = (values) => {
       console.log('Success:', values);
