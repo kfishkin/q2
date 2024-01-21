@@ -6,6 +6,7 @@ import { Button, Form, Input } from 'antd';
 // handleShowPage(x) call to set main page to x.
 // beGateway - be gateway
 // onLogin - func(handle, name, gameId) when logging in.
+// oonLogout - func() when logging out
 // playerInfo - current player info
 
 class LoginPage extends React.Component {
@@ -121,9 +122,15 @@ class LoginPage extends React.Component {
   }
 
   showLogoutPage(playerInfo) {
+    let onSubmit = (e) => {
+      this.props.onLogout();
+    }
+
     return (
       <div>
         <span>{playerInfo.displayName}</span>, are you sure you want to logout?
+        <br/>
+        <button onClick={(e) => onSubmit(e)}>Yes, I'm sure</button>
       </div>
     )
   }

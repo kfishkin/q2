@@ -196,6 +196,14 @@ class TopLevel extends React.Component {
         })
     }
 
+    onLogout() {
+        console.log('logging out');
+        this.setState({
+            playerInfo: null,
+            currentPage: LOGIN_PAGE
+        })
+    }
+
     onCreateGame(gameId, name) {
         console.log(`onCreateGame: gameId = [${gameId}], name = [${name}]`);
         var newInfo = { ...this.state.playerInfo};
@@ -208,6 +216,7 @@ class TopLevel extends React.Component {
         switch (this.state.currentPage) {
             case LOGIN_PAGE:
                 ans = <LoginPage beGateway={this.state.beGateway} onLogin={(handle,name) => this.onLogin(handle, name)}
+                  onLogout={() => this.onLogout()}
                   playerInfo={this.state.playerInfo}></LoginPage>; 
                 break;
             case CONFIG_PAGE:
