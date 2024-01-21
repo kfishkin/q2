@@ -5,6 +5,7 @@ export const CONFIG_PAGE='config';
 export const LOGIN_PAGE='login';
 export const CRAFT_PAGE='craft';
 export const GAME_PAGE='game';
+export const HOME_PAGE='home';
 // props:
 // pageTemplates - the page templates
 // showPageFunc - func to invoke to show a new page

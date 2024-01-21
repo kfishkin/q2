@@ -57,5 +57,24 @@ class BEGateway {
         console.log('createGame: response = ' + response + ' ok = ', response.ok);
         return response.json();
     }
+
+    async createPlayer(handle, displayName, email, password) {
+        const url = this.beURI 
+        + "players";
+        var newPlayerData = {
+            handle: handle,
+            password: password,
+            email: email,
+            name: displayName
+        };
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newPlayerData)
+        };
+        const response = await fetch(url, requestOptions);
+        console.log('createPlayer: response = ' + response + ' ok = ', response.ok);
+        return response.ok ? response.json() : {};
+    }
 }
 export default BEGateway;

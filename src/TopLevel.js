@@ -11,7 +11,7 @@ import NavMenu from './NavMenu';
 import Preps from './Preps';
 import StepConfigs from './step_config';
 import PageTemplate from './PageTemplate';
-import { CONFIG_PAGE, GAME_PAGE, LOGIN_PAGE } from './NavMenu';
+import { CONFIG_PAGE, GAME_PAGE, HOME_PAGE, LOGIN_PAGE } from './NavMenu';
 
 
 class TopLevel extends React.Component {
@@ -20,7 +20,7 @@ class TopLevel extends React.Component {
         const beURI = process.env.REACT_APP_BE_URI || "Unknown";
         console.log(`baseURI=${beURI}`);
         this.state = {
-            currentPage: 'none',
+            currentPage: HOME_PAGE,
             spoilers: false,
             fetchVal: "UNKNOWN",
             beURI: beURI,
@@ -225,6 +225,9 @@ class TopLevel extends React.Component {
             case GAME_PAGE:
                 ans = <GamePage playerInfo={this.state.playerInfo} beGateway={this.state.beGateway}
                 onCreateGame={(id,name) => this.onCreateGame(id, name)}></GamePage>
+                break;
+            case HOME_PAGE:
+                ans = <div>Welcome to Q2! Pick an option on the left...</div>;
                 break;
             default:
                 ans = <div>unknown current page '{this.state.currentPage}'</div>;
