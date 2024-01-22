@@ -92,5 +92,14 @@ class BEGateway {
             return response.json();
         }
     }
+
+    async getRawIngredients(gameId) {
+        //gameId = '65ad65ec51b75ebe7c620707';
+        const url = this.beURI 
+        + "craftables/game/" + gameId
+        + "?raw=1";
+        const response = await fetch(url);
+        return response.json();
+    }
 }
 export default BEGateway;

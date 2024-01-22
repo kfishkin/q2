@@ -11,7 +11,8 @@ class GamePage extends React.Component {
     this.state = {
       beGateway: props.beGateway,
       gameNameSuggestion: "",
-      gameInfo: null
+      gameInfo: null,
+      dumpMessage: null,
     }
   }
 
@@ -39,7 +40,7 @@ class GamePage extends React.Component {
     const onSubmit = (e) => {
       console.log('onSubmit, iv=', inputValue);
       if (!inputValue) return;
-      component.state.beGateway.createGame(inputValue, playerInfo.id)
+      component.state.beGateway.createGame(inputValue, playerInfo.playerId)
       .then((v) => { 
         console.log('onSubmit.createGame.then, v=', JSON.stringify(v));
         // a failed game creation comes back as an empty object.
@@ -69,6 +70,8 @@ class GamePage extends React.Component {
       // must do setFieldValues on the form object, which I ain't got.
       elt.value = suggestion;
     }
+
+
 
     return (
        <div>Hello {playerInfo.displayName}. You have no game going, would you like to create one?
@@ -102,8 +105,29 @@ class GamePage extends React.Component {
         })
       return <div>Hello {playerInfo.displayName}, please wait while I look up your game info...</div>
     }
+    const onDumpRawIngredients = (e) => {
+      this.setState({ dumpMessage: "looking up raw ingredients..." });
+      this.state.beGateway.getRawIngredients(playerInfo.gameId)
+        .then((v) => {
+          console.log('onDumpRawIngredients: res=', v);
+          if (!v || v.length == 0) {
+            this.setState({ dumpMessage: "No raw ingredients found" });
+          } else {
+            var ingreds = v.map((bundle) => {
+              return (<li>{bundle.name} (level {bundle.level})</li>);
+            });
+            this.setState({ dumpMessage: (<div>
+              <span>There are {ingreds.length} raw ingredients:</span>
+              <ol>{ingreds}</ol>
+            </div>)});
+          }
+        });
+    };
     return (
       <div>Hello {playerInfo.displayName}, what would you like to know about your '{this.state.gameInfo.name}' game?
+      <br />
+      <button onClick={(e) => onDumpRawIngredients(e) }> The raw ingredients</button>
+      <div>{this.state.dumpMessage}</div>
       </div>
     )
   }

@@ -169,6 +169,7 @@ class TopLevel extends React.Component {
             playerInfo: {
                 handle: handle,
                 id: id,
+                playerId: id,
                 displayName: name,
                 gameId: gameId
             },
