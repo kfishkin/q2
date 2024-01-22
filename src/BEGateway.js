@@ -45,13 +45,13 @@ class BEGateway {
     /**
      * Creates a new game. Returns the game object as a dict.
      */
-    async createGame(name) {
+    async createGame(name, playerId) {
         const url = this.beURI 
         + "games";
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: name })
+            body: JSON.stringify({ name: name, playerId: playerId })
         }
         const response = await fetch(url, requestOptions);
         console.log('createGame: response = ' + response + ' ok = ', response.ok);

@@ -162,33 +162,13 @@ class TopLevel extends React.Component {
         });
         return <table>{header}<tbody>{body}</tbody></table>;
     }
-    BETest() {
-        /*
-        if (this.state.fetchVal === "UNKNOWN") {
-        let beFetch = fetch('https://jsonplaceholder.typicode.com/todos/1')
-          .then(res => {
-            // res.status has http status code
-            // res.statusText has status text, e.g. 'ok'
-            if (res.ok) {
-                console.log('success on fetch');
-                res.json() // makes a new promise
-                .then(js => { console.log(js); 
-                   this.setState({fetchVal: JSON.stringify(js)}); });
-            } else {
-                console.log('error on fetch');
-            }
-          });
-        }
-        */
-        return( <div>hello from BEtest, val = {this.state.fetchVal}</div>);
-  
-    }
 
-    onLogin(handle, name, gameId) {
-        console.log(`logged in with handle ${handle}, name ${name}, gameId ${gameId}`);
+    onLogin(id, handle, name, gameId) {
+        console.log(`logged in with id ${id}, handle ${handle}, name ${name}, gameId ${gameId}`);
         this.setState({
             playerInfo: {
                 handle: handle,
+                id: id,
                 displayName: name,
                 gameId: gameId
             },
@@ -215,7 +195,7 @@ class TopLevel extends React.Component {
         var ans = "";
         switch (this.state.currentPage) {
             case LOGIN_PAGE:
-                ans = <LoginPage beGateway={this.state.beGateway} onLogin={(handle,name) => this.onLogin(handle, name)}
+                ans = <LoginPage beGateway={this.state.beGateway} onLogin={(id, handle,name) => this.onLogin(id, handle, name)}
                   onLogout={() => this.onLogout()}
                   playerInfo={this.state.playerInfo}></LoginPage>; 
                 break;

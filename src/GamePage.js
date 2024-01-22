@@ -38,10 +38,10 @@ class GamePage extends React.Component {
     const onSubmit = (e) => {
       console.log('onSubmit, iv=', inputValue);
       if (!inputValue) return;
-      component.state.beGateway.createGame(inputValue)
+      component.state.beGateway.createGame(inputValue, playerInfo.id)
       .then((v) => { 
         console.log('onSubmit.createGame.then, v=', JSON.stringify(v));
-        // a failed login comes back as an empty object.
+        // a failed game creation comes back as an empty object.
         if (!v.name) {
           component.setState({
             debugMessage: `failed game creation for ${inputValue}`

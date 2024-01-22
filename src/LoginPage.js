@@ -5,7 +5,7 @@ import { Button, Form, Input } from 'antd';
 // props:
 // handleShowPage(x) call to set main page to x.
 // beGateway - be gateway
-// onLogin - func(handle, name, gameId) when logging in.
+// onLogin - func(id, handle, name, gameId) when logging in.
 // oonLogout - func() when logging out
 // playerInfo - current player info
 
@@ -34,7 +34,7 @@ class LoginPage extends React.Component {
           console.log('back from create player, v=", v);');
           if (v && v.handle && v.name) {
             this.setState({ statusMessage: `player ${v.name} created!` });
-            this.props.onLogin(v.handle, v.name, 0);
+            this.props.onLogin(v._id, v.handle, v.name, 0);
           } else {
             this.setState({ statusMessage: `Sorry, failure creating the player` });
           }
@@ -167,7 +167,7 @@ class LoginPage extends React.Component {
                 debugMessage: `failed login for ${handle}`
               });
             } else {
-              component.props.onLogin(v.handle, v.name, v.gameId ? v.gameId : "");
+              component.props.onLogin(v._id, v.handle, v.name, v.gameId ? v.gameId : "");
             }
           })
 
