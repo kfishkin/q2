@@ -110,7 +110,7 @@ class GamePage extends React.Component {
       this.state.beGateway.getRawIngredients(playerInfo.gameId)
         .then((v) => {
           console.log('onDumpRawIngredients: res=', v);
-          if (!v || v.length == 0) {
+          if (!v || v.length === 0) {
             this.setState({ dumpMessage: "No raw ingredients found" });
           } else {
             var ingreds = v.map((bundle) => {
