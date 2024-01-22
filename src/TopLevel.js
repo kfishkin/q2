@@ -195,7 +195,7 @@ class TopLevel extends React.Component {
         var ans = "";
         switch (this.state.currentPage) {
             case LOGIN_PAGE:
-                ans = <LoginPage beGateway={this.state.beGateway} onLogin={(id, handle,name) => this.onLogin(id, handle, name)}
+                ans = <LoginPage beGateway={this.state.beGateway} onLogin={(id, handle,name, gameId) => this.onLogin(id, handle, name, gameId)}
                   onLogout={() => this.onLogout()}
                   playerInfo={this.state.playerInfo}></LoginPage>; 
                 break;

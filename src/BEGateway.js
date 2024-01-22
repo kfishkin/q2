@@ -80,5 +80,17 @@ class BEGateway {
 
         return response.ok ? response.json() : {};
     }
+
+    async getGameInfo(gameId) {
+        const url = this.beURI 
+        + "games/" + gameId;
+        const response = await fetch(url);
+        if (!response) {
+            console.log("beGateway.getGameInfo: null response");
+            return null;
+        } else {
+            return response.json();
+        }
+    }
 }
 export default BEGateway;

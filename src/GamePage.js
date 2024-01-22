@@ -10,7 +10,8 @@ class GamePage extends React.Component {
     super(props);
     this.state = {
       beGateway: props.beGateway,
-      gameNameSuggestion: ""
+      gameNameSuggestion: "",
+      gameInfo: null
     }
   }
 
@@ -23,7 +24,7 @@ class GamePage extends React.Component {
     .catch((e) => { console.log("error on get suggestion: ", e)});    
   }
 
-  createNewGameUI(playerInfo,p_suggest) {
+  createNewGameUI(playerInfo) {
     const INPUT_ID="gameName";
     const component = this;
     if (!this.state.gameNameSuggestion) {
@@ -87,27 +88,39 @@ class GamePage extends React.Component {
     );
   }
 
+  dumpGameUI(playerInfo) {
+    if (!this.state.gameInfo) {
+      this.state.beGateway.getGameInfo(playerInfo.gameId)
+        .then((v) => {
+          console.log(`dumpGameUI: v = ${v}`);
+          let gameInfo = { ...v};
+          gameInfo.gameId = v._id;
+          this.setState({gameInfo: gameInfo});
+        })
+        .catch((e) => {
+          console.log(`dumpGameUI: e = ${e}`);
+        })
+      return <div>Hello {playerInfo.displayName}, please wait while I look up your game info...</div>
+    }
+    return (
+      <div>Hello {playerInfo.displayName}, what would you like to know about your '{this.state.gameInfo.name}' game?
+      </div>
+    )
+  }
+
   render() {
     let playerInfo = this.props.playerInfo;
     
     if (!playerInfo || !playerInfo.handle) {
       return <div>No game yet, you are not logged in</div>
     }
-    let {handle, displayName, gameId} = playerInfo;
+    let {gameId} = playerInfo;
     if (!gameId) {
-      return this.createNewGameUI(playerInfo, this.state.gameNameSuggestion);
+      return this.createNewGameUI(playerInfo);
     }
 
     return (
-      <div>
-        Player handle: {handle||"Unknown"}
-        <br/>
-        Player display name: {displayName||"Unknown"}
-        <br/>
-        Player gameId: {gameId||"Unknown"}
-      </div>
-
-
+      this.dumpGameUI(playerInfo)
     )
   }
 }
