@@ -12,7 +12,6 @@ class ConfigPage extends React.Component {
   render() {
     
     const onFinish = (values) => {
-      console.log('Success:', values);
       if (values && values.beURI) {
 
         console.log(`change beURI to ${values.beURI}`);

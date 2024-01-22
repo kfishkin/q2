@@ -12,7 +12,6 @@ class GuessPage extends React.Component {
     */
     constructor(props) {
         super(props);
-        //console.log('recipes =', props.recipes);
         this.state = {
             guessee: 0, // the recipe being guessed at. 0 = undef.
             attempt: null, // the current attempt against that recipe.

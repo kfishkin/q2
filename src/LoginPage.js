@@ -27,7 +27,6 @@ class LoginPage extends React.Component {
 
   showNewAccountPage() {
     const onFinish = (values) => {
-      console.log('Success:', values);
       this.setState({ statusMessage: "Creating..." });
       this.props.beGateway.createPlayer(values.handle, values.name, values.email, values.password)
         .then((v) => {
@@ -154,7 +153,6 @@ class LoginPage extends React.Component {
         return this.showLogoutPage(this.props.playerInfo);
       }
       const onFinish = (values) => {
-        console.log('Success:', values);
         const handle = values.username;
         const password = values.password;
         const component = this;

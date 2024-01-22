@@ -22,10 +22,8 @@ class BEGateway {
         const url = this.beURI 
             + "players/" + handle
             + "?pwd=" + password
-        console.log('url', url);
         const response = await fetch(url, {mmmmode: 'no-cors'});
         console.log('playerExists: response = ' + response + ' ok = ', response.ok);
-        //console.log('body =', JSON.stringify(response.body));
         return response.json();
     }
 
@@ -35,10 +33,8 @@ class BEGateway {
     async suggestGameName() {
         const url = this.beURI 
         + "games/name";
-    console.log('suggestGameName: url', url);
     const response = await fetch(url);
     console.log('suggestGameName: response = ' + response + ' ok = ', response.ok);
-    //console.log('body =', JSON.stringify(response.body));
     return response.text(); 
     }
 
@@ -100,6 +96,19 @@ class BEGateway {
         + "?raw=1";
         const response = await fetch(url);
         return response.json();
+    }
+
+    async getGamesFor(playerId) {
+        const url = this.beURI 
+        + "games/"
+        + "player/" + playerId;
+        const response = await fetch(url);
+        if (!response || !response.ok) {
+            return Promise.reject(`couldn't get games for ${playerId}`);
+        } else {
+            return response.json();
+        }       
+
     }
 }
 export default BEGateway;

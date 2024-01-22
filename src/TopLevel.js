@@ -22,9 +22,9 @@ class TopLevel extends React.Component {
         this.state = {
             currentPage: HOME_PAGE,
             spoilers: false,
-            fetchVal: "UNKNOWN",
             beURI: beURI,
-            beGateway: new BEGateway(beURI)
+            beGateway: new BEGateway(beURI),
+            heartbeat: false
 
             // beFetch: fetch('https://jsonplaceholder.typicode.com/todos/1')
         }
@@ -186,9 +186,11 @@ class TopLevel extends React.Component {
 
     onCreateGame(gameId, name) {
         console.log(`onCreateGame: gameId = [${gameId}], name = [${name}]`);
+        /*
         var newInfo = { ...this.state.playerInfo};
         newInfo.gameId = gameId;
         this.setState({playerInfo: newInfo});
+        */
     }
 
     renderContent() {
@@ -234,7 +236,6 @@ class TopLevel extends React.Component {
         ]
 
         console.log(`current page = [${this.state.currentPage}]`);
-        console.log("be uri", this.state.beURI);
        let headerText = loggedIn ? `Welcome, ${this.state.playerInfo.displayName}` : "Please log in to start";
 
         return (
