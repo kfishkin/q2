@@ -163,14 +163,15 @@ class TopLevel extends React.Component {
         return <table>{header}<tbody>{body}</tbody></table>;
     }
 
-    onLogin(id, handle, name) {
-        console.log(`logged in with id ${id}, handle ${handle}, name ${name}`);
+    onLogin(id, handle, name, currentGameId) {
+        console.log(`logged in with id ${id}, handle ${handle}, name ${name}, current game ${currentGameId}`);
         this.setState({
             playerInfo: {
                 handle: handle,
                 id: id,
                 playerId: id,
-                displayName: name
+                displayName: name,
+                currentGameId: currentGameId
             },
             currentPage: GAME_ADMIN_PAGE
         })
@@ -193,11 +194,18 @@ class TopLevel extends React.Component {
         */
     }
 
+    onSetCurrentGame(gameId) {
+        console.log(`onSetCurrentGame: set to ${gameId}`);
+        let newPlayerData = {...this.state.playerInfo};
+        newPlayerData.currentGameId = gameId;
+        this.setState({playerInfo: newPlayerData});
+    }
+
     renderContent() {
         var ans = "";
         switch (this.state.currentPage) {
             case LOGIN_PAGE:
-                ans = <LoginPage beGateway={this.state.beGateway} onLogin={(id, handle,name) => this.onLogin(id, handle, name)}
+                ans = <LoginPage beGateway={this.state.beGateway} onLogin={(id, handle,name, currentGameId) => this.onLogin(id, handle, name,currentGameId)}
                   onLogout={() => this.onLogout()}
                   playerInfo={this.state.playerInfo}></LoginPage>; 
                 break;
@@ -206,7 +214,8 @@ class TopLevel extends React.Component {
                 break;
             case GAME_ADMIN_PAGE:
                 ans = <GamePage playerInfo={this.state.playerInfo} beGateway={this.state.beGateway}
-                onCreateGame={(id,name) => this.onCreateGame(id, name)}></GamePage>
+                onCreateGame={(id,name) => this.onCreateGame(id, name)}
+                onSetCurrentGame={(gameId) => this.onSetCurrentGame(gameId)}></GamePage>
                 break;
             case HOME_PAGE:
                 ans = <div>Welcome to Q2! Pick an option on the left...</div>;

@@ -8,6 +8,7 @@ dayjs.extend(localizedFormat);
 // playerInfo - dict from top level.
 // beGateway - BE gateway
 // onCreateGame - f(id,name) callback when a new game is created.
+// onSetCurrentGame - f(gameId)
 
 class GamePage extends React.Component {
   BEFORE = 0;
@@ -87,7 +88,7 @@ class GamePage extends React.Component {
 
 
     return (
-      <div>Hello {playerInfo.displayName}. You have no game going, would you like to create one?
+      <div>Or you can create a new one...
         <br />
         Game name:&nbsp;&nbsp;
         <input id={INPUT_ID} type="text" reqired="required"
@@ -159,61 +160,94 @@ class GamePage extends React.Component {
           this.state.beGateway.getGamesFor(this.props.playerInfo.playerId)
             .then((v) => {
               this.loadingState = this.AFTER;
-              this.setState({ playerGames: v });
+              this.setState({ playerGames: v, statusMessage: 'displaynig current games' });
 
             }).catch((e) => {
               this.loadingState = this.AFTER;
               this.setState({ statusMessage: `failure asking for current games ${e}` });
             });
-            this.setState({ statusMessage: "asking for current games..." });
+          this.setState({ statusMessage: "asking for current games..." });
           break;
         case this.DURING:
           break;
         case this.AFTER:
-          return <div>After asking for games</div>
+          break;
+        default:
           break;
       }
       return "";
     } else {
       const columns = [
-        { title: 'name', dataIndex: 'name', 
-          sorter:(row1,row2) => {
-            return row1.name.localeCompare(row2.name) }},
-          {title: 'created', dataIndex: 'createdAt',
-          sorter:(row1,row2) => row1.createdAtUnix - row2.createdAtUnix },
-          {title: 'updated', dataIndex: 'updatedAt',
-          sorter:(row1,row2) => row1.updatedAtUnix - row2.updatedAtUnix},
-          {title: 'actions', dataIndex: 'actions'}
+        {
+          title: 'name', dataIndex: 'name',
+          sorter: (row1, row2) => {
+            return row1.name.localeCompare(row2.name)
+          }
+        },
+        {
+          title: 'created', dataIndex: 'createdAt',
+          sorter: (row1, row2) => row1.createdAtUnix - row2.createdAtUnix
+        },
+        {
+          title: 'updated', dataIndex: 'updatedAt',
+          sorter: (row1, row2) => row1.updatedAtUnix - row2.updatedAtUnix
+        },
+        { title: 'actions', dataIndex: 'actions' }
       ];
       let onLoad = (e, gameId) => {
         console.log(`onLoad: e=${e}, gameId=${gameId}`);
-        console.log(`e.ct.gi = ${e.currentTarget.gameId}`);
-        console.log(`e.t.gi = ${e.target.gameId}`);
+        this.setState({ statusMessage: "loading..." });
+        this.props.beGateway.setPlayerCurrentGame(this.props.playerInfo.playerId, gameId)
+          .then((v) => {
+            //console.log('onLoad: v=', v);
+            this.setState({ statusMessage: "current game set" });
+            this.props.onSetCurrentGame(gameId);
+          }).catch((e) => {
+            //console.log("onLoad, e=", e);
+            this.setState({ statusMessage: "couldn't set current game, sorry" });
+          })
       }
       let onDelete = (e, gameId) => {
         console.log(`onDelete: e=${e}, gameId=${gameId}`);
-        console.log(`e.ct.gi = ${e.currentTarget.gameId}`);
-        console.log(`e.t.gi = ${e.target.gameId}`);
+        if (window.confirm(`Are you sure you want to delete game ${gameId}? Can't be undone`)) {
+          console.log("yes, you are sure");
+          this.setState({ statusMessage: "deleting..." });
+          this.props.beGateway.deleteGame(gameId)
+            .then((v) => {
+              console.log(`v from delete game = ${v}`);
+              this.loadingState = this.BEFORE;
+              this.setState({ statusMessage: "game deleted", playerGames: null });
+            }).catch((e) => {
+              console.log(`e from delete game ${e}`);
+              this.setState({ statusMessage: "couldn't delete the game, sorry" });
+            });
+        }
       }
+      let currentGameId = this.props.playerInfo.currentGameId || "";
+      console.log(`currentGameId = ${currentGameId}`);
 
 
-      let antInnards = this.state.playerGames.map((game,i) => {
+      let antInnards = this.state.playerGames.map((game, i) => {
+        let isCurrent = game._id === currentGameId;
         return {
           key: 'tr_' + i,
           name: game.name,
+          isCurrent: isCurrent,
           createdAt: dayjs(game.createdAt).format("LLL"),
           createdAtUnix: dayjs(game.createdAt).unix(),
           updatedAt: dayjs(game.updatedAt).format("LLL"),
           updatedAtUnix: dayjs(game.updatedAt).unix(),
           actions: (<span>
-            <button gameid={game._id} onClick={(e) => onLoad(e, game._id)}>Load</button>
-            <button gameid={game._id} onClick={(e) => onDelete(e, game._id)}>Delete</button></span>)
+            {(isCurrent) ? "" : (<button gameid={game._id} onClick={(e) => onLoad(e, game._id)}>Load</button>)}
+            {(isCurrent) ? "" : (<button gameid={game._id} onClick={(e) => onDelete(e, game._id)}>Delete</button>)}</span>)
         };
       });
-      let preamble = `You have created ${this.state.playerGames.length} games`;
+      let preamble = <span>You have created ${this.state.playerGames.length} games.</span>;
       return <div>
         <span>{preamble}</span>
-        <Table columns={columns} dataSource={antInnards}/>
+        <span>The current game looks&nbsp;</span><span current="current">like this</span>
+        <Table id="games_table" columns={columns} dataSource={antInnards}
+          onRow={(row) => (row.isCurrent ? { current: "current" } : {})} />
         {this.createNewGameUI(this.props.playerInfo)}
       </div>
     }
@@ -228,8 +262,8 @@ class GamePage extends React.Component {
     return (
       <div>
         {this.existingGamesUI()}
-        <div>
-          {this.statusMessage}
+        <div id="status_message">
+          {this.state.statusMessage}
         </div>
       </div>
     )

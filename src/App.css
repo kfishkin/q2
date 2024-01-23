@@ -80,14 +80,18 @@ p.warning {
   width: 100%;
 }
 
+#games_table tr[current] {
+  background-color: lightpink;
+}
+
+span[current] {
+  background-color: lightpink;
+}
+
 #games_table td, #games_table th {
   border: 1px solid #ddd;
   padding: 8px;
 }
-
-#games_table tr:nth-child(even){background-color: #f2f2f2;}
-
-#games_table tr:hover {background-color: #ddd;}
 
 #games_table th {
   padding-top: 12px;
@@ -95,4 +99,9 @@ p.warning {
   text-align: left;
   background-color: #347a60;
   color: white;
+}
+
+div#status_message {
+  font-style: italic;
+  color: darkred
 }

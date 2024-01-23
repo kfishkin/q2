@@ -108,7 +108,35 @@ class BEGateway {
         } else {
             return response.json();
         }       
+    }
 
+    async setPlayerCurrentGame(playerId, gameId) {
+        const url = this.beURI 
+        + "players/" + playerId
+        + "/currentgame/" + gameId;
+        const requestOptions = {
+            method: 'PUT',
+        };
+        const response = await fetch(url, requestOptions);
+        if (!response || !response.ok) {
+            return Promise.reject(`couldn't set player ${playerId} current game to ${gameId}`);
+        } else {
+            return response.json();
+        }     
+    }
+
+    async deleteGame(gameId) {
+        const url = this.beURI 
+        + "games/" + gameId;
+        const requestOptions = {
+            method: 'DELETE',
+        };
+        const response = await fetch(url, requestOptions);
+        if (!response || !response.ok) {
+            return Promise.reject(`couldn't set delete game ${gameId}`);
+        } else {
+            return response.json();
+        }  
     }
 }
 export default BEGateway;
