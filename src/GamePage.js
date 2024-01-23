@@ -1,4 +1,5 @@
 import React from 'react';
+import dayjs from 'dayjs';
 
 // props:
 // playerInfo - dict from top level.
@@ -171,9 +172,23 @@ class GamePage extends React.Component {
       }
       return "";
     } else {
+      let preamble = `You have created ${this.state.playerGames.length} games`;
+      let innards = this.state.playerGames.map((game) => {
+        return (<tr><td id={game._id}>{game.name}</td>
+        <td>{dayjs(game.createdAt).format("HH:mm dddd, MMMM D, YYYY")}</td>
+        <td><button>make current</button><button>delete</button></td>
+        </tr>)
+      });
       return <div>
         existingGamesUI: playerGames =
         {JSON.stringify(this.state.playerGames)}
+        <br/>
+        <span>{preamble}</span>
+        <table id="games_table"><thead><th>name</th><th>created</th><th>action</th></thead>
+        <tbody>
+          {innards}
+        </tbody>
+        </table>
         {this.createNewGameUI(this.props.playerInfo)}
       </div>
     }
