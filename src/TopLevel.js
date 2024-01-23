@@ -11,7 +11,7 @@ import NavMenu from './NavMenu';
 import Preps from './Preps';
 import StepConfigs from './step_config';
 import PageTemplate from './PageTemplate';
-import { CONFIG_PAGE, GAME_PAGE, HOME_PAGE, LOGIN_PAGE } from './NavMenu';
+import { CONFIG_PAGE, GAME_ADMIN_PAGE, HOME_PAGE, LOGIN_PAGE } from './NavMenu';
 
 
 class TopLevel extends React.Component {
@@ -172,7 +172,7 @@ class TopLevel extends React.Component {
                 playerId: id,
                 displayName: name
             },
-            currentPage: GAME_PAGE
+            currentPage: GAME_ADMIN_PAGE
         })
     }
 
@@ -204,7 +204,7 @@ class TopLevel extends React.Component {
             case CONFIG_PAGE:
                 ans = <ConfigPage beGateway={this.state.beGateway}></ConfigPage>;
                 break;
-            case GAME_PAGE:
+            case GAME_ADMIN_PAGE:
                 ans = <GamePage playerInfo={this.state.playerInfo} beGateway={this.state.beGateway}
                 onCreateGame={(id,name) => this.onCreateGame(id, name)}></GamePage>
                 break;
@@ -227,11 +227,10 @@ class TopLevel extends React.Component {
         const { Header, Footer, Sider, Content } = Layout;
         // make the templates for the nav menu. could/should be done in the ctor,
         // but those should be short and simple, and computers is fast.
-        //import { CONFIG_PAGE, CRAFT_PAGE, GAME_PAGE, LOGIN_PAGE } from './NavMenu';
         let loggedIn = this.state.playerInfo && this.state.playerInfo.handle;
         let pageTemplates = [
         new PageTemplate(LOGIN_PAGE, loggedIn ? "Logout": "Login", true),
-        new PageTemplate(GAME_PAGE, "Game", loggedIn),
+        new PageTemplate(GAME_ADMIN_PAGE, "Game Admin", loggedIn),
         new PageTemplate(CONFIG_PAGE, "Config", true)
         ]
 

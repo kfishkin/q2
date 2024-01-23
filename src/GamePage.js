@@ -1,5 +1,8 @@
 import React from 'react';
 import dayjs from 'dayjs';
+import { Table } from 'antd';
+var localizedFormat = require('dayjs/plugin/localizedFormat')
+dayjs.extend(localizedFormat);
 
 // props:
 // playerInfo - dict from top level.
@@ -172,23 +175,45 @@ class GamePage extends React.Component {
       }
       return "";
     } else {
-      let preamble = `You have created ${this.state.playerGames.length} games`;
-      let innards = this.state.playerGames.map((game) => {
-        return (<tr><td id={game._id}>{game.name}</td>
-        <td>{dayjs(game.createdAt).format("HH:mm dddd, MMMM D, YYYY")}</td>
-        <td><button>make current</button><button>delete</button></td>
-        </tr>)
+      const columns = [
+        { title: 'name', dataIndex: 'name', 
+          sorter:(row1,row2) => {
+            return row1.name.localeCompare(row2.name) }},
+          {title: 'created', dataIndex: 'createdAt',
+          sorter:(row1,row2) => row1.createdAtUnix - row2.createdAtUnix },
+          {title: 'updated', dataIndex: 'updatedAt',
+          sorter:(row1,row2) => row1.updatedAtUnix - row2.updatedAtUnix},
+          {title: 'actions', dataIndex: 'actions'}
+      ];
+      let onLoad = (e, gameId) => {
+        console.log(`onLoad: e=${e}, gameId=${gameId}`);
+        console.log(`e.ct.gi = ${e.currentTarget.gameId}`);
+        console.log(`e.t.gi = ${e.target.gameId}`);
+      }
+      let onDelete = (e, gameId) => {
+        console.log(`onDelete: e=${e}, gameId=${gameId}`);
+        console.log(`e.ct.gi = ${e.currentTarget.gameId}`);
+        console.log(`e.t.gi = ${e.target.gameId}`);
+      }
+
+
+      let antInnards = this.state.playerGames.map((game,i) => {
+        return {
+          key: 'tr_' + i,
+          name: game.name,
+          createdAt: dayjs(game.createdAt).format("LLL"),
+          createdAtUnix: dayjs(game.createdAt).unix(),
+          updatedAt: dayjs(game.updatedAt).format("LLL"),
+          updatedAtUnix: dayjs(game.updatedAt).unix(),
+          actions: (<span>
+            <button gameid={game._id} onClick={(e) => onLoad(e, game._id)}>Load</button>
+            <button gameid={game._id} onClick={(e) => onDelete(e, game._id)}>Delete</button></span>)
+        };
       });
+      let preamble = `You have created ${this.state.playerGames.length} games`;
       return <div>
-        existingGamesUI: playerGames =
-        {JSON.stringify(this.state.playerGames)}
-        <br/>
         <span>{preamble}</span>
-        <table id="games_table"><thead><th>name</th><th>created</th><th>action</th></thead>
-        <tbody>
-          {innards}
-        </tbody>
-        </table>
+        <Table columns={columns} dataSource={antInnards}/>
         {this.createNewGameUI(this.props.playerInfo)}
       </div>
     }
