@@ -21,7 +21,7 @@ class BEGateway {
         // TODO: SALT/encrypt password
         const url = this.beURI 
             + "players/" + handle
-            + "?pwd=" + password
+            + "?pwd=" + "your password"
         const response = await fetch(url, {mmmmode: 'no-cors'});
         console.log('playerExists: response = ' + response + ' ok = ', response.ok);
         return response.json();

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button, Form, Input } from 'antd';
+import StatusMessage from './StatusMessage';
 
 
 // props:
@@ -16,7 +17,8 @@ class LoginPage extends React.Component {
       makingNewAccount: false,
       beGateway: this.props.beGateway,
       debugMessage: "",
-      statusMessage: ""
+      statusMessage: "",
+      statusType: ""
     }
   }
 
@@ -27,15 +29,15 @@ class LoginPage extends React.Component {
 
   showNewAccountPage() {
     const onFinish = (values) => {
-      this.setState({ statusMessage: "Creating..." });
+      this.setState({ statusMessage: "Creating...", statusType: "info" });
       this.props.beGateway.createPlayer(values.handle, values.name, values.email, values.password)
         .then((v) => {
           console.log('back from create player, v=", v);');
           if (v && v.handle && v.name) {
-            this.setState({ statusMessage: `player ${v.name} created!` });
+            this.setState({ statusMessage: `player ${v.name} created!`, statusType:"success" });
             this.props.onLogin(v._id, v.handle, v.name, v.currentGameId);
           } else {
-            this.setState({ statusMessage: `Sorry, failure creating the player` });
+            this.setState({ statusMessage: `Sorry, failure creating the player`, statusType:"error" });
           }
         });
       }
@@ -46,7 +48,7 @@ class LoginPage extends React.Component {
       return (
         <div>
           <h1>Hello, new player...</h1>
-          <div>{this.state.statusMessage}</div>
+          <StatusMessage message={this.state.statusMessage} type={this.state.statusType}/>
           <Form
             name="basic"
             labelCol={{
@@ -213,19 +215,6 @@ class LoginPage extends React.Component {
               ]}
             >
               <Input />
-            </Form.Item>
-
-            <Form.Item
-              label="Password"
-              name="password"
-              rules={[
-                {
-                  required: true,
-                  message: 'Please input your password',
-                },
-              ]}
-            >
-              <Input.Password />
             </Form.Item>
 
             <Form.Item

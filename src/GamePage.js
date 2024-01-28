@@ -1,8 +1,10 @@
 import React from 'react';
 import dayjs from 'dayjs';
 import { Table } from 'antd';
+import StatusMessage from './StatusMessage';
 var localizedFormat = require('dayjs/plugin/localizedFormat')
 dayjs.extend(localizedFormat);
+
 
 // props:
 // playerInfo - dict from top level.
@@ -22,6 +24,7 @@ class GamePage extends React.Component {
       gameNameSuggestion: "",
       gameInfo: null,
       statusMessage: null,
+      statusType: null,
       playerGames: null
     }
     this.loadingState = this.BEFORE;
@@ -51,18 +54,21 @@ class GamePage extends React.Component {
       if (!inputValue) return;
       component.state.beGateway.createGame(inputValue, playerInfo.playerId)
         .then((v) => {
-          console.log('onSubmit.createGame.then, v=', JSON.stringify(v));
+          let gameData = v[0]; // v[1] has game cards, v[2] their deck, at lest for now.
+          //console.log('onSubmit.createGame.then, v=', JSON.stringify(v));
           // a failed game creation comes back as an empty object.
-          if (!v.name) {
+          if (!gameData.name) {
             component.setState({
-              statusMessage: `failed game creation for ${inputValue}`
+              statusMessage: `failed game creation for ${inputValue}`,
+              statusType: "error"
             });
           } else {
             // add the new game into the array....
             let oldGames = (this.state.playerGames === null) ? [] : this.state.playerGames;
-            let newGames = oldGames.concat([v]);
+            let newGames = oldGames.concat([gameData]);
             component.setState({
               statusMessage: "game created.",
+              statusType: "success",
               playerGames: newGames
             });
             //component.props.onCreateGame(v._id, v.name);
@@ -72,7 +78,8 @@ class GamePage extends React.Component {
         .catch((e) => {
           // happens on fail
           component.setState({
-            statusMessage: `failed create-game for ${inputValue}`
+            statusMessage: `failed create-game for ${inputValue}`,
+            statusType: "error"
           });
         });
 
@@ -123,7 +130,7 @@ class GamePage extends React.Component {
       return <div>Hello {playerInfo.displayName}, please wait while I look up your game info...</div>
     }
     const onDumpRawIngredients = (e) => {
-      this.setState({ statusMessage: "looking up raw ingredients..." });
+      this.setState({ statusMessage: "looking up raw ingredients...", statusType: "info" });
       this.state.beGateway.getRawIngredients(playerInfo.gameId)
         .then((v) => {
           console.log('onDumpRawIngredients: res=', v);
@@ -137,7 +144,8 @@ class GamePage extends React.Component {
               statusMessage: (<div>
                 <span>There are {ingreds.length} raw ingredients:</span>
                 <ol>{ingreds}</ol>
-              </div>)
+              </div>),
+              statusType: "info"
             });
           }
         });
@@ -160,13 +168,13 @@ class GamePage extends React.Component {
           this.state.beGateway.getGamesFor(this.props.playerInfo.playerId)
             .then((v) => {
               this.loadingState = this.AFTER;
-              this.setState({ playerGames: v, statusMessage: 'displaynig current games' });
+              this.setState({ playerGames: v, statusMessage: 'displaynig current games', statusType: 'info' });
 
             }).catch((e) => {
               this.loadingState = this.AFTER;
-              this.setState({ statusMessage: `failure asking for current games ${e}` });
+              this.setState({ statusMessage: `failure asking for current games ${e}`, statusType: 'error' });
             });
-          this.setState({ statusMessage: "asking for current games..." });
+          this.setState({ statusMessage: "asking for current games...", statusType: 'info' });
           break;
         case this.DURING:
           break;
@@ -196,30 +204,30 @@ class GamePage extends React.Component {
       ];
       let onLoad = (e, gameId) => {
         console.log(`onLoad: e=${e}, gameId=${gameId}`);
-        this.setState({ statusMessage: "loading..." });
+        this.setState({ statusMessage: "loading..." , statusType: 'info'});
         this.props.beGateway.setPlayerCurrentGame(this.props.playerInfo.playerId, gameId)
           .then((v) => {
             //console.log('onLoad: v=', v);
-            this.setState({ statusMessage: "current game set" });
+            this.setState({ statusMessage: "current game set" , statusType: 'success'});
             this.props.onSetCurrentGame(gameId);
           }).catch((e) => {
             //console.log("onLoad, e=", e);
-            this.setState({ statusMessage: "couldn't set current game, sorry" });
+            this.setState({ statusMessage: "couldn't set current game, sorry", statusType: 'error' });
           })
       }
       let onDelete = (e, gameId) => {
         console.log(`onDelete: e=${e}, gameId=${gameId}`);
         if (window.confirm(`Are you sure you want to delete game ${gameId}? Can't be undone`)) {
           console.log("yes, you are sure");
-          this.setState({ statusMessage: "deleting..." });
+          this.setState({ statusMessage: "deleting..." , statusType: 'info'});
           this.props.beGateway.deleteGame(gameId)
             .then((v) => {
               console.log(`v from delete game = ${v}`);
               this.loadingState = this.BEFORE;
-              this.setState({ statusMessage: "game deleted", playerGames: null });
+              this.setState({ statusMessage: "game deleted", playerGames: null, statusType: 'error'});
             }).catch((e) => {
               console.log(`e from delete game ${e}`);
-              this.setState({ statusMessage: "couldn't delete the game, sorry" });
+              this.setState({ statusMessage: "couldn't delete the game, sorry" , statusType: "error"});
             });
         }
       }
@@ -242,7 +250,7 @@ class GamePage extends React.Component {
             {(isCurrent) ? "" : (<button gameid={game._id} onClick={(e) => onDelete(e, game._id)}>Delete</button>)}</span>)
         };
       });
-      let preamble = <span>You have created ${this.state.playerGames.length} games.</span>;
+      let preamble = <span>You have created {this.state.playerGames.length} games.</span>;
       return <div>
         <span>{preamble}</span>
         <span>The current game looks&nbsp;</span><span current="current">like this</span>
@@ -262,9 +270,7 @@ class GamePage extends React.Component {
     return (
       <div>
         {this.existingGamesUI()}
-        <div id="status_message">
-          {this.state.statusMessage}
-        </div>
+        <StatusMessage message={this.state.statusMessage} type={this.state.statusType}/>
       </div>
     )
   }
