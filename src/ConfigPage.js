@@ -29,7 +29,7 @@ class ConfigPage extends React.Component {
       <div>
         <h1>Config page</h1>
         <div>
-          <span>process.env=</span><span>${JSON.stringify(process.env)}</span>
+          <span>process.env=</span><span>{JSON.stringify(process.env)}</span>
         </div>
         <Form
           name="basic"

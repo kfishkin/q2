@@ -5,13 +5,14 @@ import { Button, Layout } from 'antd';
 import BEGateway from './BEGateway';
 import ConfigPage from './ConfigPage';
 import GamePage from './GamePage';
+import GameChoicePage from './GameChoicePage';
 import Ingredients from './Ingredients';
 import LoginPage from './LoginPage';
 import NavMenu from './NavMenu';
 import Preps from './Preps';
 import StepConfigs from './step_config';
 import PageTemplate from './PageTemplate';
-import { CONFIG_PAGE, GAME_ADMIN_PAGE, HOME_PAGE, LOGIN_PAGE } from './NavMenu';
+import { CONFIG_PAGE, GAME_PAGE, GAME_ADMIN_PAGE, HOME_PAGE, LOGIN_PAGE } from './NavMenu';
 
 
 class TopLevel extends React.Component {
@@ -24,9 +25,6 @@ class TopLevel extends React.Component {
             spoilers: false,
             beURI: beURI,
             beGateway: new BEGateway(beURI),
-            heartbeat: false
-
-            // beFetch: fetch('https://jsonplaceholder.typicode.com/todos/1')
         }
     }
     handleShowPage(which) {
@@ -99,79 +97,14 @@ class TopLevel extends React.Component {
         return <table><thead>{header}</thead><tbody>{body}</tbody></table>;
     }
 
-    dumpRecipes(recipes) {
-        let buttonPart = <Button onClick={() => this.setState({spoilers: !this.state.spoilers})}>
-            {this.state.spoilers ? "hide spoilers" : " show spoilers"}</Button>;
-        let header = <tr>
-            <th>id</th>
-            <th>name</th>
-            <th>followsFrom</th>
-            <th>steps</th>
-        </tr>;
-        let ingrdients = new Ingredients();
-        let preps = new Preps();
-        let stepConfigs = new StepConfigs();
-        let body  = recipes.Dump().map((recipe) => {
-            return (<tr><td>{recipe.recipeId}</td><td>{recipe.name}</td>
-            <td>{this.renderFollowsFrom(recipe, recipes)}</td>
-            <td>{this.renderSteps(recipe, stepConfigs, ingrdients, preps)}</td></tr>);
-        });
-        return <div>{buttonPart}
-        <table><thead>{header}</thead><tbody>{body}</tbody></table></div>;
-    }
-
-    dumpIngredients() {
-        let dumper = new Ingredients();
-        let dump = dumper.Dump();
-        let inner = dump.map((ingredient) => {
-            return (<li>{ingredient.name}</li>);
-        });
-        return <ul>{inner}</ul>;
-    }
-    dumpPreps() {
-        let dumper = new Preps();
-        let dump = dumper.Dump();
-        let inner = dump.map((prep) => {
-            return (<li>{prep.name}</li>);
-        });
-        return <ul>{inner}</ul>;
-    }
-    dumpStepConfigs() {
-        let dumper = new StepConfigs();
-        let ingredsConfig = new Ingredients();
-        let prepConfig = new Preps();
-        let dump = dumper.Dump();
-        let header = [];
-        header.push(<thead><tr>
-            <th>Id</th><th>ordinality</th><th>poss. ingrdients</th>
-            <th>poss. preps</th><th># possibilities</th>
-        </tr></thead>);
-        let body = dump.map((config) => {
-            let ingreds = config.possibleIngredients.map((ingredId) => {
-                return (ingredsConfig.byId(ingredId).name);
-            });
-            let preps = config.possiblePreps.map((prepId) => {
-                return (prepConfig.byId(prepId).name);
-            });
-           return (<tr><td>{config.stepConfigId}</td>
-                <td>{config.ordinality}</td>
-                <td>{ingreds.join()}</td>
-                <td>{preps.join()}</td>
-                <td>{dumper.NumPossibilities(config)}</td>
-            </tr>);
-        });
-        return <table>{header}<tbody>{body}</tbody></table>;
-    }
-
-    onLogin(id, handle, name, currentGameId) {
-        console.log(`logged in with id ${id}, handle ${handle}, name ${name}, current game ${currentGameId}`);
+    onLogin(id, handle, name) {
+        console.log(`logged in with id ${id}, handle ${handle}, name ${name}`);
         this.setState({
             playerInfo: {
                 handle: handle,
                 id: id,
                 playerId: id,
-                displayName: name,
-                currentGameId: currentGameId
+                displayName: name
             },
             currentPage: GAME_ADMIN_PAGE
         })
@@ -194,18 +127,30 @@ class TopLevel extends React.Component {
         */
     }
 
-    onSetCurrentGame(gameId) {
-        console.log(`onSetCurrentGame: set to ${gameId}`);
+    onSetCurrentGame(gameId, gameName) {
+        console.log(`onSetCurrentGame: set to ${gameId} (${gameName})`);
         let newPlayerData = {...this.state.playerInfo};
         newPlayerData.currentGameId = gameId;
+        newPlayerData.currentGameName = gameName;
         this.setState({playerInfo: newPlayerData});
+        console.log(`onSetCurrentGame: asking for player cards`);
+        this.state.beGateway.getCardsForGame(gameId, this.state.playerInfo.playerId)
+          .then((v) => {
+            console.log(`onSetCurrentGame: player deck = ${JSON.stringify(v)}`);
+            newPlayerData.deck = [...v];
+            console.log(`new deck = ${JSON.stringify(newPlayerData.deck)}`);
+            this.setState({playerInfo: newPlayerData});
+          }).catch((e) => {
+            console.log(`onSetCurrentGame: e=${e}`);
+          });
+
     }
 
     renderContent() {
         var ans = "";
         switch (this.state.currentPage) {
             case LOGIN_PAGE:
-                ans = <LoginPage beGateway={this.state.beGateway} onLogin={(id, handle,name, currentGameId) => this.onLogin(id, handle, name,currentGameId)}
+                ans = <LoginPage beGateway={this.state.beGateway} onLogin={(id, handle,name) => this.onLogin(id, handle, name)}
                   onLogout={() => this.onLogout()}
                   playerInfo={this.state.playerInfo}></LoginPage>; 
                 break;
@@ -213,10 +158,13 @@ class TopLevel extends React.Component {
                 ans = <ConfigPage beGateway={this.state.beGateway}></ConfigPage>;
                 break;
             case GAME_ADMIN_PAGE:
-                ans = <GamePage playerInfo={this.state.playerInfo} beGateway={this.state.beGateway}
+                ans = <GameChoicePage playerInfo={this.state.playerInfo} beGateway={this.state.beGateway}
                 onCreateGame={(id,name) => this.onCreateGame(id, name)}
-                onSetCurrentGame={(gameId) => this.onSetCurrentGame(gameId)}></GamePage>
+                onSetCurrentGame={(gameId, gameName) => this.onSetCurrentGame(gameId, gameName)}></GameChoicePage>
                 break;
+                case GAME_PAGE:
+                    ans = <GamePage playerInfo={this.state.playerInfo} beGateway={this.state.beGateway}/>
+                    break;
             case HOME_PAGE:
                 ans = <div>Welcome to Q2! Pick an option on the left...</div>;
                 break;
@@ -240,6 +188,7 @@ class TopLevel extends React.Component {
         let pageTemplates = [
         new PageTemplate(LOGIN_PAGE, loggedIn ? "Logout": "Login", true),
         new PageTemplate(GAME_ADMIN_PAGE, "Game Admin", loggedIn),
+        new PageTemplate(GAME_PAGE, "Game", this.state.playerInfo && this.state.playerInfo.currentGameId),
         new PageTemplate(CONFIG_PAGE, "Config", true)
         ]
 

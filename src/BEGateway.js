@@ -21,7 +21,7 @@ class BEGateway {
         // TODO: SALT/encrypt password
         const url = this.beURI 
             + "players/" + handle
-            + "?pwd=" + "your password"
+            + "?pwd=some_password";
         const response = await fetch(url, {mmmmode: 'no-cors'});
         console.log('playerExists: response = ' + response + ' ok = ', response.ok);
         return response.json();
@@ -137,6 +137,23 @@ class BEGateway {
         } else {
             return response.json();
         }  
+    }
+
+    async getCardsForGame(gameId, playerId) {
+        const url = this.beURI 
+        + "cards/" + gameId
+        + "/player/" + playerId;
+        const requestOptions = {
+            method: 'GET',
+        };
+        console.log(`getCardsForGame: url = ${url}`);
+        const response = await fetch(url, requestOptions);
+        if (!response || !response.ok) {
+            return Promise.reject(`couldn't get cards for game {$gameId} player ${playerId}`);
+        } else {
+            return response.json();
+        }  
+
     }
 }
 export default BEGateway;

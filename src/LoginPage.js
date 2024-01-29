@@ -35,7 +35,7 @@ class LoginPage extends React.Component {
           console.log('back from create player, v=", v);');
           if (v && v.handle && v.name) {
             this.setState({ statusMessage: `player ${v.name} created!`, statusType:"success" });
-            this.props.onLogin(v._id, v.handle, v.name, v.currentGameId);
+            this.props.onLogin(v._id, v.handle, v.name);
           } else {
             this.setState({ statusMessage: `Sorry, failure creating the player`, statusType:"error" });
           }
@@ -167,7 +167,7 @@ class LoginPage extends React.Component {
                 debugMessage: `failed login for ${handle}`
               });
             } else {
-              component.props.onLogin(v._id, v.handle, v.name, v.currentGameId);
+              component.props.onLogin(v._id, v.handle, v.name);
             }
           })
 
