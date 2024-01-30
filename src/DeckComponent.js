@@ -1,8 +1,14 @@
 import React from 'react';
 import { Table } from 'antd';
-import { CardType } from './CardType';
+import CardDetail from './CardDetail';
 
 class DeckComponent extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      focusCard: null
+    };
+  }
   // props
   // deck - array of cards in the deck.
   render() {
@@ -10,7 +16,7 @@ class DeckComponent extends React.Component {
     if (!deck || deck.length === 0) {
       return <div>Empty deck.</div>
     }
-    let preamble = <span>The deck has {deck.length} cards:</span>;
+    let preamble = <span>The deck has {deck.length} cards, click on one to see it in more detail:</span>;
     const columns = [
       {
         title: 'title', dataIndex: 'title',
@@ -37,9 +43,14 @@ class DeckComponent extends React.Component {
         sorter: (row1, row2) => row1.description.localeCompare(row2.description)
     },
     ];
+    let onRowClick = (row, i, e) => {
+      console.log(`hello from onRowClick, i = ${i}, row = ${JSON.stringify(row)}`)
+      this.setState({
+        focusCard: row.card
+      });
+    };
     let antInnards = deck.map((card, i) => {
       let gc = card.game_card;
-      let other = [gc.battle_value, gc.machine, gc.recipe_outline, gc.recipe].filter((dict) => dict);
       return {
         key: 'tr_' + i,
         type: gc.type,
@@ -49,12 +60,19 @@ class DeckComponent extends React.Component {
         sell_value: gc.sell_value,
         battle_value: gc.battle_value,
         description: gc.description,
+        card: card
       };
     });
     return <div>
     <span>{preamble}</span>
+    <CardDetail card={this.state.focusCard}/>
     <Table id="deck_table" columns={columns} dataSource={antInnards}
-      pagination={{pageSize: 20}}/>
+      pagination={{pageSize: 20}} 
+      onRow={(row, i) => {
+        return {
+          onClick: (e) => onRowClick(row, i, e)
+        };
+      }}></Table>
   </div>
   }
 }

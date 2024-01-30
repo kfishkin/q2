@@ -207,7 +207,7 @@ class GameChoicePage extends React.Component {
         this.setState({ statusMessage: "loading..." , statusType: 'info'});
         this.props.beGateway.setPlayerCurrentGame(this.props.playerInfo.playerId, gameId)
           .then((v) => {
-            //console.log('onLoad: v=', v);
+            console.log('onLoad: v=', v);
             this.setState({ statusMessage: "current game set" , statusType: 'success'});
             this.props.onSetCurrentGame(gameId, gameName);
           }).catch((e) => {

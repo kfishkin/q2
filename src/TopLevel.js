@@ -132,6 +132,8 @@ class TopLevel extends React.Component {
         newPlayerData.currentGameName = gameName;
         this.setState({playerInfo: newPlayerData});
         console.log(`onSetCurrentGame: asking for player cards`);
+        // TODO: need to load ALL base cards, as cards can point to other cards (e.g. ingredients, recipes, machines)
+        // so technically need "all cards which could be pointed to by another card", not necessarily everything...
 
         // TODO: should/could do this in the DB, not here.
         this.state.beGateway.getCardsForGame(gameId, this.state.playerInfo.playerId)

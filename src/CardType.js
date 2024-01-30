@@ -35,6 +35,11 @@ export class CardType { // abstract base class
         return "pix/card_types/none.png";
     }
 
+    // fully describe the semantics of this card, which is of this type
+    FullyDescribe(card) {
+        return <div><hr/>{card.game_card.description}</div>;
+    }
+
     // factory method: make one for a given game card:
     static make(gc) {
         if (!gc) return new CardTypeNothing();
@@ -100,6 +105,41 @@ class CardTypeRecipeOutline extends CardType {
     }
     AltText() { return "Recipe Outline" }
     IconURL() { return "pix/card_types/recipe_outline.png";}
+    FullyDescribe(card) {
+        let outline = card.game_card.recipe_outline;
+        console.log(`recipe outline fully describe of${JSON.stringify(outline)}`);
+        if (!outline) return super.FullyDescribe(card);
+
+        let preamble = card.game_card.description;
+        if (outline.num_steps === 0) {
+            return <div>{preamble}, which has <i>no</i> inputs</div>
+        } 
+
+        let amountString = (amtArray) => {
+            if (amtArray.length === 1) return (<b>{amtArray[0]}</b>);
+            let firstPart = amtArray.slice(0,-1).join();
+            let lastOne = amtArray[amtArray.length - 1];
+            return (<b>({firstPart} or {lastOne})</b>);
+        }
+        let ingredientString = (ingredArray) => {
+            // keep tw different procs for now, this one has to lookup the ingredient names,
+            // maybe evern hyperlink them.
+            if (ingredArray.length === 1) return (<b>{ingredArray[0]}</b>);
+            let firstPart = ingredArray.slice(0,-1).join();
+            let lastOne = ingredArray[ingredArray.length - 1];
+            return (<b>({firstPart} or {lastOne})</b>);
+        }
+
+        let stepWord = (outline.num_steps === 1)?"step":"steps";
+        let stepDescrs = [];
+        for (let step = 0; step < outline.num_steps; step++) {
+            let possible_amounts = outline.possible_amounts[step];
+            let amtDescr = amountString(possible_amounts);
+            let ingredDescr = ingredientString(outline.possible_ingredients[step]);
+            stepDescrs.push(<li><span><b>Step #{step+1}:</b></span><span>is {amtDescr} of {ingredDescr}</span></li>);
+        }
+        return <div>The Recipe has <b>{outline.num_steps}</b> {stepWord}:<ol>{stepDescrs}</ol></div>;
+    }
 }
 // a Recipe card
 class CardTypeRecipe extends CardType {
@@ -107,7 +147,8 @@ class CardTypeRecipe extends CardType {
         super(CARD_TYPES.RECIPE);
     }
     AltText() { return "Recipe" }
-    IconURL() { return "pix/card_types/recipe.png";}
+    IconURL() { return "pix/card_types/recipe.png"}
+
 }
 // a Battle card
 class CardTypeBattle extends CardType {
