@@ -1,16 +1,14 @@
 import React from 'react';
 import 'antd/dist/reset.css';
 import { VERSION } from './AboutPage';
-import { Button, Layout } from 'antd';
+import { Layout } from 'antd';
 import BEGateway from './BEGateway';
+import { CardType } from './CardType';
 import ConfigPage from './ConfigPage';
 import GamePage from './GamePage';
 import GameChoicePage from './GameChoicePage';
-import Ingredients from './Ingredients';
 import LoginPage from './LoginPage';
 import NavMenu from './NavMenu';
-import Preps from './Preps';
-import StepConfigs from './step_config';
 import PageTemplate from './PageTemplate';
 import { CONFIG_PAGE, GAME_PAGE, GAME_ADMIN_PAGE, HOME_PAGE, LOGIN_PAGE } from './NavMenu';
 
@@ -134,11 +132,19 @@ class TopLevel extends React.Component {
         newPlayerData.currentGameName = gameName;
         this.setState({playerInfo: newPlayerData});
         console.log(`onSetCurrentGame: asking for player cards`);
+
+        // TODO: should/could do this in the DB, not here.
         this.state.beGateway.getCardsForGame(gameId, this.state.playerInfo.playerId)
           .then((v) => {
             console.log(`onSetCurrentGame: player deck = ${JSON.stringify(v)}`);
-            newPlayerData.deck = [...v];
-            console.log(`new deck = ${JSON.stringify(newPlayerData.deck)}`);
+            newPlayerData.deck = v.map((card) => {
+                let obj = card;
+                obj.game_card.type = CardType.make(card.game_card);
+                console.log(`game card type = ${JSON.stringify(obj.game_card.type)}`);
+                return obj;
+            })
+            // newPlayerData.deck = [...v];
+            //console.log(`new deck = ${JSON.stringify(newPlayerData.deck)}`);
             this.setState({playerInfo: newPlayerData});
           }).catch((e) => {
             console.log(`onSetCurrentGame: e=${e}`);
