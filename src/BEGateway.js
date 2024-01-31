@@ -139,7 +139,7 @@ class BEGateway {
         }  
     }
 
-    async getCardsForGame(gameId, playerId) {
+    async getPlayerCardsForGame(gameId, playerId) {
         const url = this.beURI 
         + "cards/" + gameId
         + "/player/" + playerId;
@@ -153,6 +153,21 @@ class BEGateway {
         } else {
             return response.json();
         }  
+    }
+
+    async getGameCardsFor(gameId) {
+        const url = this.beURI 
+        + "gamecards/" + gameId;
+        const requestOptions = {
+            method: 'GET',
+        };
+        console.log(`getGameCardsFor: url = ${url}`);
+        const response = await fetch(url, requestOptions);
+        if (!response || !response.ok) {
+            return Promise.reject(`couldn't get game cards for game {$gameId}`);
+        } else {
+            return response.json();
+        }          
 
     }
 }

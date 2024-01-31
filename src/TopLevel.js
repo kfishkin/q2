@@ -23,6 +23,9 @@ class TopLevel extends React.Component {
             spoilers: false,
             beURI: beURI,
             beGateway: new BEGateway(beURI),
+            // created later
+            // playerInfo: { handle, id, playerId, displayName, deck}
+            // gameInfo: { gameId, name, baseCards }
         }
     }
     handleShowPage(which) {
@@ -66,7 +69,7 @@ class TopLevel extends React.Component {
                     } else {
                         termText = prep.name;
                     }
-                } 
+                }
                 // can't use .join() because array of objects, not of strings.
                 if (index > 0) {
                     termText = ", " + termText;
@@ -74,21 +77,21 @@ class TopLevel extends React.Component {
                 return (<span className={clz}>{termText}</span>);
             });
             if (configBundle.possiblePreps > 0)
-            numPossiblities *= configBundle.possiblePreps;
+                numPossiblities *= configBundle.possiblePreps;
             let ingredList = configBundle.possibleIngredients.map((ingredId) => {
                 let ingred = ingredients.byId(ingredId);
                 let term = <span>{ingredId}???</span>;
                 if (ingred && ingred.name) {
-                    term = (this.state.spoilers &&  step.ingredient === ingredId) ? ingred.name.toUpperCase() : ingred.name;
+                    term = (this.state.spoilers && step.ingredient === ingredId) ? ingred.name.toUpperCase() : ingred.name;
                 }
                 return term;
             });
             if (configBundle.possibleIngredients > 0)
-            numPossiblities *= configBundle.possibleIngredients;
+                numPossiblities *= configBundle.possibleIngredients;
 
             body.push(<tr><td>{ordinality}</td>
-            <td>{prepList}</td>
-            <td>{ingredList.join()}</td></tr>);
+                <td>{prepList}</td>
+                <td>{ingredList.join()}</td></tr>);
         });
         body.push(<tr><td colspan="3">{numPossiblities} possibilities</td></tr>)
 
@@ -127,30 +130,42 @@ class TopLevel extends React.Component {
 
     onSetCurrentGame(gameId, gameName) {
         console.log(`onSetCurrentGame: set to ${gameId} (${gameName})`);
-        let newPlayerData = {...this.state.playerInfo};
+        let newPlayerData = { ...this.state.playerInfo };
         newPlayerData.currentGameId = gameId;
         newPlayerData.currentGameName = gameName;
-        this.setState({playerInfo: newPlayerData});
+        let newGameData = { gameId: gameId, name: gameName, baseCards: null }
+        this.setState({ playerInfo: newPlayerData, gameInfo: newGameData });
         console.log(`onSetCurrentGame: asking for player cards`);
-        // TODO: need to load ALL base cards, as cards can point to other cards (e.g. ingredients, recipes, machines)
-        // so technically need "all cards which could be pointed to by another card", not necessarily everything...
+        // as cards can point to other cards, to give meaningful description/semantics,
+        // need all game cards...
+        this.state.beGateway.getGameCardsFor(gameId).then((v) => {
+            //console.log(`getGameCards(${gameId}): returned ${JSON.stringify(v)}`);
+            // base cards are hashed by id
+            let baseCards = {};
+            v.forEach((bc) => { baseCards[bc._id] = bc })
+            newGameData.baseCards = baseCards;
+            this.setState({  gameInfo: newGameData });
 
-        // TODO: should/could do this in the DB, not here.
-        this.state.beGateway.getCardsForGame(gameId, this.state.playerInfo.playerId)
-          .then((v) => {
-            console.log(`onSetCurrentGame: player deck = ${JSON.stringify(v)}`);
-            newPlayerData.deck = v.map((card) => {
-                let obj = card;
-                obj.game_card.type = CardType.make(card.game_card);
-                console.log(`game card type = ${JSON.stringify(obj.game_card.type)}`);
-                return obj;
-            })
-            // newPlayerData.deck = [...v];
-            //console.log(`new deck = ${JSON.stringify(newPlayerData.deck)}`);
-            this.setState({playerInfo: newPlayerData});
-          }).catch((e) => {
-            console.log(`onSetCurrentGame: e=${e}`);
-          });
+            this.state.beGateway.getPlayerCardsForGame(gameId, this.state.playerInfo.playerId)
+                .then((v) => {
+                    console.log(`onSetCurrentGame: player deck = ${JSON.stringify(v)}`);
+                    newPlayerData.deck = v.map((card) => {
+                        let obj = card;
+                        obj.game_card.type = CardType.make(card.game_card);
+                        console.log(`game card type = ${JSON.stringify(obj.game_card.type)}`);
+                        return obj;
+                    })
+                    // newPlayerData.deck = [...v];
+                    //console.log(`new deck = ${JSON.stringify(newPlayerData.deck)}`);
+
+                }).catch((e) => {
+                    console.log(`onSetCurrentGame: e=${e}`);
+                });
+
+        }).catch((e) => {
+            console.log(`getGameCardsFor: e=${e}`);
+        });
+
 
     }
 
@@ -158,21 +173,21 @@ class TopLevel extends React.Component {
         var ans = "";
         switch (this.state.currentPage) {
             case LOGIN_PAGE:
-                ans = <LoginPage beGateway={this.state.beGateway} onLogin={(id, handle,name) => this.onLogin(id, handle, name)}
-                  onLogout={() => this.onLogout()}
-                  playerInfo={this.state.playerInfo}></LoginPage>; 
+                ans = <LoginPage beGateway={this.state.beGateway} onLogin={(id, handle, name) => this.onLogin(id, handle, name)}
+                    onLogout={() => this.onLogout()}
+                    playerInfo={this.state.playerInfo}></LoginPage>;
                 break;
             case CONFIG_PAGE:
                 ans = <ConfigPage beGateway={this.state.beGateway}></ConfigPage>;
                 break;
             case GAME_ADMIN_PAGE:
                 ans = <GameChoicePage playerInfo={this.state.playerInfo} beGateway={this.state.beGateway}
-                onCreateGame={(id,name) => this.onCreateGame(id, name)}
-                onSetCurrentGame={(gameId, gameName) => this.onSetCurrentGame(gameId, gameName)}></GameChoicePage>
+                    onCreateGame={(id, name) => this.onCreateGame(id, name)}
+                    onSetCurrentGame={(gameId, gameName) => this.onSetCurrentGame(gameId, gameName)}></GameChoicePage>
                 break;
-                case GAME_PAGE:
-                    ans = <GamePage playerInfo={this.state.playerInfo} beGateway={this.state.beGateway}/>
-                    break;
+            case GAME_PAGE:
+                ans = <GamePage playerInfo={this.state.playerInfo} gameInfo={this.state.gameInfo} beGateway={this.state.beGateway} />
+                break;
             case HOME_PAGE:
                 ans = <div>Welcome to Q2! Pick an option on the left...</div>;
                 break;
@@ -184,24 +199,20 @@ class TopLevel extends React.Component {
         return ans;
     }
 
-    onNewStates(dict) {
-        console.log(`onNewStates: ${JSON.stringify(dict)}`);
-        this.setState(dict);
-    }
     render() {
         const { Header, Footer, Sider, Content } = Layout;
         // make the templates for the nav menu. could/should be done in the ctor,
         // but those should be short and simple, and computers is fast.
         let loggedIn = this.state.playerInfo && this.state.playerInfo.handle;
         let pageTemplates = [
-        new PageTemplate(LOGIN_PAGE, loggedIn ? "Logout": "Login", true),
-        new PageTemplate(GAME_ADMIN_PAGE, "Game Admin", loggedIn),
-        new PageTemplate(GAME_PAGE, "Game", this.state.playerInfo && this.state.playerInfo.currentGameId),
-        new PageTemplate(CONFIG_PAGE, "Config", true)
+            new PageTemplate(LOGIN_PAGE, loggedIn ? "Logout" : "Login", true),
+            new PageTemplate(GAME_ADMIN_PAGE, "Game Admin", loggedIn),
+            new PageTemplate(GAME_PAGE, "Game", this.state.playerInfo && this.state.playerInfo.currentGameId),
+            new PageTemplate(CONFIG_PAGE, "Config", true)
         ]
 
         console.log(`current page = [${this.state.currentPage}]`);
-       let headerText = loggedIn ? `Welcome, ${this.state.playerInfo.displayName}` : "Please log in to start";
+        let headerText = loggedIn ? `Welcome, ${this.state.playerInfo.displayName}` : "Please log in to start";
 
         return (
             <Layout>

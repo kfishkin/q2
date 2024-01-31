@@ -1,4 +1,4 @@
-
+import dayjs from 'dayjs';
 export const CARD_TYPES = {
     NONE: 0,
     MONEY: 1,
@@ -12,6 +12,7 @@ export const CARD_TYPES = {
     INGREDIENT: 9,
     TICKET: 10,
   };
+
 /**
  * Describes a type of card and its semantics.
  * In the future, cards could have more than one type, but for now no.
@@ -36,8 +37,8 @@ export class CardType { // abstract base class
     }
 
     // fully describe the semantics of this card, which is of this type
-    FullyDescribe(card) {
-        return <div><hr/>{card.game_card.description}</div>;
+    FullyDescribe(card, gameInfo, playerDeck) {
+        return <div><hr/><b>{card.game_card.display_name}</b> card: {card.game_card.description}</div>;
     }
 
     // factory method: make one for a given game card:
@@ -47,7 +48,8 @@ export class CardType { // abstract base class
         if (gc.recipe) return new CardTypeRecipe();
         if (gc.clue) return new CardTypeClue();
         if (gc.lives) return new CardTypeLife();
-        if (gc.machine) return new CardTypeMachine();
+        // wotta kludge. TODO: fix this.
+        if (gc.machine) return (gc.handle.startsWith('horn_of_plenty_')) ? new CardHornOfPlenty() : new CardTypeMachine();
         if (gc.recipe_outline) return new CardTypeRecipeOutline();
         if (gc.handle.startsWith("ingred_")) return new CardTypeIngredient();
         if (gc.handle.startsWith("none_")) return new CardTypeNothing();
@@ -98,6 +100,40 @@ class CardTypeMachine extends CardType {
     AltText() { return "Machine" }
     IconURL() { return "pix/card_types/machine.png";}
 }
+
+class CardHornOfPlenty extends CardTypeMachine {
+    constructor() {
+        super(CARD_TYPES.MACHINE);
+    }
+    FullyDescribe(card, gameInfo, playerDeck) {
+        let topPart = card.game_card.description;
+        let bottomPart = "It's never been used";
+        let usable = true;
+        if (card.last_used) {
+            let lastUsed = dayjs(card.last_used);
+            let now = dayjs();
+            const HYSTERESIS_HOURS = 24;
+            let diff = now.diff(lastUsed, 'h');
+            if (diff === 0) {
+                bottomPart = "last used less than an hour ago";
+            } else if (diff === 1) {
+                bottomPart = "last used  an hour ago";
+            } else if (diff > 48) {
+                bottomPart = "last used a while ago";
+            } else {
+                bottomPart = `last used ${diff} hours ago`;
+            }
+            usable = (diff >= HYSTERESIS_HOURS);
+        }
+        if (usable) {
+            bottomPart += " -- usable now.";
+        }
+        return <div><hr />{topPart}<hr />{bottomPart}</div>;
+    }
+
+}
+
+
 // a Recipe Outline card
 class CardTypeRecipeOutline extends CardType {
     constructor() {
@@ -105,7 +141,7 @@ class CardTypeRecipeOutline extends CardType {
     }
     AltText() { return "Recipe Outline" }
     IconURL() { return "pix/card_types/recipe_outline.png";}
-    FullyDescribe(card) {
+    FullyDescribe(card, gameInfo, playerDeck) {
         let outline = card.game_card.recipe_outline;
         console.log(`recipe outline fully describe of${JSON.stringify(outline)}`);
         if (!outline) return super.FullyDescribe(card);
@@ -114,6 +150,12 @@ class CardTypeRecipeOutline extends CardType {
         if (outline.num_steps === 0) {
             return <div>{preamble}, which has <i>no</i> inputs</div>
         } 
+        let baseCardCounts = {}; // key: base card id. value: # of times found.
+        if (playerDeck) playerDeck.forEach((card) => { 
+            let prev = (card.game_card._id in baseCardCounts) ? baseCardCounts[card.game_card._id] : 0;
+            baseCardCounts[card.game_card._id] = prev + 1;
+        });
+        console.log(`baseCardCounts = ${JSON.stringify(baseCardCounts)}`);
 
         let amountString = (amtArray) => {
             if (amtArray.length === 1) return (<b>{amtArray[0]}</b>);
@@ -122,11 +164,18 @@ class CardTypeRecipeOutline extends CardType {
             return (<b>({firstPart} or {lastOne})</b>);
         }
         let ingredientString = (ingredArray) => {
-            // keep tw different procs for now, this one has to lookup the ingredient names,
-            // maybe evern hyperlink them.
+            let ingredName = (ingredId, index) => { // note it returns html.
+                if (!ingredId) return "null";
+                if (!gameInfo || !gameInfo.baseCards) return ingredId + "A";
+                if (!(ingredId in gameInfo.baseCards)) return ingredId + "B";
+                let amtHave = (ingredId in baseCardCounts) ? baseCardCounts[ingredId] : 0;
+                let has = (amtHave > 0);
+                return <span has={has?"yes":"no"}>{index > 0 ? ", " : ""}{gameInfo.baseCards[ingredId].display_name}</span>;
+            };
+
             if (ingredArray.length === 1) return (<b>{ingredArray[0]}</b>);
-            let firstPart = ingredArray.slice(0,-1).join();
-            let lastOne = ingredArray[ingredArray.length - 1];
+            let firstPart = ingredArray.slice(0,-1).map((id, index) => ingredName(id, index));
+            let lastOne = ingredName(ingredArray[ingredArray.length - 1]);
             return (<b>({firstPart} or {lastOne})</b>);
         }
 
@@ -138,7 +187,8 @@ class CardTypeRecipeOutline extends CardType {
             let ingredDescr = ingredientString(outline.possible_ingredients[step]);
             stepDescrs.push(<li><span><b>Step #{step+1}:</b></span><span>is {amtDescr} of {ingredDescr}</span></li>);
         }
-        return <div>The Recipe has <b>{outline.num_steps}</b> {stepWord}:<ol>{stepDescrs}</ol></div>;
+        return <div>The Recipe has <b>{outline.num_steps}</b> {stepWord}:<ol>{stepDescrs}</ol>
+          <br/>Ingredients look like <span has="yes">This</span> if you have them, <span has="no">That</span> if you don't</div>;
     }
 }
 // a Recipe card

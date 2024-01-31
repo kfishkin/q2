@@ -11,6 +11,7 @@ class DeckComponent extends React.Component {
   }
   // props
   // deck - array of cards in the deck.
+  // gameInfo - top-level game info, a dict.
   render() {
     let deck = this.props.deck;
     if (!deck || deck.length === 0) {
@@ -19,7 +20,7 @@ class DeckComponent extends React.Component {
     let preamble = <span>The deck has {deck.length} cards, click on one to see it in more detail:</span>;
     const columns = [
       {
-        title: 'title', dataIndex: 'title',
+        title: 'title', dataIndex: 'display_name',
       },
       {
         title: 'type', dataIndex: 'type',
@@ -54,7 +55,7 @@ class DeckComponent extends React.Component {
       return {
         key: 'tr_' + i,
         type: gc.type,
-        title: gc.title?gc.title:gc.handle,
+        display_name: gc.display_name?gc.display_name:gc.handle,
         handle: gc.handle,
         level: gc.level,
         sell_value: gc.sell_value,
@@ -65,7 +66,7 @@ class DeckComponent extends React.Component {
     });
     return <div>
     <span>{preamble}</span>
-    <CardDetail card={this.state.focusCard}/>
+    <CardDetail card={this.state.focusCard} gameInfo={this.props.gameInfo} deck={deck}/>
     <Table id="deck_table" columns={columns} dataSource={antInnards}
       pagination={{pageSize: 20}} 
       onRow={(row, i) => {

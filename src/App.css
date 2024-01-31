@@ -84,6 +84,18 @@ p.warning {
   background-color: lightpink;
 }
 
+#deck_table tr {
+  cursor: pointer;
+}
+
+span[has=no] {
+  background-color: #E0E0E0;
+}
+
+span[has=yes] {
+  background-color: #D0EED0;
+}
+
 span[current] {
   background-color: lightpink;
 }
