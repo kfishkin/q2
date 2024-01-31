@@ -35,7 +35,7 @@ class DeckComponent extends React.Component {
       },
       {
         title: 'sell for ', dataIndex: 'sell_value',
-        sorter: (row1, row2) => row1.sell_value - row2.sell_value
+        sorter: (row1, row2) => parseInt(row1.sell_value) - parseInt(row2.sell_value)
       },
       { title: 'battle_value', dataIndex: 'battle_value',
         sorter: (row1, row2) => row1.battle_value - row2.battle_value

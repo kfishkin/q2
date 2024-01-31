@@ -15,7 +15,7 @@ class CardDetail extends React.Component {
     let line2 = <span>It has a battle value of <b>{gc.battle_value}</b></span>;
     let line3 = gc.type.FullyDescribe(card, this.props.gameInfo, this.props.deck);
 
-    return (<div>{line1}<br/>{line2}<br/>{line3}<span>debug:{JSON.stringify(card)}</span></div>)
+    return (<div>{line1}<br/>{line2}<br/>{line3}</div>)
   }
 }
 export default CardDetail;
