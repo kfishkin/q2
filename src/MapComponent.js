@@ -13,9 +13,7 @@ class MapComponent extends React.Component {
     this.state = {
     };
   }
-  // you can visit any room which is a hallway or a shop,
-  // or reachable from same.
-  // annotates each room with a 'reachable' boolean...
+  // you can visit any room which is traversable, or 1 away from a traversable.
   computeReach() {
     let map = this.props.map;
     let stack = []; // (row, col) to explore out from.
@@ -24,11 +22,10 @@ class MapComponent extends React.Component {
       for (let col = 0; col < map.width; col++) {
         // TODO: make this an attribute, not kludged:
         let room = rooms[col];
-        if (room.title.startsWith("Shop")
-        || room.title.startsWith("Hallway")) {
-        room.reachable = true;
-        stack.push([row, col]);
-      }
+        if (room.per_player_info && room.per_player_info.traversable) {
+          room.reachable = true;
+          stack.push([row, col]);
+        }
       }
     }
     // explore ye olde stacke. Stack are places known to be reachable.
@@ -44,6 +41,7 @@ class MapComponent extends React.Component {
           if (!map.rooms[row][col].reachable) {
             map.rooms[row][col].reachable = true;
             //console.log(`can reach ${row},${col} from ${meRow}, ${meCol}`);
+            // only go to depth 1, don't push...
             //stack.push([row, col]);
           }
 
@@ -81,18 +79,14 @@ class MapComponent extends React.Component {
         let room = rooms[col];
         let reachable = room.reachable;
         let reachableStyle = reachable?"yes":"no";
-        // kludge: should remember whether you've been there,
-        // win or loss.
-        // another kludge special case for shop...
+        let per_player_message = room.per_player_info && room.per_player_info.description? room.per_player_info.description: "";
         let elt = null;
+        let mapLabel = room.per_player_info && room.reachable ? room.title : " ???? ";
         if (room.owner && room.owner.type === PlayerTypes.MERCHANT) {
-          elt=<button reachable={reachableStyle} onClick={(e) => gotoShop(room.owner)}>{room.owner.name}'s {room.title}</button>
-        } else if (room.title.startsWith("Hallway")) {
-          //  kludge
-          elt=<span reachable={reachableStyle}>&nbsp;{room.title}&nbsp;</span>
+          elt=<button reachable={reachableStyle} title={per_player_message} onClick={(e) => gotoShop(room.owner)} disabled={!reachable}>{room.owner.name}'s {mapLabel}</button>
         } else {
-          elt=<span reachable={reachableStyle}>&nbsp;  ???? &nbsp;</span>
-        }
+          elt=<span reachable={reachableStyle} title={per_player_message}>&nbsp;{mapLabel}&nbsp;</span>
+        } 
 
         cols.push(elt);
       }
