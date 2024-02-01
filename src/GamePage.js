@@ -1,5 +1,6 @@
 import React from 'react';
 import DeckComponent from './DeckComponent';
+import MapComponent from './MapComponent';
 
 class GamePage extends React.Component {
   // props:
@@ -8,9 +9,8 @@ class GamePage extends React.Component {
 // beGateway - BE gateway
   render() {
     return (<div>
-      Welcome to game {this.props.gameInfo.name} 
-      ({this.props.gameInfo.gameId}),
-      deck has {this.props.playerInfo.deck ? this.props.playerInfo.deck.length : "---"} cards.
+      Welcome to game '{this.props.gameInfo.name}'
+      <MapComponent map={this.props.gameInfo.map}/>
       <DeckComponent deck={this.props.playerInfo.deck} gameInfo={this.props.gameInfo}/>
     </div>);
   }

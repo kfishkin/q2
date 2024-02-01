@@ -128,43 +128,54 @@ class TopLevel extends React.Component {
         */
     }
 
+    // TODO: have this call an async helper function, get out of .then chaining indentation.
     onSetCurrentGame(gameId, gameName) {
         console.log(`onSetCurrentGame: set to ${gameId} (${gameName})`);
-        let newPlayerData = { ...this.state.playerInfo };
-        newPlayerData.currentGameId = gameId;
-        newPlayerData.currentGameName = gameName;
+        //let newPlayerData = { ...this.state.playerInfo };
+        //newPlayerData.currentGameId = gameId;
+        //newPlayerData.currentGameName = gameName;
         let newGameData = { gameId: gameId, name: gameName, baseCards: null }
-        this.setState({ playerInfo: newPlayerData, gameInfo: newGameData });
-        console.log(`onSetCurrentGame: asking for player cards`);
-        // as cards can point to other cards, to give meaningful description/semantics,
-        // need all game cards...
-        this.state.beGateway.getGameCardsFor(gameId).then((v) => {
-            //console.log(`getGameCards(${gameId}): returned ${JSON.stringify(v)}`);
-            // base cards are hashed by id
-            let baseCards = {};
-            v.forEach((bc) => { baseCards[bc._id] = bc })
-            newGameData.baseCards = baseCards;
-            this.setState({  gameInfo: newGameData });
+        this.state.beGateway.getGameInfo(gameId)
+            .then((v) => {
+                //console.log(`getGameInfo: v = ${v}, ${JSON.stringify(v)}`);
+                newGameData.map = v.map;
+                this.setState({ /*playerInfo: newPlayerData,*/ gameInfo: newGameData });
+                console.log(`onSetCurrentGame: asking for player cards`);
+                // as cards can point to other cards, to give meaningful description/semantics,
+                // need all game cards...
+                this.state.beGateway.getGameCardsFor(gameId).then((v) => {
+                    //console.log(`getGameCards(${gameId}): returned ${JSON.stringify(v)}`);
+                    // base cards are hashed by id
+                    let baseCards = {};
+                    v.forEach((bc) => { baseCards[bc._id] = bc })
+                    newGameData.baseCards = baseCards;
+                    this.setState({ gameInfo: newGameData });
 
-            this.state.beGateway.getPlayerCardsForGame(gameId, this.state.playerInfo.playerId)
-                .then((v) => {
-                    console.log(`onSetCurrentGame: player deck = ${JSON.stringify(v)}`);
-                    newPlayerData.deck = v.map((card) => {
-                        let obj = card;
-                        obj.game_card.type = CardType.make(card.game_card);
-                        console.log(`game card type = ${JSON.stringify(obj.game_card.type)}`);
-                        return obj;
-                    })
-                    // newPlayerData.deck = [...v];
-                    //console.log(`new deck = ${JSON.stringify(newPlayerData.deck)}`);
+                    this.state.beGateway.getPlayerCardsForGame(gameId, this.state.playerInfo.playerId)
+                        .then((v) => {
+                            console.log(`onSetCurrentGame: player deck = ${JSON.stringify(v)}`);
+                            let newPlayerData = { ...this.state.playerInfo };
+                            newPlayerData.deck = v.map((card) => {
+                                let obj = card;
+                                obj.game_card.type = CardType.make(card.game_card);
+                                //console.log(`game card type = ${JSON.stringify(obj.game_card.type)}`);
+                                return obj;
+                            })
+                            // newPlayerData.deck = [...v];
+                            //console.log(`new deck = ${JSON.stringify(newPlayerData.deck)}`);
+                            this.setState({ playerInfo: newPlayerData });
+
+                        }).catch((e) => {
+                            console.log(`onSetCurrentGame: e=${e}`);
+                        });
 
                 }).catch((e) => {
-                    console.log(`onSetCurrentGame: e=${e}`);
+                    console.log(`getGameCardsFor: e=${e}`);
                 });
+            }).catch((e) => {
+                console.log(`getGameInfo: e = ${e}, ${JSON.stringify(e)}`);
+            })
 
-        }).catch((e) => {
-            console.log(`getGameCardsFor: e=${e}`);
-        });
 
 
     }
@@ -182,6 +193,7 @@ class TopLevel extends React.Component {
                 break;
             case GAME_ADMIN_PAGE:
                 ans = <GameChoicePage playerInfo={this.state.playerInfo} beGateway={this.state.beGateway}
+                    gameInfo={this.state.gameInfo}
                     onCreateGame={(id, name) => this.onCreateGame(id, name)}
                     onSetCurrentGame={(gameId, gameName) => this.onSetCurrentGame(gameId, gameName)}></GameChoicePage>
                 break;
@@ -207,7 +219,7 @@ class TopLevel extends React.Component {
         let pageTemplates = [
             new PageTemplate(LOGIN_PAGE, loggedIn ? "Logout" : "Login", true),
             new PageTemplate(GAME_ADMIN_PAGE, "Game Admin", loggedIn),
-            new PageTemplate(GAME_PAGE, "Game", this.state.playerInfo && this.state.playerInfo.currentGameId),
+            new PageTemplate(GAME_PAGE, "Game", this.state.gameInfo && this.state.gameInfo.gameId),
             new PageTemplate(CONFIG_PAGE, "Config", true)
         ]
 

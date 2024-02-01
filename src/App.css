@@ -96,6 +96,13 @@ span[has=yes] {
   background-color: #D0EED0;
 }
 
+span[reachable=yes] {
+  background-color: #D0EED0;
+}
+span[reachable=no] {
+  background-color: #CCC;
+}
+
 span[current] {
   background-color: lightpink;
 }

@@ -11,6 +11,7 @@ dayjs.extend(localizedFormat);
 // beGateway - BE gateway
 // onCreateGame - f(id,name) callback when a new game is created.
 // onSetCurrentGame - f(gameId, gameName)
+// gameInfo
 
 class GameChoicePage extends React.Component {
   BEFORE = 0;
@@ -22,7 +23,7 @@ class GameChoicePage extends React.Component {
     this.state = {
       beGateway: props.beGateway,
       gameNameSuggestion: "",
-      gameInfo: null,
+      gameInfo: props.gameInfo,
       statusMessage: null,
       statusType: null,
       playerGames: null
@@ -231,12 +232,12 @@ class GameChoicePage extends React.Component {
             });
         }
       }
-      let currentGameId = this.props.playerInfo.currentGameId || "";
+      let currentGameId = this.state.gameInfo ? this.state.gameInfo.gameId : "";
       console.log(`currentGameId = ${currentGameId}`);
 
 
       let antInnards = this.state.playerGames.map((game, i) => {
-        let isCurrent = game._id === currentGameId;
+        let isCurrent = game.gameId === currentGameId;
         let gameName = game.name;
         console.log(`gameName = ${gameName}`);
         return {
