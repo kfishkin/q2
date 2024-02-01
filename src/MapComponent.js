@@ -1,8 +1,12 @@
 import React from 'react';
+import { PlayerTypes } from './PlayerTypes';
+import { MERCHANT_PAGE } from './NavMenu';
 
 
   // props
   // map - the map to render
+  // showPageFunc - invoke to show a different page in the UI.
+  // gameId - gameId.
 class MapComponent extends React.Component {
   constructor(props) {
     super(props);
@@ -59,6 +63,16 @@ class MapComponent extends React.Component {
     //let x = 1 - (width >> 1); // and the left.
     this.computeReach();
     let rows = []; // react nodes, one per row
+
+    let showPageFunc = this.props.showPageFunc;
+    let gotoShop = (owner) => {
+      console.log(`gotoShop: owner = ${JSON.stringify(owner)}`);
+      let ok = window.confirm(`go to ${owner.name}'s shop?})`);
+      if (ok) {
+        showPageFunc(MERCHANT_PAGE, {owner: owner});
+      }
+    }
+
     for (let row = 0; row < height; row++, y--) {
       let label = <span><b>{y}: </b></span>
       let cols = []; // react nodes, one per room
@@ -66,11 +80,21 @@ class MapComponent extends React.Component {
       for (let col = 0; col < width; col++) {
         let room = rooms[col];
         let reachable = room.reachable;
+        let reachableStyle = reachable?"yes":"no";
         // kludge: should remember whether you've been there,
         // win or loss.
-        let title = (room.title.startsWith("Shop")
-        || room.title.startsWith("Hallway")) ? room.title : "???";
-        cols.push(<span reachable={reachable?"yes":"no"}>&nbsp;{title}&nbsp;</span>)
+        // another kludge special case for shop...
+        let elt = null;
+        if (room.owner && room.owner.type === PlayerTypes.MERCHANT) {
+          elt=<button reachable={reachableStyle} onClick={(e) => gotoShop(room.owner)}>{room.owner.name}'s {room.title}</button>
+        } else if (room.title.startsWith("Hallway")) {
+          //  kludge
+          elt=<span reachable={reachableStyle}>&nbsp;{room.title}&nbsp;</span>
+        } else {
+          elt=<span reachable={reachableStyle}>&nbsp;  ???? &nbsp;</span>
+        }
+
+        cols.push(elt);
       }
       rows.push(<div><span>{label}  </span>{cols}</div>)
     }

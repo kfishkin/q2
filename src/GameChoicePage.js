@@ -113,54 +113,6 @@ class GameChoicePage extends React.Component {
     );
   }
 
-  dumpGameUI(playerInfo) {
-    if (!this.state.gameInfo) {
-      if (!this.loading) {
-        this.loading = true;
-        this.state.beGateway.getGameInfo(playerInfo.gameId)
-          .then((v) => {
-            console.log(`dumpGameUI: v = ${v}`);
-            let gameInfo = { ...v };
-            gameInfo.gameId = v._id;
-            this.setState({ gameInfo: gameInfo });
-          })
-          .catch((e) => {
-            console.log(`dumpGameUI: e = ${e}`);
-          })
-      }
-      return <div>Hello {playerInfo.displayName}, please wait while I look up your game info...</div>
-    }
-    const onDumpRawIngredients = (e) => {
-      this.setState({ statusMessage: "looking up raw ingredients...", statusType: "info" });
-      this.state.beGateway.getRawIngredients(playerInfo.gameId)
-        .then((v) => {
-          console.log('onDumpRawIngredients: res=', v);
-          if (!v || v.length === 0) {
-            this.setState({ statusMessage: "No raw ingredients found" });
-          } else {
-            var ingreds = v.map((bundle) => {
-              return (<li>{bundle.name} (level {bundle.level})</li>);
-            });
-            this.setState({
-              statusMessage: (<div>
-                <span>There are {ingreds.length} raw ingredients:</span>
-                <ol>{ingreds}</ol>
-              </div>),
-              statusType: "info"
-            });
-          }
-        });
-    };
-    return (
-      <div>Hello {playerInfo.displayName}, what would you like to know about your '{this.state.gameInfo.name}' game?
-        <br />
-        <button onClick={(e) => onDumpRawIngredients(e)}> The raw ingredients</button>
-        <div>{this.state.statusMessage}</div>
-      </div>
-    )
-  }
-
-
   existingGamesUI() {
     if (this.state.playerGames === null) {
       switch (this.loadingState) {

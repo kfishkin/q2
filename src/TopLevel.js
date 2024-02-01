@@ -8,7 +8,8 @@ import ConfigPage from './ConfigPage';
 import GamePage from './GamePage';
 import GameChoicePage from './GameChoicePage';
 import LoginPage from './LoginPage';
-import NavMenu from './NavMenu';
+import MerchantPage from './MerchantPage';
+import NavMenu, { MERCHANT_PAGE } from './NavMenu';
 import PageTemplate from './PageTemplate';
 import { CONFIG_PAGE, GAME_PAGE, GAME_ADMIN_PAGE, HOME_PAGE, LOGIN_PAGE } from './NavMenu';
 
@@ -28,9 +29,9 @@ class TopLevel extends React.Component {
             // gameInfo: { gameId, name, baseCards }
         }
     }
-    handleShowPage(which) {
-        console.log(`show page ${which}`);
-        this.setState({ currentPage: which });
+    handleShowPage(which, extra) {
+        console.log(`show page ${which}, extra=${extra}`);
+        this.setState({ currentPage: which, extra:extra });
     }
     async componentDidMount() {
     };
@@ -198,8 +199,13 @@ class TopLevel extends React.Component {
                     onSetCurrentGame={(gameId, gameName) => this.onSetCurrentGame(gameId, gameName)}></GameChoicePage>
                 break;
             case GAME_PAGE:
-                ans = <GamePage playerInfo={this.state.playerInfo} gameInfo={this.state.gameInfo} beGateway={this.state.beGateway} />
+                ans = <GamePage playerInfo={this.state.playerInfo} gameInfo={this.state.gameInfo} beGateway={this.state.beGateway}
+                showPageFunc={(which, extra) => this.handleShowPage(which, extra)} />
                 break;
+                case MERCHANT_PAGE:
+                    ans = <MerchantPage owner={this.state.extra.owner} beGateway={this.state.beGateway}
+                      gameInfo={this.state.gameInfo}/>;
+                    break;
             case HOME_PAGE:
                 ans = <div>Welcome to Q2! Pick an option on the left...</div>;
                 break;
@@ -233,7 +239,7 @@ class TopLevel extends React.Component {
                 </Header>
                 <Layout>
                     <Sider><div className="sider"><NavMenu
-                        pageTemplates={pageTemplates} showPageFunc={(which) => this.handleShowPage(which)} /></div>
+                        pageTemplates={pageTemplates} showPageFunc={(which, extra) => this.handleShowPage(which, extra)} /></div>
                     </Sider>
                     <Content>{this.renderContent()}</Content>
                 </Layout>

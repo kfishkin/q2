@@ -102,6 +102,12 @@ span[reachable=yes] {
 span[reachable=no] {
   background-color: #CCC;
 }
+button[reachable=yes] {
+  background-color: #D0EED0;
+}
+button[reachable=no] {
+  background-color: #CCC;
+}
 
 span[current] {
   background-color: lightpink;

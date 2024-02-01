@@ -23,7 +23,9 @@ export const USE_STATUS = {
  */
 export class Card { // abstract base class
     constructor(dbObj) { // the dictionary describing the card, from the DB.
-        // TODO.
+        this.playerId = dbObj.player_id;
+        this._id = dbObj._id;
+        this.game_card = { ...dbObj.game_card};
         this.game_card.type = CardType.make(dbObj.game_card);
     }
 }

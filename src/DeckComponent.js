@@ -2,6 +2,9 @@ import React from 'react';
 import { Table } from 'antd';
 import CardDetail from './CardDetail';
 
+// props:
+// deck - array of cards
+// gameInfo
 class DeckComponent extends React.Component {
   constructor(props) {
     super(props);
