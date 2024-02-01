@@ -36,68 +36,6 @@ class TopLevel extends React.Component {
     async componentDidMount() {
     };
 
-    renderFollowsFrom(recipe, recipes) {
-        if (!recipe || !recipe.followsFrom) {
-            return "--";
-        }
-        let other = recipes.byId(recipe.followsFrom);
-        return other ? other.name : "---";
-
-    }
-
-    renderSteps(recipe, stepConfigs, ingredients, preps) {
-        if (!recipe || !recipe.steps || recipe.steps.length === 0) {
-            return "";
-        }
-        let numPossiblities = 1;
-        let header = <tr><th>#</th><th>Preparation</th><th>Ingredients</th></tr>;
-        let body = [];
-        if (recipe.followsFrom > 0) {
-            body.push(<tr><td colspan="3">Start as per recipe # {recipe.followsFrom}</td></tr>);
-        }
-        recipe.steps.forEach((step) => {
-            let configId = step.stepConfigId;
-            let configBundle = stepConfigs.byId(configId);
-            let ordinality = configBundle.ordinality;
-            let prepList = configBundle.possiblePreps.map((prepId, index) => {
-                let prep = preps.byId(prepId);
-                let termText = "???";
-                let clz = "";
-                if (prep && prep.name) {
-                    if (this.state.spoilers && step.prep === prepId) {
-                        clz = "spoiler";
-                        termText = prep.name.toUpperCase();
-                    } else {
-                        termText = prep.name;
-                    }
-                }
-                // can't use .join() because array of objects, not of strings.
-                if (index > 0) {
-                    termText = ", " + termText;
-                }
-                return (<span className={clz}>{termText}</span>);
-            });
-            if (configBundle.possiblePreps > 0)
-                numPossiblities *= configBundle.possiblePreps;
-            let ingredList = configBundle.possibleIngredients.map((ingredId) => {
-                let ingred = ingredients.byId(ingredId);
-                let term = <span>{ingredId}???</span>;
-                if (ingred && ingred.name) {
-                    term = (this.state.spoilers && step.ingredient === ingredId) ? ingred.name.toUpperCase() : ingred.name;
-                }
-                return term;
-            });
-            if (configBundle.possibleIngredients > 0)
-                numPossiblities *= configBundle.possibleIngredients;
-
-            body.push(<tr><td>{ordinality}</td>
-                <td>{prepList}</td>
-                <td>{ingredList.join()}</td></tr>);
-        });
-        body.push(<tr><td colspan="3">{numPossiblities} possibilities</td></tr>)
-
-        return <table><thead>{header}</thead><tbody>{body}</tbody></table>;
-    }
 
     onLogin(id, handle, name) {
         console.log(`logged in with id ${id}, handle ${handle}, name ${name}`);
@@ -154,7 +92,7 @@ class TopLevel extends React.Component {
 
                     this.state.beGateway.getPlayerCardsForGame(gameId, this.state.playerInfo.playerId)
                         .then((v) => {
-                            console.log(`onSetCurrentGame: player deck = ${JSON.stringify(v)}`);
+                            //console.log(`onSetCurrentGame: player deck = ${JSON.stringify(v)}`);
                             let newPlayerData = { ...this.state.playerInfo };
                             newPlayerData.deck = v.map((card) => {
                                 let obj = card;
@@ -167,7 +105,7 @@ class TopLevel extends React.Component {
                             this.setState({ playerInfo: newPlayerData });
 
                         }).catch((e) => {
-                            console.log(`onSetCurrentGame: e=${e}`);
+                            console.error(`onSetCurrentGame: e=${e}`);
                         });
 
                 }).catch((e) => {

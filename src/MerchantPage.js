@@ -36,7 +36,7 @@ class MerchantPage extends React.Component {
           this.setState({ statusMessage: `loaded ${v.length}-card inventory...`, statusType: 'success', deck: deck});
         }).catch((e) => {
           this.loading = false;
-          console.log(`error getting inventory: ${e}`);
+          console.errpr(`error getting inventory: ${e}`);
           this.setState({ statusMessage: `failure loading inventory: ${e}`, statusType: 'error'});
         })
     }

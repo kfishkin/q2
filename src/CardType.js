@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import { USE_SETTINGS, USE_STATUS } from './Card';
+// this must match the similar enum in the BE
 export const CARD_TYPES = {
     NONE: 0,
     MONEY: 1,
@@ -68,6 +69,8 @@ export class CardType { // abstract base class
     // factory method: make one for a given game card:
     static make(gc) {
         if (!gc) return new CardTypeNothing();
+        // see if the BE has figured this out for us already....
+        if (gc.type === undefined) {
         if (gc.battle_modifier) return new CardTypeBattleModifier();
         if (gc.recipe) return new CardTypeRecipe();
         if (gc.clue) return new CardTypeClue();
@@ -80,8 +83,31 @@ export class CardType { // abstract base class
         if (gc.handle.startsWith("ticket_")) return new CardTypeTicket();
         if (gc.handle.startsWith("battle_")) return new CardTypeBattle();
         if (gc.handle.startsWith("gold_")) return new CardTypeMoney();
-        console.log(`unknown card type: ${gc}`);
+        console.warn(`unknown card type: ${gc}`);
         return new CardTypeNothing();
+        } else {
+            console.log(`gc.type is defined, ${gc.type}`);
+            switch (gc.type) {
+                case CARD_TYPES.NONE: return new CardTypeNothing();
+                case CARD_TYPES.MONEY: return new CardTypeMoney();
+                case CARD_TYPES.LIVES: return new CardTypeLife();
+                case CARD_TYPES.CLUE: return new CardTypeClue();
+                case CARD_TYPES.MACHINE: 
+                  // kludge. figure out the right way to do this...
+                  return (gc.handle.startsWith('horn_of_plenty_')) ? new CardHornOfPlenty() : new CardTypeMachine();
+                case CARD_TYPES.RECIPE_OUTLINE: return new CardTypeRecipeOutline();
+                case CARD_TYPES.RECIPE: return new CardTypeRecipe();
+                case CARD_TYPES.BATTLE: return new CardTypeBattle();
+                case CARD_TYPES.BATTLE_MODIFIER: return new CardTypeBattleModifier();
+                case CARD_TYPES.INGREDIENT: return new CardTypeIngredient();
+                case CARD_TYPES.TICKET: return new CardTypeTicket();
+                default:
+                    console.warn(`gc.type of ${gc.type} unknown`);
+                    return new CardTypeNothing();
+
+            }
+
+        }   
     }
 }
 

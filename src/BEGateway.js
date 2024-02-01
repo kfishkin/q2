@@ -69,7 +69,7 @@ class BEGateway {
             body: JSON.stringify(newPlayerData)
         };
         const response = await fetch(url, requestOptions).catch((e) => {
-            console.log(`createPlayer fetch exception ${e}`);
+            console.errpr(`createPlayer fetch exception ${e}`);
             return {};
 
         } );

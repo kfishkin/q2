@@ -36,7 +36,7 @@ class GameChoicePage extends React.Component {
       .then((v) => {
         this.setState({ gameNameSuggestion: v });
       })
-      .catch((e) => { console.log("error on get suggestion: ", e) });
+      .catch((e) => { console.errpr("error on get suggestion: ", e) });
   }
 
   createNewGameUI(playerInfo) {
@@ -53,6 +53,7 @@ class GameChoicePage extends React.Component {
     }
     const onSubmit = (e) => {
       if (!inputValue) return;
+      this.setState({statusMessage: 'creating game', statusType: 'info'});
       component.state.beGateway.createGame(inputValue, playerInfo.playerId)
         .then((v) => {
           let gameData = v[0]; // v[1] has game cards, v[2] their deck, at lest for now.
@@ -121,7 +122,7 @@ class GameChoicePage extends React.Component {
           this.state.beGateway.getGamesFor(this.props.playerInfo.playerId)
             .then((v) => {
               this.loadingState = this.AFTER;
-              this.setState({ playerGames: v, statusMessage: 'displaynig current games', statusType: 'info' });
+              this.setState({ playerGames: v, statusMessage: 'displaying current games', statusType: 'info' });
 
             }).catch((e) => {
               this.loadingState = this.AFTER;
@@ -164,7 +165,7 @@ class GameChoicePage extends React.Component {
             this.setState({ statusMessage: "current game set" , statusType: 'success'});
             this.props.onSetCurrentGame(gameId, gameName);
           }).catch((e) => {
-            console.log("onLoad, e=", e);
+            console.errpr("onLoad, e=", e);
             this.setState({ statusMessage: `couldn't set current game, ${e}`, statusType: 'error' });
           })
       }
@@ -179,7 +180,7 @@ class GameChoicePage extends React.Component {
               this.loadingState = this.BEFORE;
               this.setState({ statusMessage: "game deleted", playerGames: null, statusType: 'error'});
             }).catch((e) => {
-              console.log(`e from delete game ${e}`);
+              console.errpr(`e from delete game ${e}`);
               this.setState({ statusMessage: "couldn't delete the game, sorry" , statusType: "error"});
             });
         }
