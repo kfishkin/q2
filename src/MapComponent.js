@@ -111,9 +111,9 @@ class MapComponent extends React.Component {
         let reachableStyle = reachable ? "yes" : "no";
         let per_player_message = room.per_player_info && room.per_player_info.description ? room.per_player_info.description : "";
         let elt = null;
-        let mapLabel = room.per_player_info && room.reachable ? room.title : " ???? ";
+        let mapLabel = room.per_player_info && room.reachable ? room.title : (" ???? ");
         if (reachable) {
-          elt = <button reachable="yes" title={per_player_message} onClick={(e) => enterRoom(this.props.gameId, row, col, x, y, this.props.playerId)}>&nbsp;{mapLabel};&nbsp;</button>
+          elt = <button reachable="yes" title={per_player_message} onClick={(e) => enterRoom(this.props.gameId, row, col, x, y, this.props.playerId)}> {mapLabel} </button>
         } else {
           elt = <span reachable={reachableStyle} title={per_player_message}>&nbsp;{mapLabel}&nbsp;</span>
         }

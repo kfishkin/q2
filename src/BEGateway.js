@@ -72,7 +72,7 @@ class BEGateway {
             body: JSON.stringify(body)
         }
         const response = await fetch(url, requestOptions);
-        console.log('lootRoom: response = ' + response + ' ok = ', response.ok);
+        console.log(`lootRoom: response = ${JSON.stringify(response)} ok = ${response.ok}`);
         return response.json();
 
     }
