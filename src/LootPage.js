@@ -9,6 +9,7 @@ import DeckComponent from './DeckComponent';
 // beGateway
 // gameInfo
 // playerId
+// onPlayerDeckBEChange={() => the deck has changed on the BE, reload.
 class LootPage extends React.Component {
   constructor(props) {
     super(props);
@@ -52,6 +53,7 @@ class LootPage extends React.Component {
       this.props.beGateway.lootRoom(gameId, ownerId, playerId).then((v) => {
         console.log(`onDoLoot: v = ${JSON.stringify(v)}`);
         this.setState({statusMessage: `loot transferred`, statusType: "success"});
+        this.props.onPlayerDeckBEChange();
       }).catch((e) => {
         console.log(`onDoLoot: e = ${e}`);
         this.setState({statusMessage: `failure transferring loot: ${e}`, statusType: "error"});

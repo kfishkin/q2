@@ -32,7 +32,7 @@ class TopLevel extends React.Component {
     }
     handleShowPage(which, extra) {
         console.log(`show page ${which}, extra=${extra}`);
-        this.setState({ currentPage: which, extra:extra });
+        this.setState({ currentPage: which, extra: extra });
     }
     async componentDidMount() {
     };
@@ -59,14 +59,33 @@ class TopLevel extends React.Component {
         })
     }
 
-    onCreateGame(gameId, name) {
-        console.log(`onCreateGame: gameId = [${gameId}], name = [${name}]`);
-        /*
-        var newInfo = { ...this.state.playerInfo};
-        newInfo.gameId = gameId;
-        this.setState({playerInfo: newInfo});
-        */
+    // signal that something about a room has changed on the BE, need to reload cache.
+
+    // signal that a player's deck has changed on the BE, need to reload cache.
+    onPlayerDeckBEChange() {
+        if (!this.state.playerInfo.playerId || !this.state.gameInfo.gameId)
+            return;
+        let playerId = this.state.playerInfo.playerId;
+        let gameId = this.state.gameInfo.gameId;
+        console.log(`BE change for player ${playerId} in game ${gameId}`);
+        this.state.beGateway.getPlayerCardsForGame(gameId, playerId)
+            .then((v) => {
+                console.log(`onSetCurrentGame: player deck has ${v.length} cards`);
+                let newPlayerData = { ...this.state.playerInfo };
+                newPlayerData.deck = v.map((card) => {
+                    let obj = card;
+                    //obj.game_card.type = CardType.make(card.game_card);
+                    //console.log(`game card type = ${JSON.stringify(obj.game_card.type)}`);
+                    return obj;
+                })
+                // newPlayerData.deck = [...v];
+                //console.log(`new deck = ${JSON.stringify(newPlayerData.deck)}`);
+                this.setState({ playerInfo: newPlayerData });
+            }).catch((e) => {
+                console.error(`onPlayerDeckBEChange: e=${e}`);
+            });
     }
+
 
     // TODO: have this call an async helper function, get out of .then chaining indentation.
     onSetCurrentGame(gameId, gameName) {
@@ -90,34 +109,13 @@ class TopLevel extends React.Component {
                     v.forEach((bc) => { baseCards[bc._id] = bc })
                     newGameData.baseCards = baseCards;
                     this.setState({ gameInfo: newGameData });
-
-                    this.state.beGateway.getPlayerCardsForGame(gameId, this.state.playerInfo.playerId)
-                        .then((v) => {
-                            //console.log(`onSetCurrentGame: player deck = ${JSON.stringify(v)}`);
-                            let newPlayerData = { ...this.state.playerInfo };
-                            newPlayerData.deck = v.map((card) => {
-                                let obj = card;
-                                obj.game_card.type = CardType.make(card.game_card);
-                                //console.log(`game card type = ${JSON.stringify(obj.game_card.type)}`);
-                                return obj;
-                            })
-                            // newPlayerData.deck = [...v];
-                            //console.log(`new deck = ${JSON.stringify(newPlayerData.deck)}`);
-                            this.setState({ playerInfo: newPlayerData });
-
-                        }).catch((e) => {
-                            console.error(`onSetCurrentGame: e=${e}`);
-                        });
-
+                    // and load the deck..
+                    this.onPlayerDeckBEChange();
                 }).catch((e) => {
-                    console.log(`getGameCardsFor: e=${e}`);
-                });
-            }).catch((e) => {
-                console.log(`getGameInfo: e = ${e}, ${JSON.stringify(e)}`);
-            })
+                    console.log(`getGameInfo: e = ${e}, ${JSON.stringify(e)}`);
+                })
 
-
-
+            });
     }
 
     renderContent() {
@@ -134,23 +132,23 @@ class TopLevel extends React.Component {
             case GAME_ADMIN_PAGE:
                 ans = <GameChoicePage playerInfo={this.state.playerInfo} beGateway={this.state.beGateway}
                     gameInfo={this.state.gameInfo}
-                    onCreateGame={(id, name) => this.onCreateGame(id, name)}
                     onSetCurrentGame={(gameId, gameName) => this.onSetCurrentGame(gameId, gameName)}></GameChoicePage>
                 break;
             case GAME_PAGE:
                 ans = <GamePage playerInfo={this.state.playerInfo} gameInfo={this.state.gameInfo} beGateway={this.state.beGateway}
-                    showPageFunc={(which, extra) => this.handleShowPage(which, extra)} />
+                    showPageFunc={(which, extra) => this.handleShowPage(which, extra)}
+                    onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()} />
                 break;
             case MERCHANT_PAGE:
                 ans = <MerchantPage owner={this.state.extra.owner} beGateway={this.state.beGateway}
-                    gameInfo={this.state.gameInfo} />;
+                    gameInfo={this.state.gameInfo} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}/>;
                 break;
             case LOOT_PAGE:
                 ans = <LootPage owner={this.state.extra.owner} beGateway={this.state.beGateway}
-                    gameInfo={this.state.gameInfo} playerId={this.state.playerInfo.playerId}/>;
+                    gameInfo={this.state.gameInfo} playerId={this.state.playerInfo.playerId} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}/>;
                 break;
             case HOME_PAGE:
-                ans = <div>Welcome to Q2! Pick an option on the left...</div>;
+                ans = <div>Welcome! Pick an option on the left...</div>;
                 break;
             default:
                 ans = <div>unknown current page '{this.state.currentPage}'</div>;

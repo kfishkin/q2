@@ -9,7 +9,6 @@ dayjs.extend(localizedFormat);
 // props:
 // playerInfo - dict from top level.
 // beGateway - BE gateway
-// onCreateGame - f(id,name) callback when a new game is created.
 // onSetCurrentGame - f(gameId, gameName)
 // gameInfo
 
@@ -73,7 +72,6 @@ class GameChoicePage extends React.Component {
               statusType: "success",
               playerGames: newGames
             });
-            //component.props.onCreateGame(v._id, v.name);
           }
         })
 

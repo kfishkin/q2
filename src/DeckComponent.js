@@ -1,6 +1,7 @@
 import React from 'react';
 import { Table } from 'antd';
 import CardDetail from './CardDetail';
+import { CardType } from './CardType';
 
 // props:
 // deck - array of cards
@@ -24,6 +25,7 @@ class DeckComponent extends React.Component {
     const columns = [
       {
         title: 'title', dataIndex: 'display_name',
+        sorter: (row1, row2) => row1.display_name.localeCompare(row2.display_name)
       },
       {
         title: 'type', dataIndex: 'type',
@@ -57,7 +59,7 @@ class DeckComponent extends React.Component {
       let gc = card.game_card;
       return {
         key: 'tr_' + i,
-        type: gc.type,
+        type: CardType.make(gc.type),
         display_name: gc.display_name?gc.display_name:gc.handle,
         handle: gc.handle,
         level: gc.level,
