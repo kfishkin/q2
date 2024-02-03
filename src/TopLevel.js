@@ -3,14 +3,14 @@ import 'antd/dist/reset.css';
 import { VERSION } from './AboutPage';
 import { Layout } from 'antd';
 import BEGateway from './BEGateway';
-import { CardType } from './CardType';
+import CashierPage from './CashierPage';
 import ConfigPage from './ConfigPage';
 import GamePage from './GamePage';
 import GameChoicePage from './GameChoicePage';
 import LoginPage from './LoginPage';
 import MerchantPage from './MerchantPage';
 import LootPage from './LootPage';
-import NavMenu, { LOOT_PAGE, MERCHANT_PAGE } from './NavMenu';
+import NavMenu, { CASHIER_PAGE, LOOT_PAGE, MERCHANT_PAGE } from './NavMenu';
 import PageTemplate from './PageTemplate';
 import { CONFIG_PAGE, GAME_PAGE, GAME_ADMIN_PAGE, HOME_PAGE, LOGIN_PAGE } from './NavMenu';
 
@@ -121,6 +121,10 @@ class TopLevel extends React.Component {
     renderContent() {
         var ans = "";
         switch (this.state.currentPage) {
+            case CASHIER_PAGE:
+                ans = <CashierPage beGateway={this.state.beGateway} 
+                deck={this.state.playerInfo.deck} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}/>
+                break;
             case LOGIN_PAGE:
                 ans = <LoginPage beGateway={this.state.beGateway} onLogin={(id, handle, name) => this.onLogin(id, handle, name)}
                     onLogout={() => this.onLogout()}
@@ -167,6 +171,7 @@ class TopLevel extends React.Component {
             new PageTemplate(LOGIN_PAGE, loggedIn ? "Logout" : "Login", true),
             new PageTemplate(GAME_ADMIN_PAGE, "Game Admin", loggedIn),
             new PageTemplate(GAME_PAGE, "Game", this.state.gameInfo && this.state.gameInfo.gameId),
+            new PageTemplate(CASHIER_PAGE, "Cashier",this.state.playerInfo && this.state.playerInfo.deck),
             new PageTemplate(CONFIG_PAGE, "Config", true)
         ]
 
