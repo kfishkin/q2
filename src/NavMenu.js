@@ -8,6 +8,7 @@ export const GAME_ADMIN_PAGE='game admin';
 export const GAME_PAGE="game";
 export const HOME_PAGE='home';
 export const MERCHANT_PAGE = "merchant";
+export const LOOT_PAGE = "loot";
 // props:
 // pageTemplates - the page templates
 // showPageFunc - func to invoke to show a new page

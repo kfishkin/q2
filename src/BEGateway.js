@@ -38,6 +38,45 @@ class BEGateway {
     return response.text(); 
     }
 
+    async enterRoom(gameId, row, col, playerId) {
+        const url = this.beURI
+        + "rooms/enter";
+        let body= {
+            gameId: gameId,
+            playerId: playerId,
+            row: row,
+            col: col
+        };
+        //console.log(`body = ${JSON.stringify(body)}`);
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }
+        const response = await fetch(url, requestOptions);
+        console.log('enterRoom: response = ' + response + ' ok = ', response.ok);
+        return response.json();
+    }
+
+    async lootRoom(gameId, ownerId, playerId) {
+        const url = this.beURI
+        + "rooms/loot";
+        let body= {
+            gameId: gameId,
+            ownerId: ownerId,
+            playerId: playerId
+        };
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }
+        const response = await fetch(url, requestOptions);
+        console.log('lootRoom: response = ' + response + ' ok = ', response.ok);
+        return response.json();
+
+    }
+
     /**
      * Creates a new game. Returns the game object as a dict.
      */

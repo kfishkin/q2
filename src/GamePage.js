@@ -12,7 +12,7 @@ class GamePage extends React.Component {
     return (<div>
       Welcome to game '{this.props.gameInfo.name}'
       <MapComponent map={this.props.gameInfo.map} showPageFunc={(which, extra) => this.props.showPageFunc(which, extra)}
-      beGateway={this.props.beGateway} />
+      beGateway={this.props.beGateway} gameId={this.props.gameInfo.gameId} playerId={this.props.playerInfo.playerId}/>
       <DeckComponent deck={this.props.playerInfo.deck} gameInfo={this.props.gameInfo}/>
     </div>);
   }
