@@ -59,7 +59,7 @@ class DeckComponent extends React.Component {
       let gc = card.game_card;
       return {
         key: 'tr_' + i,
-        type: CardType.make(gc.type),
+        type: (typeof gc.type === 'number') ? CardType.make(gc.type) : gc.type,
         display_name: gc.display_name?gc.display_name:gc.handle,
         handle: gc.handle,
         level: gc.level,

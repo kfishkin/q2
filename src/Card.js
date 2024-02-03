@@ -26,7 +26,7 @@ export class Card { // abstract base class
         this.playerId = dbObj.player_id;
         this._id = dbObj._id;
         this.game_card = { ...dbObj.game_card};
-        this.game_card.type = CardType.make(dbObj.game_card);
+        this.game_card.type = CardType.make(dbObj.game_card.type);
     }
 }
 
