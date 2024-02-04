@@ -232,5 +232,25 @@ class BEGateway {
         console.log(`fe.tigten money: fetch returns ${response}`);
         return response.ok ? response : null;
     }
+
+    async breakMoney(gameId, playerId, from, to) {
+        const url = this.beURI
+        + "cards/break_money";
+    let body = {
+        gameId: gameId,
+        playerId: playerId,
+        from: from,
+        to: to
+    };
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+    }
+    const response = await fetch(url, requestOptions);
+    console.log(`fe.break money: fetch returns ${response}`);
+    return response;
+
+    }
 }
 export default BEGateway;

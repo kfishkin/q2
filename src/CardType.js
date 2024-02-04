@@ -160,48 +160,6 @@ class CardTypeMachine extends CardType {
     }
 }
 
-class CardHornOfPlenty extends CardTypeMachine {
-    constructor() {
-        super(CARD_TYPES.MACHINE);
-    }
-
-    DetermineUsability(card, useSetting, deck, baseCards) {
-        let tuple = super.DetermineUsability(card, useSetting, deck, baseCards);
-        if (tuple[0] === USE_STATUS.UNKNOWN) {
-            if (card.last_used) {
-                let lastUsed = dayjs(card.last_used);
-                let now = dayjs();
-                const HYSTERESIS_HOURS = 24;
-                let diff = now.diff(lastUsed, 'h');
-                if (diff < HYSTERESIS_HOURS) {
-                    let suffix = (HYSTERESIS_HOURS - diff === 1) ? "" : "s"
-                    tuple[0] = USE_STATUS.NO;
-                    tuple[1] = <span>too soon: can be used in {HYSTERESIS_HOURS - diff} more hour{suffix}</span>;
-                } else {
-                    tuple[0] = USE_STATUS.YES;
-                    tuple[1] = <span>Yes!</span>;
-                }
-            } else {
-                tuple[0] = USE_STATUS.YES;
-                tuple[1] = <span>Yes!</span>;
-            }
-        }
-        return tuple;
-    }
-
-    FullyDescribe(card, gameInfo, playerDeck) {
-        let topPart = card.game_card.description;
-        let tuple = this.DetermineUsability(card, USE_SETTINGS.USING, playerDeck, gameInfo.baseCards);
-        let bottomPart = [<span>Usable: </span>, tuple[1]];
-        if (tuple[0] === USE_STATUS.YES) {
-            bottomPart.push(<button>Use now</button>);
-        }
-        return <div><hr />{topPart}<hr />{bottomPart}</div>;
-    }
-
-}
-
-
 // a Recipe Outline card
 class CardTypeRecipeOutline extends CardType {
     constructor() {

@@ -1,5 +1,4 @@
 import React from 'react';
-import { PlayerTypes } from './PlayerTypes';
 import { LOOT_PAGE, MERCHANT_PAGE } from './NavMenu';
 
 
@@ -63,13 +62,6 @@ class MapComponent extends React.Component {
     let rows = []; // react nodes, one per row
 
     let showPageFunc = this.props.showPageFunc;
-    let gotoShop = (owner) => {
-      console.log(`gotoShop: owner = ${JSON.stringify(owner)}`);
-      let ok = window.confirm(`go to ${owner.name}'s shop?})`);
-      if (ok) {
-        showPageFunc(MERCHANT_PAGE, { owner: owner });
-      }
-    }
 
     let enterRoom = ((gameId, row, col, x, y, playerId) => {
       let ok = window.confirm(`go to room @ (${x}, ${y}) ?`);
@@ -87,11 +79,13 @@ class MapComponent extends React.Component {
               case 'LOOT':
                 window.confirm("You may have found some treasure!");
                 owner = v[1]; // the pseudo-player who owns the loot.
-                showPageFunc(LOOT_PAGE, { owner: owner});
+                showPageFunc(LOOT_PAGE, { owner: owner });
                 break;
               case 'MERCHANT':
                 owner = v[1];
-                showPageFunc(MERCHANT_PAGE, { owner: owner});
+                showPageFunc(MERCHANT_PAGE, { owner: owner });
+                break;
+              default:
                 break;
             }
           }).catch((e) => {
