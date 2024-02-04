@@ -146,7 +146,8 @@ class TopLevel extends React.Component {
                 break;
             case MERCHANT_PAGE:
                 ans = <MerchantPage owner={this.state.extra.owner} beGateway={this.state.beGateway}
-                    gameInfo={this.state.gameInfo} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}/>;
+                    gameInfo={this.state.gameInfo} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
+                    playerInfo={this.state.playerInfo}/>;
                 break;
             case LOOT_PAGE:
                 ans = <LootPage owner={this.state.extra.owner} beGateway={this.state.beGateway}

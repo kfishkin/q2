@@ -21,7 +21,9 @@ class DeckComponent extends React.Component {
     if (!deck || deck.length === 0) {
       return <div>Empty deck.</div>
     }
-    let preamble = <span>The deck has {deck.length} cards, click on one to see it in more detail:</span>;
+    let forWhom = this.props.for || "player";
+    let msg = (forWhom === "player") ? "Your" : "The merchant's ";
+    let preamble = <span>{msg} deck has {deck.length} cards, click on one to see it in more detail:</span>;
     const columns = [
       {
         title: 'title', dataIndex: 'display_name',
@@ -69,7 +71,7 @@ class DeckComponent extends React.Component {
         card: card
       };
     });
-    return <div>
+    return <div className='deck' current={this.props.current}>
     <span>{preamble}</span>
     <CardDetail card={this.state.focusCard} gameInfo={this.props.gameInfo} deck={deck}/>
     <Table id="deck_table" columns={columns} dataSource={antInnards}
