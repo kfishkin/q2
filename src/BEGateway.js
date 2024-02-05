@@ -235,22 +235,46 @@ class BEGateway {
 
     async breakMoney(gameId, playerId, from, to) {
         const url = this.beURI
-        + "cards/break_money";
-    let body = {
-        gameId: gameId,
-        playerId: playerId,
-        from: from,
-        to: to
-    };
-    const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
+            + "cards/break_money";
+        let body = {
+            gameId: gameId,
+            playerId: playerId,
+            from: from,
+            to: to
+        };
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }
+        const response = await fetch(url, requestOptions);
+        console.log(`fe.break money: fetch returns ${response}`);
+        return response;
     }
-    const response = await fetch(url, requestOptions);
-    console.log(`fe.break money: fetch returns ${response}`);
-    return response;
 
+    // player (playerId) in game (gameId) wants to buy the cards with the given IDs
+    // from (ownerId)
+    async buy(gameId, playerId, ownerId, cardIds) {
+        const url = this.beURI
+            + "cards/buy";
+        let body = {
+            gameId: gameId,
+            playerId: playerId,
+            ownerId: ownerId,
+            cardIds: cardIds
+        };
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }
+        try {
+            const response = await fetch(url, requestOptions);
+            console.log(`fe.buy: fetch returns ${response}`);
+            return response;
+        } catch (e) {
+            return e;
+        }
     }
 }
 export default BEGateway;

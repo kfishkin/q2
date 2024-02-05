@@ -8,6 +8,8 @@ import {DeckComponent, DeckComponentMerchant} from './DeckComponent';
   // owner: the player structure for the merchant that owns this shop.
   // beGateway
   // gameInfo
+  // playerInfo
+  // onPlayerDeckBEChange
 class MerchantPage extends React.Component {
   constructor(props) {
     super(props);
@@ -43,6 +45,22 @@ class MerchantPage extends React.Component {
 
   onStartBuy(cards) {
     console.log(`wants to buy cards ${JSON.stringify(cards)}`);
+    // just need the IDs to send over the wire.
+    if (!cards) return;
+    let cardIds = cards.map((card) => card._id);
+    this.setState({statusMessage: `buying...`, statusType: 'info'});
+    this.props.beGateway.buy(this.props.gameInfo.gameId, this.props.playerInfo.playerId, 
+      this.props.owner._id, cardIds)
+    .then((v) => {
+      console.log(`onStartBuy: v = ${JSON.stringify(v)}`);
+      if (!v.ok) {
+        this.setState({statusMessage: `error ${v.status} on buy: ${v.statusText}`, statusType: 'error'});
+      }
+      this.setState({statusMessage: 'bought!', statusType: 'success'});
+      this.props.onPlayerDeckBEChange();
+    }).catch((e) => {
+      this.setState({statusMessage: JSON.stringify(e), statusType: 'error'});
+    });
   }
 
   onStartSell(cards) {

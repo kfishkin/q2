@@ -1,6 +1,4 @@
 
-import { CardType } from './CardType';
-
 export const USE_SETTINGS = {
     BATTLE: 0,
     BUYING: 1,

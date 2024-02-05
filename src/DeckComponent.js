@@ -177,13 +177,6 @@ export class DeckComponent extends React.Component {
   }
 }
 
-// the view of a player deck when NOT in a shop - just for viewing
-export class DeckComponentPlayerView extends DeckComponent {
-  constructor(props) {
-    super(props);
-  }
-}
-
 // the view of merchant inventory in a shop
 export class DeckComponentMerchant extends DeckComponent {
   constructor(props) {

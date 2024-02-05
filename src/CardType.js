@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import { USE_SETTINGS, USE_STATUS } from './Card';
 // this must match the similar enum in the BE
 export const CARD_TYPES = {
