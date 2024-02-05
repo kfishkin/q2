@@ -19,7 +19,7 @@ class CardDetail extends React.Component {
           {gc.display_name}
         </div>
         <div className='card_face_level_image'>
-        <img src="pix/general/yellow_star.jpg" width="32"/>  
+        <img src="pix/general/yellow_star.jpg" width="32" alt="level"/>  
         </div>
         <div className='card_face_level_value'>
           {gc.level}
@@ -28,7 +28,7 @@ class CardDetail extends React.Component {
           (${gc.sell_value})
         </div>
         <div className='card_face_battle_image'>
-        <img src="pix/general/sword_icon.png" width="32"/>  
+        <img src="pix/general/sword_icon.png" width="32" alt="battle"/>  
         </div>
         <div className='card_face_battle_value'>
           {gc.battle_value}
@@ -38,11 +38,6 @@ class CardDetail extends React.Component {
         </div>
       </div>
     )
-    let line1 = <span>This is a level {gc.level} <i>{typeObj.AltText()}</i> card.</span>;
-    let line2 = <span>It has a battle value of <b>{gc.battle_value}</b></span>;
-    let line3 = typeObj.FullyDescribe(card, this.props.gameInfo, this.props.deck);
-
-    return (<div>{line1}<br/>{line2}<br/>{line3}</div>)
   }
 }
 export default CardDetail;
