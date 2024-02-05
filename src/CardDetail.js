@@ -1,4 +1,5 @@
 import React from 'react';
+import { CardType } from './CardType';
 
 // props: 
 //  card - the card to show detail for.
@@ -11,9 +12,10 @@ class CardDetail extends React.Component {
     }
     let card = this.props.card;
     let gc = card.game_card;
-    let line1 = <span>This is a level {gc.level} <i>{gc.type.AltText()}</i> card.</span>;
+    let typeObj = CardType.make(gc.type)
+    let line1 = <span>This is a level {gc.level} <i>{typeObj.AltText()}</i> card.</span>;
     let line2 = <span>It has a battle value of <b>{gc.battle_value}</b></span>;
-    let line3 = gc.type.FullyDescribe(card, this.props.gameInfo, this.props.deck);
+    let line3 = typeObj.FullyDescribe(card, this.props.gameInfo, this.props.deck);
 
     return (<div>{line1}<br/>{line2}<br/>{line3}</div>)
   }

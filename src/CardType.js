@@ -81,7 +81,7 @@ export class CardType { // abstract base class
             case CARD_TYPES.INGREDIENT: return new CardTypeIngredient();
             case CARD_TYPES.TICKET: return new CardTypeTicket();
             default:
-                console.warn(`gc.type of ${type.type} unknown`);
+                console.warn(`gc.type of ${type} unknown`);
                 return new CardTypeNothing();
 
         }

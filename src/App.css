@@ -7,15 +7,6 @@
   pointer-events: none;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-.Content {
-  background-color: red;
-  min-width: 500px;
-}
 .App-header {
   min-height: 100vh;
   display: flex;
@@ -75,19 +66,38 @@ p.warning {
 }
 
 
-#games_table {
+div.deck {
   /* from https://www.w3schools.com/css/tryit.asp?filename=trycss_table_fancy */
   font-family: Arial, Helvetica, sans-serif;
   border-collapse: collapse;
   width: 100%;
 }
 
-#games_table tr[current] {
+div.deck tr[current] {
   background-color: lightpink;
 }
 
-#deck_table tr {
-  cursor: pointer;
+div.deck tr {
+  cursor: hand;
+}
+
+div.deck td, div.deck th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+div.deck th {
+  background-color: rgb(168, 135, 52);
+}
+
+div.deck[flavor="merchant"] th {
+  background-color: rgb(168, 135, 52);
+  color: white; 
+}
+
+div.deck[flavor="player"] th {
+  background-color: lightblue;
+  color: black; 
 }
 
 span[has=no] {
@@ -115,25 +125,13 @@ span[current] {
   background-color: lightpink;
 }
 
-#games_table td, #games_table th {
-  border: 1px solid #ddd;
-  padding: 8px;
-}
-
-#games_table th {
-  padding-top: 12px;
-  padding-bottom: 12px;
-  text-align: left;
-  background-color: #347a60;
-  color: white;
-}
 
 /* from https://alvarotrigo.com/blog/css-alerts/ */
 div.status_message {
     position: relative;
     top: 10;
     left: 0;
-    width: auto;
+    width: 60%;
     height: auto;
     padding: 10px;
     margin: 10px;

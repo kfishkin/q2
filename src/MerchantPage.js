@@ -1,7 +1,7 @@
 import React from 'react';
 import Card from './Card';
 import StatusMessage from './StatusMessage';
-import DeckComponent from './DeckComponent';
+import {DeckComponent, DeckComponentMerchant} from './DeckComponent';
 
 
   // props
@@ -29,7 +29,7 @@ class MerchantPage extends React.Component {
       this.loadingMerchant = true;
       this.props.beGateway.getPlayerCardsForGame(gameInfo.gameId, this.props.owner._id)
         .then((v) => {
-          console.log(`got shopkeeper inventory of ${JSON.stringify(v)}`);
+          //console.log(`got shopkeeper inventory of ${JSON.stringify(v)}`);
           this.loadingMerchant = false;
           let deck = v.map((dbObj) => new Card(dbObj));
           this.setState({ statusMessage: `loaded ${v.length}-card inventory...`, statusType: 'success', merchantDeck: deck});
@@ -41,31 +41,37 @@ class MerchantPage extends React.Component {
     }
   }
 
+  onStartBuy(cards) {
+    console.log(`wants to buy cards ${JSON.stringify(cards)}`);
+  }
+
+  onStartSell(cards) {
+    console.log(`wants to sell cards ${JSON.stringify(cards)}`)
+  }
+
   render() {
     if (!this.props.owner) {
       return <div>Oops, merchant page, but no merchant supplied</div>
     }
-
-  
-
     let showModalUI = () => {
-      let setBuying = (val) => { this.setState({buying: val})};
-
+      let setBuying = (val) => { this.setState({ buying: val }) };
 
       let buying = this.state.buying;
 
-      return <div><button className="merchant" current={buying?"yes":"no"} onClick={(e) => setBuying(true)}>Buy</button>
-       <button className="merchant" current={buying?"no":"yes"} onClick={(e) => setBuying(false)}>Sell</button>
+      return <div><button className="merchant" current={buying ? "yes" : "no"} onClick={(e) => setBuying(true)}>Buy</button>
+        <button className="merchant" current={buying ? "no" : "yes"} onClick={(e) => setBuying(false)}>Sell</button>
       </div>;
 
     }
+      
 
     let buying = this.state.buying;
     return <div>Hello from the merchant page for merchant {this.props.owner.name}'s store.
-    Merchant ID {this.props.owner._id}
     <br/>{showModalUI()}
-    <DeckComponent deck={this.state.merchantDeck} gameInfo={this.props.gameInfo} for="merchant" current={buying?"yes":"no"}/>
-    <DeckComponent deck={this.props.playerInfo.deck} gameInfo={this.props.gameInfo} for="player" current={buying?"no":"yes"}/>
+    <DeckComponentMerchant deck={this.state.merchantDeck} gameInfo={this.props.gameInfo} current={buying?"yes":"no"}
+    onTransact={(cards) => this.onStartBuy(cards)}/>
+    <DeckComponent deck={this.props.playerInfo.deck} gameInfo={this.props.gameInfo} current={buying?"no":"yes"}
+    onTransact={(cards) => this.onStartSell(cards)}/>
     <StatusMessage message={this.state.statusMessage} type={this.state.statusType} />
     </div>;
   }
