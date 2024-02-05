@@ -64,7 +64,23 @@ class MerchantPage extends React.Component {
   }
 
   onStartSell(cards) {
-    console.log(`wants to sell cards ${JSON.stringify(cards)}`)
+    console.log(`wants to sell cards ${JSON.stringify(cards)}`);
+    // just need the IDs to send over the wire.
+    if (!cards) return;
+    let cardIds = cards.map((card) => card._id);
+    this.setState({statusMessage: `selling...`, statusType: 'info'});
+    this.props.beGateway.sell(this.props.gameInfo.gameId, this.props.playerInfo.playerId, 
+      this.props.owner._id, cardIds)
+    .then((v) => {
+      console.log(`onStartSell: v = ${JSON.stringify(v)}`);
+      if (!v.ok) {
+        this.setState({statusMessage: `error ${v.status} on sell: ${v.statusText}`, statusType: 'error'});
+      }
+      this.setState({statusMessage: 'sold!', statusType: 'success'});
+      this.props.onPlayerDeckBEChange();
+    }).catch((e) => {
+      this.setState({statusMessage: JSON.stringify(e), statusType: 'error'});
+    });
   }
 
   render() {
