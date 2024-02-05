@@ -91,13 +91,17 @@ class CashierPage extends React.Component {
       }
     }
 
+    let optionsShown = {};
     this.state.moneyCards.forEach((card) => {
       let fromValue = card.game_card.sell_value;
       if (fromValue > 2*minDenom && fromValue !== lastValue) {
         this.state.baseMoneyCards.forEach((baseCard) => {
           let toValue = baseCard.sell_value;
-          if (toValue * 2 < this.state.moneyTotal) {
+          let key = `${fromValue} to ${toValue}`;
+          if ((fromValue > toValue) && (toValue * 2 < this.state.moneyTotal)
+            && !(key in optionsShown)) {
             couldDos.push(<button onClick={(e) => onBreakStart(fromValue, toValue)}>convert ${fromValue}s to ${toValue}s</button>);
+            optionsShown[key] = true;
           }
       });
     }

@@ -162,6 +162,12 @@ div.status_message[flavor="success"] {
   color: #9A9;
 }
 
+div.status_message[flavor="clickable"] {
+  background-color: rgb(100, 172, 100);
+  border: 3px solid #DED;
+  color: black;
+}
+
 div.status_message[flavor="notice"] {
   background-color: #EFF;
   border: 1px solid #DEE;

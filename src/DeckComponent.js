@@ -80,7 +80,7 @@ export class DeckComponent extends React.Component {
         sellValue += row.sell_value;
       }
     });
-    this.setState({ statusMessage: `Sell ${numChecked} for $${sellValue}`, statusType: 'success' });
+    this.setState({ statusMessage: `Sell ${numChecked} for $${sellValue}`, statusType: 'clickable' });
   }
 
   onStatusMessageClick(e) {
@@ -253,6 +253,6 @@ export class DeckComponentMerchant extends DeckComponent {
         buyValue += row.price;
       }
     });
-    this.setState({ statusMessage: `${this.verb} ${numChecked} for $${buyValue}`, statusType: 'success' });
+    this.setState({ statusMessage: `${this.verb} ${numChecked} for $${buyValue}`, statusType: 'clickable' });
   }
 }

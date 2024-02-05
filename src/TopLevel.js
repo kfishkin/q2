@@ -63,10 +63,13 @@ class TopLevel extends React.Component {
 
     // signal that a player's deck has changed on the BE, need to reload cache.
     onPlayerDeckBEChange() {
-        if (!this.state.playerInfo.playerId || !this.state.gameInfo.gameId)
-            return;
         let playerId = this.state.playerInfo.playerId;
         let gameId = this.state.gameInfo.gameId;
+        console.log(`BE change0 for player ${playerId} in game ${gameId}`);
+
+        if (!playerId || !gameId)
+            return;
+
         console.log(`BE change for player ${playerId} in game ${gameId}`);
         this.state.beGateway.getPlayerCardsForGame(gameId, playerId)
             .then((v) => {
@@ -99,7 +102,7 @@ class TopLevel extends React.Component {
                 //console.log(`getGameInfo: v = ${v}, ${JSON.stringify(v)}`);
                 newGameData.map = v.map;
                 this.setState({ /*playerInfo: newPlayerData,*/ gameInfo: newGameData });
-                console.log(`onSetCurrentGame: asking for player cards`);
+                console.log(`onSetCurrentGame: asking for game cards`);
                 // as cards can point to other cards, to give meaningful description/semantics,
                 // need all game cards...
                 this.state.beGateway.getGameCardsFor(gameId).then((v) => {
