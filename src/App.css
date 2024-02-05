@@ -65,6 +65,81 @@ p.warning {
   color: #a00;
 }
 
+div.background_circle {
+    height: 25px;
+    width: 25px;
+    background-color: #bbb;
+    border-radius: 50%;
+    border-width: 4px;
+    border-color: red;
+    display: inline-block;
+    z-index: 0;
+  }
+
+div.card_face_border {
+  position: relative; /* my kids are relative to me */
+  border-radius: 8px;
+  border: 4px solid seagreen;
+  width: 320px;
+  height: 320px; 
+}
+div.card_face_level_image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+div.card_face_level_value {
+  position: absolute;
+  top: 8px;
+  left: 11px;
+  z-index: 1;
+  font-weight: bold;
+  font-size:larger;
+}
+
+div.card_face_value {
+  position: absolute;
+  top: 40px;
+  left: 2%;
+  z-index: 1;
+  font-style: italic;
+}
+
+div.card_face_title {
+  position: absolute;
+  top: 8px;
+  left: 40px;
+  z-index: 1;
+  font-style: italic;
+  font-size:larger
+}
+
+div.card_face_battle_image {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 0;
+  opacity: 30%;
+}
+div.card_face_battle_value {
+  position: absolute;
+  top: 8px;
+  right: 14px;
+  z-index: 1;
+  font-weight: bold;
+  font-size:xx-large;
+  color:black;
+}
+
+div.card_face_description {
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  z-index: 1;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
 
 div.deck {
   /* from https://www.w3schools.com/css/tryit.asp?filename=trycss_table_fancy */
