@@ -16,6 +16,7 @@ export class DeckComponent extends React.Component {
       focusCard: null,
       statusMessage: "",
       statusType: "info",
+      statefulSelectedRowKeys: [],
     };
     // the selected cards. Not a state variable since doesn't change display.
     this.selectedCards = [];
@@ -24,6 +25,19 @@ export class DeckComponent extends React.Component {
     // default 'flavor', over-ridden by children.
     this.flavor = "player";
     this.verb = "sell";
+    this.rowSelectionController =  this.props.ronly ? null : {
+      selectedRowKeys: this.state.statefulSelectedRowKeys,
+      onChange: (newKeys, selectedRows) => {
+        console.log(`selectedRowKeys: ${newKeys}`, 'selectedRows: ', selectedRows);
+        this.selectedCards = selectedRows ? (selectedRows.map((row) => row.card)) : [];
+        this.rowSelectionController.selectedRowKeys = newKeys;
+        this.setState({statefulSelectedRowKeys: newKeys});
+        this.onSelectedRows(selectedRows);
+      },
+      getCheckboxProps: (record) => ({
+        disabled: !this.isSelectable(record),
+      }),
+    };
   }
 
   componentDidMount() {
@@ -84,11 +98,11 @@ export class DeckComponent extends React.Component {
   }
 
   onStatusMessageClick(e) {
-    console.log('clicked on status message');
     if (this.selectedCards.length > 0 && this.props.onTransact) {
       let ok = window.confirm(`Are you sure you want to ${this.verb} these ${this.selectedCards.length} cards?`);
       if (ok) {
         this.props.onTransact(this.selectedCards);
+        this.rowSelectionController.onChange([], []); // clear the selection.
       }
     }
   }
@@ -131,19 +145,6 @@ export class DeckComponent extends React.Component {
         sorter: (row1, row2) => row1.description.localeCompare(row2.description)
       }
     );
-    // rowSelection object indicates the need for row selection
-    const rowSelection = this.props.ronly ? null : {
-      onChange: (selectedRowKeys, selectedRows) => {
-        console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-        this.selectedCards = selectedRows ? (selectedRows.map((row) => row.card)) : [];
-        this.onSelectedRows(selectedRows);
-      },
-      getCheckboxProps: (record) => ({
-        disabled: !this.isSelectable(record),
-      }),
-    };
-
-
     let antInnards = deck.map((card, i) => {
       let gc = card.game_card;
       let row = {
@@ -166,7 +167,7 @@ export class DeckComponent extends React.Component {
       <CardDetail card={this.state.focusCard} gameInfo={this.props.gameInfo} deck={deck} />
       <StatusMessage message={this.state.statusMessage} type={this.state.statusType}
         onClick={(e) => this.onStatusMessageClick(e)} />
-      <Table columns={columns} dataSource={antInnards} rowSelection={rowSelection}
+      <Table columns={columns} dataSource={antInnards} rowSelection={this.rowSelectionController}
         pagination={{ pageSize: 20 }}
         onRow={(row, i) => {
           return {
