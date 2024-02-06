@@ -238,7 +238,18 @@ class CardTypeBattle extends CardType {
             return [USE_STATUS.NO, <span>Battle cards have no special use outside of buying or selling.</span>]
         }
     }
+    BattleModifierImage(card) {
+        return "";
+    }
 }
+
+// must match what's in BE.
+const BattleModifierType = {
+    NONE: 0,
+    FOG: 1,
+    ENCHANTMENT: 2,
+    RECON: 3
+};
 // a Battle Modifier card
 class CardTypeBattleModifier extends CardType {
     constructor() {
@@ -250,6 +261,24 @@ class CardTypeBattleModifier extends CardType {
         let tuple = super.DetermineUsability(card, useSetting, deck, baseCards);
         if (tuple[0] === USE_STATUS.UNKNOWN) {
             return [USE_STATUS.NO, <span>Battle Modifier cards have no special use outside of buying or selling.</span>]
+        }
+    }
+    BattleModifierImage(card) {
+        let modType = card.game_card.battle_modifier.type;
+
+        switch (modType) {
+            case BattleModifierType.FOG:
+                return <img src="pix/general/fog.png" width="32" alt="fog" />
+            case BattleModifierType.RECON:
+                return <img src="pix/general/binocs_64.png" width="32" alt="recon" />
+            case BattleModifierType.ENCHANTMENT:
+                let modValue = card.game_card.battle_modifier.value;
+                let url = `pix/general/plus_${modValue}.png`;
+                return <img src={url} width="32" alt="enchantment" />
+            default:
+                return "";
+
+
         }
     }
 }
