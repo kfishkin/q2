@@ -1,7 +1,7 @@
 import React from 'react';
 import { Table } from 'antd';
+import Card from './Card';
 import CardDetail from './CardDetail';
-import { CardType, CARD_TYPES } from './CardType';
 import StatusMessage from './StatusMessage';
 
 // props:
@@ -66,7 +66,7 @@ export class DeckComponent extends React.Component {
   }
   // and for description
   descriptionMaker(card) {
-    return card.game_card.description;
+    return card.GetBase().description;
   }
   // and for clicking on a row in the table
   onRowClick(row) {
@@ -150,16 +150,18 @@ export class DeckComponent extends React.Component {
     );
     let antInnards = deck.map((card, i) => {
       let gc = card.game_card;
+      let cardObj = new Card(card); // TODO: deck is card objects
       let row = {
         key: 'tr_' + i,
         type: gc.type,
-        typeObj: CardType.make(gc.type),
-        display_name: this.displayNameMaker(card),
+        typeObj: cardObj.GetBase(),
+        display_name: this.displayNameMaker(cardObj),
         handle: gc.handle,
         level: gc.level,
         battle_value: gc.battle_value,
-        description: this.descriptionMaker(card),
-        card: card
+        description: this.descriptionMaker(cardObj),
+        card: card,
+        cardObj: cardObj
       };
       let tuple = this.valueDataMaker(card);
       row[tuple[0]] = tuple[1];
@@ -206,36 +208,27 @@ export class DeckComponentMerchant extends DeckComponent {
   }
 
   displayNameMaker(card) {
-    if (card.game_card.type === CARD_TYPES.RECIPE_OUTLINE) {
-      // TODO: can show the regular display name if player has this outline already.
-      return "Recipe Outline";
+    if (card.GetBase().OpaqueBeforeBuying()) {
+      return card.GetBase().OpaqueDisplayName();
     } else {
       return super.displayNameMaker(card);
     }
   }
 
   descriptionMaker(card) {
-    switch (card.game_card.type) {
-      case CARD_TYPES.RECIPE:
-        return "a Recipe - buy to see what it's for";
-      case CARD_TYPES.RECIPE_OUTLINE:
-        return "a Recipe outline - buy to and see what it's for";
-      default:
+    if (card.GetBase().OpaqueBeforeBuying()) {
+      return "...buy to see details";
+    } else {
         return super.descriptionMaker(card);
     }
   }
 
   onRowClick(row) {
-    let type = row.card.game_card.type;
-    switch (type) {
-      case CARD_TYPES.RECIPE: // TODO: let the user know
-        window.alert("You can't see the details until after you buy, sorry");
-        break;
-      case CARD_TYPES.RECIPE_OUTLINE:
-        window.alert("You can't see the details until after you buy, sorry");
-        break;
-      default:
-        super.onRowClick(row);
+    let card = row.cardObj;
+    if (card.GetBase().OpaqueBeforeBuying()) {
+      window.alert("You can't see the details until after you buy, sorry");
+    } else {
+      super.onRowClick(row);
     }
   };
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import StatusMessage from './StatusMessage';
-import { CARD_TYPES } from './CardType';
+import { CARD_TYPES } from './BaseCard';
+import Card from './Card';
 
 
 // props
@@ -28,7 +29,7 @@ class CashierPage extends React.Component {
     let baseMoneyCards = [];
     if (this.props.baseCards) {
       // it's a dict, not an array. keys are ids, don't care about those..
-      baseMoneyCards = Object.values(this.props.baseCards).filter((bc) => bc.type === CARD_TYPES.MONEY);
+      baseMoneyCards = Object.values(this.props.baseCards).filter((bc) => bc.IsMoney());
       baseMoneyCards.sort((a,b) => b.sell_value - a.sell_value);
       //console.log(`baseMoneyCards = ${baseMoneyCards}`);
     }
@@ -40,7 +41,9 @@ class CashierPage extends React.Component {
     let playerId = 0;
     // forEach since need to do 3 things ....
     this.props.deck.forEach((card) => {
-      if (card.game_card.type === CARD_TYPES.MONEY) {
+      // TODO: (deck) argument is array of Cards.
+      let cardObj = new Card(card);
+      if (cardObj.GetBase().IsMoney()) {
         moneyCards.push(card);
         moneyTotal += parseInt(card.game_card.sell_value);
         gameId = card.game_card.game_id;

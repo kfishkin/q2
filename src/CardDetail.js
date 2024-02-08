@@ -1,5 +1,5 @@
 import React from 'react';
-import { CARD_TYPES, CardType } from './CardType';
+import { CARD_TYPES, BaseCard } from './BaseCard';
 
 // props: 
 //  card - the card to show detail for.
@@ -12,7 +12,7 @@ class CardDetail extends React.Component {
     }
     let card = this.props.card;
     let gc = card.game_card;
-    let typeObj = CardType.make(gc.type)
+    let typeObj = BaseCard.make(gc.type, gc);
     let parts = [];
     parts.push(<div className='card_face_title'>
       {gc.display_name}
@@ -33,9 +33,9 @@ class CardDetail extends React.Component {
         {gc.battle_value}
       </div>,
       <div className='card_face_description'>
-        {typeObj.FullyDescribe(card, this.props.gameInfo, this.props.deck)}
+        {typeObj.FullyDescribe(this.props.gameInfo, this.props.deck)}
       </div>);
-    let imgUrl = typeObj.DescriptionBackgroundImageURL(card);
+    let imgUrl = typeObj.DescriptionBackgroundImageURL();
     if (imgUrl) {
       parts.push(
         <div className="card_face_description_bg">
@@ -47,7 +47,7 @@ class CardDetail extends React.Component {
     if (typeObj.GetType() === CARD_TYPES.BATTLE_MODIFIER) {
       parts.push(
         <div className='card_face_battle_modifier_image'>
-          {typeObj.BattleModifierImage(card)}
+          {typeObj.BattleModifierImage()}
         </div>);
       ;
 

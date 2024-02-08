@@ -1,8 +1,8 @@
 import React from 'react';
+import Card from './Card';
 import CardDetail from './CardDetail';
-import { CARD_TYPES } from './CardType';
 import StatusMessage from './StatusMessage';
-import { DeckComponent, DeckComponentInventory } from './DeckComponent';
+import WorkshopInputPickerJudge from './WorkshopInputPickerJudge';
 
 
 // props
@@ -25,30 +25,22 @@ class WorkshopPage extends React.Component {
   }
 
   componentDidMount() {
-    let canMakeCards = (card) => {
-      if (!card || !card.game_card) return false;
-      let type = card.game_card.type;
-      return type === CARD_TYPES.MACHINE
-        || type === CARD_TYPES.RECIPE
-        ;
-    }
-
-    console.log(`player deck handles = ${this.props.playerInfo.deck.map((c) => c.game_card.handle).join()}`);
-    let machineCards = this.props.playerInfo.deck.filter((c) => canMakeCards(c));
-    console.log(`machine card handles = ${machineCards.map((c) => c.game_card.handle).join()}`);
+    // TODO: playerInfo.deck is Card objects.
+    let asObjects = this.props.playerInfo.deck.map((c) => new Card(c));
+    let machineCards = asObjects.filter((card) => {
+      return card.GetBase().CanMakeCards()
+    });
     this.setState({ machineCards: machineCards });
   }
 
   onMachineSelect(card) {
-    console.log(`you clicked on ${JSON.stringify(card)}`);
-    console.log(`num inputs = ${card.game_card.machine.num_inputs}`);
-    let canTryNow = (card.game_card.machine.num_inputs === 0);
+    let canTryNow = (card.GetBase().GetNumInputs() === 0);
     let statusMessage = `Workshop for the ${card.game_card.display_name}`;
     // fire off a request to see if it's immediately usable...
     if (canTryNow) {
-      let gameId = card.game_card.game_id;
-      let playerId = card.player_id;
-      let machineId = card._id;
+      let gameId = card.GetBase().GetGameId();
+      let playerId = card.GetPlayerId();
+      let machineId = card.GetId();
       statusMessage = '..checking to see if the card is usable right now';
 
       this.props.beGateway.canUse(gameId, playerId, machineId, []).then((v) => {
@@ -73,8 +65,7 @@ class WorkshopPage extends React.Component {
 
   chooseMachineCard() {
     let cardBoxes = this.state.machineCards.map((card) => {
-      //return (<li style={{"display":"inline-block"}}>{card.game_card.handle}</li>)
-      return (<li style={{ "display": "inline-block" }} onClick={(e) => this.onMachineSelect(card)}><CardDetail card={card} gameInfo={this.props.gameInfo} deck={this.props.gameInfo.deck} /></li>)
+      return (<li style={{ "display": "inline-block" }} onClick={(e) => this.onMachineSelect(card)}><CardDetail card={card.GetDb()} gameInfo={this.props.gameInfo} deck={this.props.gameInfo.deck} /></li>)
     })
     return (<div>
       Click on the card you would like to use:
@@ -99,20 +90,42 @@ class WorkshopPage extends React.Component {
       this.setState({ machineCard: null });
     }
 
-    let onAssign = (cards) => {
-      console.log(`onAssign`);
+    let onPilesChange = (newPiles, complete) => {
+      console.log(`newPiles = ${JSON.stringify(newPiles)}, complete = ${complete}`);
     }
 
     let makeInputAreaUI = () => {
-      let machineBase = this.state.machineCard.game_card;
-      if (machineBase.machine.num_inputs === 0) {
+      let base = this.state.machineCard.GetBase();
+      if (base.GetNumInputs() === 0) {
         return "";
       }
+      // at least for the judge, the first input drives all the others.
+      // Plus there are typically only a few options for each.
+      // also, recipes and the judge require _two_ things per step (amount and ingredient).
+      // also, some machines don't care about order input, others do (e.g. the judge
+      // requires that the outline be supplied first)
+      // doing this all at this level leads to generalization hell. Instead, punt it
+      // to the particular machine, which just tell me when the piles change,
+      // and when all are specified.
+      // I can't quite see how to have classes return components, like
+      //         <{this.state.machineCard.GetBase().GetInputUI()} life="42"/>
+      // so instead for once hard-wire things, sorry...
+      let pickerName = base.GetInputPickerComponentName();
+      // onPilesChange - f(newPiles, complete) -
+      // complete means that there's something in each required input,
+      // needs to take deck as input so can show candidates
+      // 
+      let picker = "";
+      switch (pickerName) {
+        case 'WorkshopInputPickerJudge':
+          // TODO: remove when playerInfo.deck is Cards.
+          let deckCards = this.props.playerInfo.deck.map((c) => new Card(c));
+          picker = <WorkshopInputPickerJudge machine={this.state.machineCard} beGateway={this.props.beGateway}
+            deck={deckCards} baseCards={this.props.gameInfo.baseCards} onPilesChange={(newPiles, complete) => onPilesChange(newPiles, complete)}/>
+            default:
+      }
       return <div className='workshop_inputs'>
-        Select the inputs from the deck below:
-        <hr />
-        <DeckComponentInventory deck={this.props.playerInfo.deck} gameInfo={this.props.gameInfo} current="yes"
-          onTransact={(cards) => onAssign(cards)} />
+        {picker}
       </div>
     }
 
@@ -128,7 +141,7 @@ class WorkshopPage extends React.Component {
 
       this.props.beGateway.use(gameId, playerId, machineId, this.state.inputPiles).then((v) => {
         console.log(`fe: beGateway.use.ok = ${v.ok}, v = ${JSON.stringify(v)}`);
-        if (v.ok) {
+        if (v) {
           // this should be a tuple, first is the IDs of deleted cards,
           // second is the body of new cards
           let deletedIds = v[0];

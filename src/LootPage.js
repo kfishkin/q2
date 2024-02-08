@@ -30,7 +30,7 @@ class LootPage extends React.Component {
       this.setState({ statusMessage: `loading inventory...`, statusType: 'info' });
       console.log(`asking for inventory, game.gameId = ${gameInfo.gameId}, game._id=${gameInfo._id}, owner _id = ${this.props.owner._id}`);
       this.loading = true;
-      this.props.beGateway.getPlayerCardsForGame(gameInfo.gameId, this.props.owner._id)
+      this.props.beGateway.oldGetPlayerCardsForGame(gameInfo.gameId, this.props.owner._id)
         .then((v) => {
           console.log(`got loot of ${JSON.stringify(v)}`);
           this.loading = false;

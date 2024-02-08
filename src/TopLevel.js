@@ -2,6 +2,7 @@ import React from 'react';
 import 'antd/dist/reset.css';
 import { VERSION } from './AboutPage';
 import { Layout } from 'antd';
+import { BaseCard } from './BaseCard';
 import BEGateway from './BEGateway';
 import CashierPage from './CashierPage';
 import ConfigPage from './ConfigPage';
@@ -9,6 +10,7 @@ import GamePage from './GamePage';
 import GameChoicePage from './GameChoicePage';
 import LoginPage from './LoginPage';
 import MerchantPage from './MerchantPage';
+import Pile from './pile';
 import WorkshopPage from './WorkshopPage';
 import LootPage from './LootPage';
 import NavMenu, { CASHIER_PAGE, LOOT_PAGE, MERCHANT_PAGE, WORKSHOP_PAGE } from './NavMenu';
@@ -21,14 +23,15 @@ class TopLevel extends React.Component {
         super(props);
         const beURI = process.env.REACT_APP_BE_URI || "Unknown";
         console.log(`baseURI=${beURI}`);
+        let pile = new Pile();
         this.state = {
             currentPage: HOME_PAGE,
             spoilers: false,
             beURI: beURI,
-            beGateway: new BEGateway(beURI),
+            beGateway: new BEGateway(beURI, pile),
             // created later
             // playerInfo: { handle, id, playerId, displayName, deck}
-            // gameInfo: { gameId, name, baseCards }
+            // gameInfo: { gameId, name, baseCards:dict of BaseCard }
         }
     }
     handleShowPage(which, extra) {
@@ -72,14 +75,12 @@ class TopLevel extends React.Component {
             return;
 
         console.log(`BE change for player ${playerId} in game ${gameId}`);
-        this.state.beGateway.getPlayerCardsForGame(gameId, playerId)
+        this.state.beGateway.oldGetPlayerCardsForGame(gameId, playerId)
             .then((v) => {
                 console.log(`onSetCurrentGame: player deck has ${v.length} cards`);
                 let newPlayerData = { ...this.state.playerInfo };
                 newPlayerData.deck = v.map((card) => {
                     let obj = card;
-                    //obj.game_card.type = CardType.make(card.game_card);
-                    //console.log(`game card type = ${JSON.stringify(obj.game_card.type)}`);
                     return obj;
                 })
                 // newPlayerData.deck = [...v];
@@ -106,11 +107,13 @@ class TopLevel extends React.Component {
                 console.log(`onSetCurrentGame: asking for game cards`);
                 // as cards can point to other cards, to give meaningful description/semantics,
                 // need all game cards...
-                this.state.beGateway.getGameCardsFor(gameId).then((v) => {
+                this.state.beGateway.getBaseCardsFor(gameId).then((v) => {
                     //console.log(`getGameCards(${gameId}): returned ${JSON.stringify(v)}`);
                     // base cards are hashed by id
                     let baseCards = {};
-                    v.forEach((bc) => { baseCards[bc._id] = bc })
+                    v.forEach((bc) => { 
+                        baseCards[bc._id] = BaseCard.make(bc.type, bc) });
+
                     newGameData.baseCards = baseCards;
                     this.setState({ gameInfo: newGameData });
                     // and load the deck..
@@ -118,7 +121,6 @@ class TopLevel extends React.Component {
                 }).catch((e) => {
                     console.log(`getGameInfo: e = ${e}, ${JSON.stringify(e)}`);
                 })
-
             });
     }
 

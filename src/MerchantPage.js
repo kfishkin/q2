@@ -34,7 +34,7 @@ class MerchantPage extends React.Component {
       this.setState({ statusMessage: `loading inventory...`, statusType: 'info' });
       console.log(`asking for inventory, game.gameId = ${gameInfo.gameId}, game._id=${gameInfo._id}, owner _id = ${this.props.owner._id}`);
       this.loadingMerchant = true;
-      this.props.beGateway.getPlayerCardsForGame(gameInfo.gameId, this.props.owner._id)
+      this.props.beGateway.oldGetPlayerCardsForGame(gameInfo.gameId, this.props.owner._id)
         .then((v) => {
           //console.log(`got shopkeeper inventory of ${JSON.stringify(v)}`);
           this.loadingMerchant = false;

@@ -226,6 +226,16 @@ span[current] {
   background-color: lightpink;
 }
 
+div.picker_step span.leadin {
+  font-weight: bold;
+}
+
+.dont_have {
+  font-size: smaller;
+  font-family: 'Courier New', Courier, monospace;
+  background-color: rgb(245, 213, 218);
+}
+
 
 /* from https://alvarotrigo.com/blog/css-alerts/ */
 div.status_message {

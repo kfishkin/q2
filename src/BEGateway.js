@@ -1,7 +1,8 @@
-
+import { BaseCard } from "./BaseCard";
 class BEGateway {
-    constructor(beURI) {
+    constructor(beURI, pile) {
         this.beURI = beURI;
+        this.pile = pile;
     }
 
     getURI() {
@@ -87,9 +88,15 @@ class BEGateway {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: name, playerId: playerId })
         }
-        const response = await fetch(url, requestOptions);
+        let response = await fetch(url, requestOptions);
         console.log('createGame: response = ' + response + ' ok = ', response.ok);
-        return response.json();
+        if (!response.ok) return response;
+        response = await response.json();
+        // TODO: maybe this shouldn't be an array?
+        let gameObj = response[0];
+        console.log(`adding game w/id ${gameObj._id} to pile`);
+        this.pile.add(gameObj._id, gameObj, 'game');
+        return gameObj;
     }
 
     async createPlayer(handle, displayName, email, password) {
@@ -109,7 +116,6 @@ class BEGateway {
         const response = await fetch(url, requestOptions).catch((e) => {
             console.errpr(`createPlayer fetch exception ${e}`);
             return {};
-
         });
 
         return response.ok ? response.json() : {};
@@ -123,7 +129,9 @@ class BEGateway {
             console.log("beGateway.getGameInfo: null response");
             return null;
         } else {
-            return response.json();
+            let gameObj = await response.json();
+            this.pile.add(gameObj._id, gameObj, 'game');
+            return gameObj;
         }
     }
 
@@ -165,6 +173,24 @@ class BEGateway {
         if (!response || !response.ok) {
             return Promise.reject(`couldn't set delete game ${gameId}`);
         } else {
+            this.pile.remove(gameId);
+            return response.json();
+        }
+    }
+
+    async oldGetPlayerCardsForGame(gameId, playerId) {
+        const url = this.beURI
+            + "cards/" + gameId
+            + "/player/" + playerId;
+        const requestOptions = {
+            method: 'GET',
+        };
+        console.log(`getCardsForGame: url = ${url}`);
+        const response = await fetch(url, requestOptions);
+        if (!response || !response.ok) {
+            return Promise.reject(`couldn't get cards for game {$gameId} player ${playerId}`);
+        } else {
+            // map from an array of DB records to an array of class objects.
             return response.json();
         }
     }
@@ -185,18 +211,26 @@ class BEGateway {
         }
     }
 
-    async getGameCardsFor(gameId) {
+    async getBaseCardsFor(gameId) {
         const url = this.beURI
             + "gamecards/" + gameId;
         const requestOptions = {
             method: 'GET',
         };
-        console.log(`getGameCardsFor: url = ${url}`);
+        console.log(`getBaseCardsFor: url = ${url}`);
         const response = await fetch(url, requestOptions);
         if (!response || !response.ok) {
             return Promise.reject(`couldn't get game cards for game {$gameId}`);
         } else {
-            return response.json();
+            let baseCards = await response.json();
+            if (baseCards) {
+                baseCards.forEach((baseCard) => {
+                    // put the _objects_, not the db record...
+                    let obj = BaseCard.make(baseCard.type, baseCard);
+                    this.pile.add(baseCard._id, obj, 'base card');
+                });
+            }
+            return baseCards;
         }
     }
 
@@ -347,7 +381,8 @@ class BEGateway {
             gameId: gameId,
             playerId: playerId,
             machineId: machineId,
-            piles: piles
+            piles: piles,
+            write: true
         };
         const requestOptions = {
             method: 'POST',
