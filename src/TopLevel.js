@@ -77,7 +77,7 @@ class TopLevel extends React.Component {
         console.log(`BE change for player ${playerId} in game ${gameId}`);
         this.state.beGateway.oldGetPlayerCardsForGame(gameId, playerId)
             .then((v) => {
-                console.log(`onSetCurrentGame: player deck has ${v.length} cards`);
+                //console.log(`onSetCurrentGame: player deck has ${v.length} cards`);
                 let newPlayerData = { ...this.state.playerInfo };
                 newPlayerData.deck = v.map((card) => {
                     let obj = card;

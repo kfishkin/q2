@@ -398,7 +398,12 @@ class BEGateway {
             } else {
                 let msg = await response.text();
                 console.log(`beG.use: msg = ${msg}`);
-                return new Response(msg, { status: response.status, statusText: msg });
+                // it's an object which isn't 'ok', with a status text
+                return {
+                    ok: false,
+                    statusText: msg
+                }
+                //return new Error(msg);
             }
         } catch (e) {
             return Promise.reject(e.name + ":" + e.message);

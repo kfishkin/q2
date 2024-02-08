@@ -8,7 +8,7 @@ import { Select, Space } from 'antd';
 // beGateway - the be gateway
 // deck - deck of Cards the player has
 // baseCards hash of BaseCards in the game.
-// onPilesChange - callback(newPiles, complete) whenever the pile composition has changed.
+// onPilesChange - callback(newPiles) whenever piles have changed, and we think it's good to go.
 class WorkshopInputPickerJudge extends React.Component {
   constructor(props) {
     super(props);
@@ -17,6 +17,27 @@ class WorkshopInputPickerJudge extends React.Component {
       statusType: "",
       outline: null // the base card for the recipe outline
     }
+  }
+
+  makeAndSendPiles(outlineBase, deckByBaseCardId, currentAmounts, currentIngreds) {
+    if (!this.props.onPilesChange) return;
+    let piles = [];
+    // the first pile is the recipe outline.
+    piles.push([this.state.outline]);
+    for (let step = 0; step < currentAmounts.length; step++) {
+      let amount = currentAmounts[step];
+      let ingredient = currentIngreds[step];
+      // find (amount) cards for this ingredient...
+      let thisPile = [];
+      for (let i = 0; i < amount; i++) {
+        let candidates = deckByBaseCardId[ingredient.GetId()];
+        thisPile.push(candidates.shift());
+        deckByBaseCardId[ingredient.GetId()] = candidates; // one less.
+      }
+      piles.push(thisPile);
+    }
+    //console.log(`piles = ${JSON.stringify(piles)}`);
+    this.props.onPilesChange(piles);
   }
 
   render() {
@@ -51,15 +72,14 @@ class WorkshopInputPickerJudge extends React.Component {
       });
       let onChange = (val) => {
         //console.log(`val = ${JSON.stringify(val)}`);
-        let winner = candidates.find((candidate) => val == candidate.GetId());
+        let winner = candidates.find((candidate) => val === candidate.GetId());
         //console.log(`winner = ${JSON.stringify(winner)}`);
         // not part of state, because changes don't cause re-render.
         let outline = winner.GetBase().GetRecipeOutline();
         this.currentAmounts = Array(outline.num_steps).fill(NOT_PICKED);
         this.currentIngreds = Array(outline.num_steps).fill(NOT_PICKED);
         this.setState({ outline: winner });
-        this.props.onPilesChange([[winner]], false);
-
+        //this.props.onPilesChange([[winner]], false);
       }
       return (
         <div>
@@ -67,7 +87,6 @@ class WorkshopInputPickerJudge extends React.Component {
           <Select style={{width: 250}} onChange={(val) => onChange(val)} options={selectOptions}/>
         </div>
       )
-
     }
     let pickPilesUI = () => {
       // oy. There are (num_steps) steps. Each step there are a set of possible amounts,
@@ -92,7 +111,6 @@ class WorkshopInputPickerJudge extends React.Component {
         deckByBaseCardId[baseId] = prev;
       });
       let stepsUI = []; // array, react element for the UI for each step.
-
 
       const checkPile = (firstStep) => {
         let allOk = true;
@@ -124,8 +142,8 @@ class WorkshopInputPickerJudge extends React.Component {
           }
         }
         if (allOk) {
-          // TODO: notify parent, make piles
           this.setState({statusMessage:'good to go', statusType: 'info'});
+          this.makeAndSendPiles(outlineBase, deckByBaseCardId, this.currentAmounts, this.currentIngreds);
         } else {
           this.setState({statusMessage: errors.join(', and '), statusType: 'error'});
         }

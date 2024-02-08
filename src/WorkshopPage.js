@@ -90,8 +90,9 @@ class WorkshopPage extends React.Component {
       this.setState({ machineCard: null });
     }
 
-    let onPilesChange = (newPiles, complete) => {
-      console.log(`newPiles = ${JSON.stringify(newPiles)}, complete = ${complete}`);
+    let onPilesChange = (newPiles) => {
+      console.log(`newPiles = ${JSON.stringify(newPiles)}`);
+      this.setState({inputPiles: newPiles, goodToGo: true});
     }
 
     let makeInputAreaUI = () => {
@@ -121,7 +122,8 @@ class WorkshopPage extends React.Component {
           // TODO: remove when playerInfo.deck is Cards.
           let deckCards = this.props.playerInfo.deck.map((c) => new Card(c));
           picker = <WorkshopInputPickerJudge machine={this.state.machineCard} beGateway={this.props.beGateway}
-            deck={deckCards} baseCards={this.props.gameInfo.baseCards} onPilesChange={(newPiles, complete) => onPilesChange(newPiles, complete)}/>
+            deck={deckCards} baseCards={this.props.gameInfo.baseCards} onPilesChange={(newPiles) => onPilesChange(newPiles)}/>
+            break;
             default:
       }
       return <div className='workshop_inputs'>
@@ -133,15 +135,21 @@ class WorkshopPage extends React.Component {
     let onTurnCrank = () => {
       console.log(`fire in the hole!`);
       let card = this.state.machineCard;
-      let gameId = card.game_card.game_id;
-      let playerId = card.player_id;
-      let machineId = card._id;
+      let gameId = card.GetBase().GetGameId();
+      let playerId = card.GetPlayerId();
+      let machineId = card.GetId();
       let statusMessage = `..trying to use the ${card.game_card.display_name}`;
       this.setState({statusMessage: statusMessage, statusType: 'info'});
 
-      this.props.beGateway.use(gameId, playerId, machineId, this.state.inputPiles).then((v) => {
+      // the input piles for the BE just have Ids in them...
+      let pilesOfIds = [];
+      for (let step = 0; step < this.state.inputPiles.length; step++) {
+        let pileOfIds = this.state.inputPiles[step].map((baseCard) => baseCard.GetId());
+        pilesOfIds.push(pileOfIds);
+      }
+      this.props.beGateway.use(gameId, playerId, machineId, pilesOfIds).then((v) => {
         console.log(`fe: beGateway.use.ok = ${v.ok}, v = ${JSON.stringify(v)}`);
-        if (v) {
+        if (v.ok) {
           // this should be a tuple, first is the IDs of deleted cards,
           // second is the body of new cards
           let deletedIds = v[0];

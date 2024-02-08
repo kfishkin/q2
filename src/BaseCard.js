@@ -191,9 +191,6 @@ class CardTypeMachine extends BaseCard {
 
 // a Machine card
 class CardTypeMachineHornOfPlenty extends CardTypeMachine {
-    constructor(db) {
-        super(db);
-    }
     DescriptionBackgroundImageURL() {
                 return "pix/general/horn_of_plenty_big.jpg";
     }
@@ -201,9 +198,7 @@ class CardTypeMachineHornOfPlenty extends CardTypeMachine {
 
 // a Machine card
 class CardTypeMachineJudge extends CardTypeMachine {
-    constructor(db) {
-        super(db);
-    }
+
     DescriptionBackgroundImageURL() {
         return "pix/card_backgrounds/judge2.png";
     }

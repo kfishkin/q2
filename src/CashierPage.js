@@ -1,6 +1,5 @@
 import React from 'react';
 import StatusMessage from './StatusMessage';
-import { CARD_TYPES } from './BaseCard';
 import Card from './Card';
 
 
