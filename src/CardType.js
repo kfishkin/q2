@@ -1,4 +1,3 @@
-import { USE_SETTINGS, USE_STATUS } from './Card';
 // this must match the similar enum in the BE
 export const CARD_TYPES = {
     NONE: 0,
@@ -37,32 +36,14 @@ export class CardType { // abstract base class
         return "pix/card_types/none.png";
     }
 
+    
+    DescriptionBackgroundImageURL(card) {
+        return "";
+    }
+
     // fully describe the semantics of this card, which is of this type
     FullyDescribe(card, gameInfo, playerDeck) {
         return <div><hr /><b>{card.game_card.display_name}</b> card: {card.game_card.description}</div>;
-    }
-
-    /**
-     * Is this card usable now for this context?
-     * Returns a tuple:
-     *   entry 0 - YES, NO, or UNKNOWN
-     *   entry 1 - a React node indicating why/why not.
-     * I return UNKNOWN if the answer is a function of the details of the particular instance
-     * of the card - I only return an answer if the answer is the same for all instances.
-     */
-    DetermineUsability(card, useSetting, deck, baseCards) {
-        // everything can be sold, everything can be used in battle:
-        if (useSetting === USE_SETTINGS.BATTLE) {
-            return [USE_STATUS.YES, <span>All cards can be used as battle cards</span>];
-        }
-        if (useSetting === USE_SETTINGS.SELLING) {
-            return [USE_STATUS.YES, <span>All cards can be sold</span>]; // maybe not later...
-        }
-        if (useSetting === USE_SETTINGS.BUYING) {
-            return [USE_STATUS.YES, <span>All cards can be bought</span>]; // maybe not later...
-        }
-        // otherwise...
-        return [USE_STATUS.UNKNOWN, <span>Don't know yet...</span>];
     }
 
     // factory method: make one for a given game card:
@@ -93,12 +74,6 @@ class CardTypeNothing extends CardType {
         super(CARD_TYPES.NONE);
     }
     AltText() { return "None" }
-    DetermineUsability(card, useSetting, deck, baseCards) {
-        let tuple = super.DetermineUsability(card, useSetting, deck, baseCards);
-        if (tuple[0] === USE_STATUS.UNKNOWN) {
-            return [USE_STATUS.NO, <span>The 'nothing' card has no special use.</span>]
-        }
-    }
 }
 // a Money card
 class CardTypeMoney extends CardType {
@@ -107,11 +82,9 @@ class CardTypeMoney extends CardType {
     }
     AltText() { return "$" }
     IconURL() { return "pix/card_types/money.png"; }
-    DetermineUsability(card, useSetting, deck, baseCards) {
-        let tuple = super.DetermineUsability(card, useSetting, deck, baseCards);
-        if (tuple[0] === USE_STATUS.UNKNOWN) {
-            return [USE_STATUS.NO, <span>Money cards have no special use outside of buying or selling.</span>]
-        }
+
+    DescriptionBackgroundImageURL(card) {
+        return `pix/card_backgrounds/money_${card.game_card.sell_value}.png`;
     }
 }
 // a Life card
@@ -121,11 +94,8 @@ class CardTypeLife extends CardType {
     }
     AltText() { return "Life" }
     IconURL() { return "pix/card_types/life.png"; }
-    DetermineUsability(card, useSetting, deck, baseCards) {
-        let tuple = super.DetermineUsability(card, useSetting, deck, baseCards);
-        if (tuple[0] === USE_STATUS.UNKNOWN) {
-            return [USE_STATUS.NO, <span>Money cards have no special use outside of buying or selling.</span>]
-        }
+    DescriptionBackgroundImageURL(card) {
+        return `pix/card_backgrounds/life2.png`;
     }
 }
 
@@ -136,11 +106,8 @@ class CardTypeClue extends CardType {
     }
     AltText() { return "Clue" }
     IconURL() { return "pix/card_types/clue.png"; }
-    DetermineUsability(card, useSetting, deck, baseCards) {
-        let tuple = super.DetermineUsability(card, useSetting, deck, baseCards);
-        if (tuple[0] === USE_STATUS.UNKNOWN) {
-            return [USE_STATUS.UNKNOWN, <span>TODO: see if clue can be used on an outline</span>]
-        }
+    DescriptionBackgroundImageURL(card) {
+        return `pix/card_backgrounds/clue.png`;
     }
 }
 
@@ -151,11 +118,29 @@ class CardTypeMachine extends CardType {
     }
     AltText() { return "Machine" }
     IconURL() { return "pix/card_types/machine.png"; }
-    DetermineUsability(card, useSetting, deck, baseCards) {
-        let tuple = super.DetermineUsability(card, useSetting, deck, baseCards);
-        if (tuple[0] === USE_STATUS.UNKNOWN) {
-            return [USE_STATUS.UNKNOWN, <span>TODO: see if machine can be used now</span>]
+
+    DescriptionBackgroundImageURL(card) {
+        // TODO: clean this up.
+        if (!card || !card.game_card || !card.game_card.machine) {
+            return "";
         }
+        // must match with BE: TODO - put enum defs in a shared place.
+        const MachineType = {
+            NONE: 0,
+            JUDGE: 1,
+            CRYSTAL_BALL: 2,
+            HORN_OF_PLENTY: 3,
+            FORENSICS: 4
+        };
+        let typ = card.game_card.machine.type;
+        switch (typ) {
+            case MachineType.HORN_OF_PLENTY:
+                return "pix/general/horn_of_plenty_big.jpg";
+            case MachineType.JUDGE:
+                return "pix/card_backgrounds/judge2.png";
+            default: // shut up linter
+        }
+        return "";
     }
 }
 
@@ -223,6 +208,9 @@ class CardTypeRecipe extends CardType {
     }
     AltText() { return "Recipe" }
     IconURL() { return "pix/card_types/recipe.png" }
+    DescriptionBackgroundImageURL(card) {
+        return `pix/card_backgrounds/recipe.png`;
+    }
 
 }
 // a Battle card
@@ -232,15 +220,10 @@ class CardTypeBattle extends CardType {
     }
     AltText() { return "Battle" }
     IconURL() { return "pix/card_types/battle.png"; }
-    DetermineUsability(card, useSetting, deck, baseCards) {
-        let tuple = super.DetermineUsability(card, useSetting, deck, baseCards);
-        if (tuple[0] === USE_STATUS.UNKNOWN) {
-            return [USE_STATUS.NO, <span>Battle cards have no special use outside of buying or selling.</span>]
-        }
-    }
     BattleModifierImage(card) {
         return "";
     }
+
 }
 
 // must match what's in BE.
@@ -257,12 +240,7 @@ class CardTypeBattleModifier extends CardType {
     }
     AltText() { return "Battle Modifier" }
     IconURL() { return "pix/card_types/battle_modifier.png"; }
-    DetermineUsability(card, useSetting, deck, baseCards) {
-        let tuple = super.DetermineUsability(card, useSetting, deck, baseCards);
-        if (tuple[0] === USE_STATUS.UNKNOWN) {
-            return [USE_STATUS.NO, <span>Battle Modifier cards have no special use outside of buying or selling.</span>]
-        }
-    }
+
     BattleModifierImage(card) {
         let modType = card.game_card.battle_modifier.type;
 

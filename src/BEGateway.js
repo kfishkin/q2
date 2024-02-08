@@ -301,5 +301,73 @@ class BEGateway {
             return Promise.reject(e.name + ":" + e.message);
         }
     }    
+
+    // in game (gameId), can player (playerId), use machine (machineId),
+    // where (piles) is the piles of input cards?
+    // note the answer may change between when this is computed and when
+    // you do it for realz.
+    async canUse(gameId, playerId, machineId, piles) {
+        const url = this.beURI
+            + "cards/machine/canuse";
+        let body = {
+            gameId: gameId,
+            playerId: playerId,
+            machineId: machineId,
+            piles: piles
+        };
+        const requestOptions = {
+            method: 'PUT', // not POST because idempotent, not GET
+              // because have arrays of arrays in the parameters.
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }
+        try {
+            const response = await fetch(url, requestOptions);
+            console.log(`fe.canUse: fetch returns ${response}`);
+            //console.log(`text = ${response.text()}`);
+            //console.log(`body = ${response.body}`);
+
+            // if it was bad, i need to find out why, this is in the body,
+            // but sadly .text() returns a promise...
+            let msg = await response.text();
+            console.log(`msg = ${msg}`);
+            return new Response(msg, {status: response.status, statusText: msg});
+        } catch (e) {
+            return Promise.reject(e.name + ":" + e.message);
+        }        
+    }
+
+    // similar to (canUse), but actually tries to turn the crank.
+    // if it succeeds, then the body is json indicating which caards were
+    // deleted/added. If it fails, the body is text indicating why.
+    async use(gameId, playerId, machineId, piles) {
+        const url = this.beURI
+            + "cards/machine/use";
+        let body = {
+            gameId: gameId,
+            playerId: playerId,
+            machineId: machineId,
+            piles: piles
+        };
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }
+        try {
+            const response = await fetch(url, requestOptions);
+            console.log(`fe.use: fetch returns ${response}`);
+            if (response.ok) {
+                console.log(`beG.use: 200 response, converting body to json`);
+                return response.json();
+            } else {
+                let msg = await response.text();
+                console.log(`beG.use: msg = ${msg}`);
+                return new Response(msg, { status: response.status, statusText: msg });
+            }
+        } catch (e) {
+            return Promise.reject(e.name + ":" + e.message);
+        }
+    }
 }
 export default BEGateway;

@@ -134,7 +134,10 @@ export class DeckComponent extends React.Component {
         sorter: (row1, row2) => row1.level - row2.level,
       },
     ];
-    columns.push(this.valueColumnMaker());
+    let valueCol = this.valueColumnMaker();
+    if (valueCol) {
+      columns.push(valueCol);
+    }
     columns.push(
       {
         title: 'battle_value', dataIndex: 'battle_value',

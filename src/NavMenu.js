@@ -10,6 +10,7 @@ export const HOME_PAGE='home';
 export const MERCHANT_PAGE = "merchant";
 export const LOOT_PAGE = "loot";
 export const CASHIER_PAGE = "cashier";
+export const WORKSHOP_PAGE = "workshop";
 // props:
 // pageTemplates - the page templates
 // showPageFunc - func to invoke to show a new page

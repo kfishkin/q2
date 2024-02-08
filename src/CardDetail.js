@@ -35,6 +35,15 @@ class CardDetail extends React.Component {
       <div className='card_face_description'>
         {typeObj.FullyDescribe(card, this.props.gameInfo, this.props.deck)}
       </div>);
+    let imgUrl = typeObj.DescriptionBackgroundImageURL(card);
+    if (imgUrl) {
+      parts.push(
+        <div className="card_face_description_bg">
+          <img src={imgUrl} width="250" alt="" />
+        </div>
+      );
+    }
+
     if (typeObj.GetType() === CARD_TYPES.BATTLE_MODIFIER) {
       parts.push(
         <div className='card_face_battle_modifier_image'>

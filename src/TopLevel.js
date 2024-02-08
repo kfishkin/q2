@@ -9,8 +9,9 @@ import GamePage from './GamePage';
 import GameChoicePage from './GameChoicePage';
 import LoginPage from './LoginPage';
 import MerchantPage from './MerchantPage';
+import WorkshopPage from './WorkshopPage';
 import LootPage from './LootPage';
-import NavMenu, { CASHIER_PAGE, LOOT_PAGE, MERCHANT_PAGE } from './NavMenu';
+import NavMenu, { CASHIER_PAGE, LOOT_PAGE, MERCHANT_PAGE, WORKSHOP_PAGE } from './NavMenu';
 import PageTemplate from './PageTemplate';
 import { CONFIG_PAGE, GAME_PAGE, GAME_ADMIN_PAGE, HOME_PAGE, LOGIN_PAGE } from './NavMenu';
 
@@ -152,6 +153,11 @@ class TopLevel extends React.Component {
                     gameInfo={this.state.gameInfo} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
                     playerInfo={this.state.playerInfo}/>;
                 break;
+            case WORKSHOP_PAGE:
+                ans = <WorkshopPage beGateway={this.state.beGateway}
+                    gameInfo={this.state.gameInfo} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
+                    playerInfo={this.state.playerInfo} />;
+                break;              
             case LOOT_PAGE:
                 ans = <LootPage owner={this.state.extra.owner} beGateway={this.state.beGateway}
                     gameInfo={this.state.gameInfo} playerId={this.state.playerInfo.playerId} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}/>;
@@ -176,6 +182,7 @@ class TopLevel extends React.Component {
             new PageTemplate(LOGIN_PAGE, loggedIn ? "Logout" : "Login", true),
             new PageTemplate(GAME_ADMIN_PAGE, "Game Admin", loggedIn),
             new PageTemplate(GAME_PAGE, "Game", this.state.gameInfo && this.state.gameInfo.gameId),
+            new PageTemplate(WORKSHOP_PAGE, "Workshop", this.state.playerInfo && this.state.playerInfo.deck),
             new PageTemplate(CASHIER_PAGE, "Cashier",this.state.playerInfo && this.state.playerInfo.deck),
             new PageTemplate(CONFIG_PAGE, "Config", true)
         ]
