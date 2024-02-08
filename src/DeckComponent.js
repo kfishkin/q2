@@ -260,3 +260,27 @@ export class DeckComponentMerchant extends DeckComponent {
     this.setState({ statusMessage: `${this.verb} ${numChecked} for $${buyValue}`, statusType: 'clickable' });
   }
 }
+
+
+// the view of your inventory to feed into machines
+export class DeckComponentInventory extends DeckComponent {
+  constructor(props) {
+    super(props);
+    this.flavor = "inventory";
+    this.verb = "use";
+  }
+
+  componentDidMount() {
+    if (!this.props.ronly)
+      this.setState({ statusMessage: "click on the checkbox to mark something to use", type: "info" });
+  }
+
+  onSelectedRows(rows) {
+    if (!rows || rows.length === 0) {
+      this.setState({ statusMessage: "click on the checkbox to mark something to use", statusType: "info" });
+      return;
+    }
+    let numChecked = rows.length;
+    this.setState({ statusMessage: `${this.verb} ${numChecked}`, statusType: 'clickable' });
+  }
+}

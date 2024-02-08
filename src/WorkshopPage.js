@@ -2,6 +2,7 @@ import React from 'react';
 import CardDetail from './CardDetail';
 import { CARD_TYPES } from './CardType';
 import StatusMessage from './StatusMessage';
+import { DeckComponent, DeckComponentInventory } from './DeckComponent';
 
 
 // props
@@ -98,6 +99,24 @@ class WorkshopPage extends React.Component {
       this.setState({ machineCard: null });
     }
 
+    let onAssign = (cards) => {
+      console.log(`onAssign`);
+    }
+
+    let makeInputAreaUI = () => {
+      let machineBase = this.state.machineCard.game_card;
+      if (machineBase.machine.num_inputs === 0) {
+        return "";
+      }
+      return <div className='workshop_inputs'>
+        Select the inputs from the deck below:
+        <hr />
+        <DeckComponentInventory deck={this.props.playerInfo.deck} gameInfo={this.props.gameInfo} current="yes"
+          onTransact={(cards) => onAssign(cards)} />
+      </div>
+    }
+
+
     let onTurnCrank = () => {
       console.log(`fire in the hole!`);
       let card = this.state.machineCard;
@@ -158,13 +177,7 @@ class WorkshopPage extends React.Component {
             <button id="machine_do" disabled={!this.state.goodToGo} onClick={(e) => onTurnCrank()}>Use it</button>
           </div>
         </div>
-        <div className='workshop_inputs'>
-          <span class="fooble">Here is where the inputs go</span>
-          <br />
-          line 1
-          <br />
-          line 2
-        </div>
+          {makeInputAreaUI()}
       </div>
     </div >;
   }

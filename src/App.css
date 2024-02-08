@@ -196,6 +196,11 @@ div.deck[flavor="player"] th {
   color: black; 
 }
 
+div.deck[flavor="inventory"] th {
+  background-color: lightgray;
+  color: black; 
+}
+
 span[has=no] {
   background-color: #E0E0E0;
 }
