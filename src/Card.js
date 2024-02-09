@@ -1,15 +1,6 @@
+import dayjs from 'dayjs';
 const BaseCard = require('./BaseCard');
-export const USE_SETTINGS = {
-    BATTLE: 0,
-    BUYING: 1,
-    SELLING: 2,
-    USING: 3
-}
-export const USE_STATUS = {
-    NO: 0,
-    YES: 1,
-    UNKNOWN: 2
-}
+
 
 /**
  * A 'Base Card', is a _type_ of card,
@@ -20,20 +11,38 @@ export const USE_STATUS = {
  * those are 'Cards'.
  */
 export class Card { // abstract base class
-    constructor(dbObj) { // the dictionary describing the card, from the DB.
-        if (dbObj.dbObj) {
+    constructor(db) { // the dictionary describing the card, from the DB.
+        if (db.db) {
             // it's a card already - happens when migrating
             console.warn(`Card from Card`);
-            return dbObj;
+            return db;
         }
-        this.playerId = dbObj.player_id;
-        this._id = dbObj._id;
+        this.playerId = db.player_id;
+        this._id = db._id;
         this.cardId = this._id; // allow either for now
-        this.dbObj = dbObj;
-        this.game_card = { ...dbObj.game_card};
-        this.game_card.type = dbObj.game_card.type;
+        this.db = db;
+        this.game_card = { ...db.game_card};
+        this.game_card.type = db.game_card.type;
         // deprecate game_card, move to this.
-        this.baseCard = BaseCard.BaseCard.make(dbObj.game_card.type, dbObj.game_card);
+        this.baseCard = BaseCard.BaseCard.make(db.game_card.type, db.game_card);
+    }
+
+    // allows us to make and return sub-classes
+    static Of(db) {
+        if (db.db) {
+            return db;
+        }
+        switch (db.game_card.type) {
+            case BaseCard.CARD_TYPES.MACHINE:
+                    return new CardMachine(db);
+                default:
+                    return new Card(db);
+
+        }
+    }
+
+    FullyDescribe(gameInfo, playerDeck) {
+        return this.baseCard.FullyDescribe(gameInfo, playerDeck)
     }
 
     GetPlayerId() {
@@ -50,13 +59,38 @@ export class Card { // abstract base class
 
     // deprecated: for backwards compat
     GetDb() {
-        return this.dbObj;
+        return this.db;
     }
 
 
     GetBase() {
         return this.baseCard;
     }
+}
+
+class CardMachine extends Card {
+    FullyDescribe(gameInfo, playerDeck) {
+        let machineInfo = this.db.machine;
+        let message = 'has never been used.'
+        if (machineInfo && machineInfo.last_used) {
+            let now = dayjs();
+            let then = dayjs(machineInfo.last_used);
+            let diff = Math.floor(now.diff(then, 'h'));
+
+            if (diff === 0) {
+                message = "was last used less than an hour ago";
+            } else if (diff <= 24) {
+                message = `was last used less than ${diff + 1} hours ago`;
+            } else {
+                let diffDays = Math.floor(now.diff(then, 'd'));
+                message = `was last used less than ${diffDays + 1} days ago`;
+            }
+        }
+        let base = this.GetBase();
+
+        return (<div><hr/><b>{base.GetDisplayName()}</b> card: {base.GetDescription()}.<hr/>It {message}</div>);
+    }
+
 }
 
 export default Card;

@@ -34,7 +34,7 @@ class LootPage extends React.Component {
         .then((v) => {
           console.log(`got loot of ${JSON.stringify(v)}`);
           this.loading = false;
-          let deck = v.map((dbObj) => new Card(dbObj));
+          let deck = v.map((dbObj) => Card.Of(dbObj));
           this.setState({ statusMessage: `loaded ${v.length}-cards of loot...`, statusType: 'success', deck: deck });
         }).catch((e) => {
           this.loading = false;

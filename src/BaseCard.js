@@ -29,6 +29,10 @@ export class BaseCard { // abstract base class
         return this.type;
     }
 
+    GetBattleValue() {
+        return this.db.battle_value;
+    }
+    
     GetId() {
         return this.db._id;
     }
@@ -45,6 +49,10 @@ export class BaseCard { // abstract base class
         return this.db.game_id;
     }
 
+    GetSellValue() {
+        return this.db.sell_value;
+    }
+
     // all the below can/should be over-ridden by subclasses..
     // the alt text for a type of card
     AltText() {
@@ -53,6 +61,11 @@ export class BaseCard { // abstract base class
     OpaqueBeforeBuying() {
         return false;
     }
+
+    GetDescription() {
+        return this.db.description;
+    }
+    
     GetDisplayName() {
         return this.db.display_name;
     }

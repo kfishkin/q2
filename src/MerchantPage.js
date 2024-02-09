@@ -38,7 +38,7 @@ class MerchantPage extends React.Component {
         .then((v) => {
           //console.log(`got shopkeeper inventory of ${JSON.stringify(v)}`);
           this.loadingMerchant = false;
-          let deck = v.map((dbObj) => new Card(dbObj));
+          let deck = v.map((dbObj) => Card.Of(dbObj));
           this.setState({ statusMessage: `loaded ${v.length}-card inventory...`, statusType: 'success', merchantDeck: deck });
         }).catch((e) => {
           this.loadingMerchant = false;

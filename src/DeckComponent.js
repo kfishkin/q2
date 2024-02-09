@@ -3,6 +3,7 @@ import { Table } from 'antd';
 import Card from './Card';
 import CardDetail from './CardDetail';
 import StatusMessage from './StatusMessage';
+import CardsModal from './CardsModal';
 
 // props:
 // deck - array of cards
@@ -17,19 +18,20 @@ export class DeckComponent extends React.Component {
       statusMessage: "",
       statusType: "info",
       statefulSelectedRowKeys: [],
+      showModal: false,
+      verb: "sell", // needs to be in state so modal picks up changes.
+      selectedCards: [] // see above
     };
-    // the selected cards. Not a state variable since doesn't change display.
-    this.selectedCards = [];
+
     // over-ridden by children
     this.forWhom = "Your";
     // default 'flavor', over-ridden by children.
     this.flavor = "player";
-    this.verb = "sell";
     this.rowSelectionController =  this.props.ronly ? null : {
       selectedRowKeys: this.state.statefulSelectedRowKeys,
       onChange: (newKeys, selectedRows) => {
         console.log(`selectedRowKeys: ${newKeys}`, 'selectedRows: ', selectedRows);
-        this.selectedCards = selectedRows ? (selectedRows.map((row) => row.card)) : [];
+        this.setState({selectedCards: selectedRows ? (selectedRows.map((row) => row.card)) : []});
         this.rowSelectionController.selectedRowKeys = newKeys;
         this.setState({statefulSelectedRowKeys: newKeys});
         this.onSelectedRows(selectedRows);
@@ -66,7 +68,7 @@ export class DeckComponent extends React.Component {
   }
   // and for description
   descriptionMaker(card) {
-    return card.GetBase().description;
+    return card.GetBase().GetDescription();
   }
   // and for clicking on a row in the table
   onRowClick(row) {
@@ -97,15 +99,22 @@ export class DeckComponent extends React.Component {
     this.setState({ statusMessage: `Sell ${numChecked} for $${sellValue}`, statusType: 'clickable' });
   }
 
+
+
   onStatusMessageClick(e) {
-    if (this.selectedCards.length > 0 && this.props.onTransact) {
-      let ok = window.confirm(`Are you sure you want to ${this.verb} these ${this.selectedCards.length} cards?`);
+    if (this.state.selectedCards.length > 0 && this.props.onTransact) {
+      this.setState({showModal: true});
+      // this will bring up the are-you-sure modal, which will then call
+      // onConfirm or onCancel as appropriate.
+/*
+      let ok = window.confirm(`Are you sure you want to ${this.verb} these ${this.state.selectedCards.length} cards?`);
       if (ok) {
-        this.props.onTransact(this.selectedCards);
+        this.props.onTransact(this.state.selectedCards);
         this.rowSelectionController.onChange([], []); // clear the selection.
-      }
+      } */
     }
   }
+
 
   // props
   // deck - array of cards in the deck.
@@ -150,7 +159,7 @@ export class DeckComponent extends React.Component {
     );
     let antInnards = deck.map((card, i) => {
       let gc = card.game_card;
-      let cardObj = new Card(card); // TODO: deck is card objects
+      let cardObj = Card.Of(card); // TODO: deck is card objects
       let row = {
         key: 'tr_' + i,
         type: gc.type,
@@ -167,6 +176,18 @@ export class DeckComponent extends React.Component {
       row[tuple[0]] = tuple[1];
       return row;
     });
+    const onOk= () => {
+      console.log(`confirmed you want to do the transaction`);
+      this.setState({showModal: false});
+      this.props.onTransact(this.state.selectedCards);
+      this.rowSelectionController.onChange([], []); // clear the selection.
+    }
+  
+    const onCancel= () => {
+      this.setState({showModal: false});
+      console.log(`you cancelled the transaction`);
+    }
+    let sentenceObject = (this.state.selectedCards.length === 1) ? 'this card' : `these ${this.state.selectedCards.length} cards`;
     return <div className='deck' flavor={this.flavor} current={this.props.current}>
       <span>{preamble}</span>
       <CardDetail card={this.state.focusCard} gameInfo={this.props.gameInfo} deck={deck} />
@@ -179,6 +200,13 @@ export class DeckComponent extends React.Component {
             onClick: (e) => this.onRowClick(row, i, e)
           };
         }}></Table>
+          <CardsModal title="Are you sure?" open={this.state.showModal} onOk={onOk} onCancel={onCancel}
+  cards={this.state.selectedCards}
+  topHtml={<span>Sure you want to {this.state.verb} {sentenceObject}?</span>}
+  bottomHtml=""
+  gameInfo={this.props.gameInfo}
+  deck={this.props.deck}
+/>
     </div>
   }
 }
@@ -189,7 +217,7 @@ export class DeckComponentMerchant extends DeckComponent {
     super(props);
     this.forWhom = "The merchant's";
     this.flavor = "merchant";
-    this.verb = "buy";
+    this.state.verb = "buy";
   }
 
   // can buy for sell value + markup, and at least $1
@@ -202,7 +230,7 @@ export class DeckComponentMerchant extends DeckComponent {
   // the title for the sell/buy column
   valueColumnMaker() {
     return {
-      title: `${this.verb} for`, dataIndex: 'price',
+      title: `${this.state.verb} for`, dataIndex: 'price',
       sorter: (row1, row2) => parseInt(row1.price) - parseInt(row2.price)
     };
   }
@@ -250,7 +278,7 @@ export class DeckComponentMerchant extends DeckComponent {
         buyValue += row.price;
       }
     });
-    this.setState({ statusMessage: `${this.verb} ${numChecked} for $${buyValue}`, statusType: 'clickable' });
+    this.setState({ statusMessage: `${this.state.verb} ${numChecked} for $${buyValue}`, statusType: 'clickable' });
   }
 }
 
@@ -260,7 +288,7 @@ export class DeckComponentInventory extends DeckComponent {
   constructor(props) {
     super(props);
     this.flavor = "inventory";
-    this.verb = "use";
+    this.state.verb = "use";
   }
 
   componentDidMount() {
@@ -274,6 +302,6 @@ export class DeckComponentInventory extends DeckComponent {
       return;
     }
     let numChecked = rows.length;
-    this.setState({ statusMessage: `${this.verb} ${numChecked}`, statusType: 'clickable' });
+    this.setState({ statusMessage: `${this.state.verb} ${numChecked}`, statusType: 'clickable' });
   }
 }

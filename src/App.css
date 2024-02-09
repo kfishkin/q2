@@ -337,6 +337,11 @@ background-color: greenyellow;
 height: 40px;
 }
 
-div.my_modal {
+div.cards_modal {
   background-image: url('../public/pix/card_backgrounds/congrats.png');
+}
+
+img.nav_arrow {
+  margin-left: 1em;
+  margin-right: 1em;
 }

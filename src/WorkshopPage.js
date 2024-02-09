@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal} from 'antd';
+import CardsModal from './CardsModal';
 import Card from './Card';
 import CardDetail from './CardDetail';
 import StatusMessage from './StatusMessage';
@@ -30,7 +30,7 @@ class WorkshopPage extends React.Component {
 
   componentDidMount() {
     // TODO: playerInfo.deck is Card objects.
-    let asObjects = this.props.playerInfo.deck.map((c) => new Card(c));
+    let asObjects = this.props.playerInfo.deck.map((c) => Card.Of(c));
     let machineCards = asObjects.filter((card) => {
       return card.GetBase().CanMakeCards()
     });
@@ -125,7 +125,7 @@ class WorkshopPage extends React.Component {
       switch (pickerName) {
         case 'WorkshopInputPickerJudge':
           // TODO: remove when playerInfo.deck is Cards.
-          let deckCards = this.props.playerInfo.deck.map((c) => new Card(c));
+          let deckCards = this.props.playerInfo.deck.map((c) => Card.Of(c));
           picker = <WorkshopInputPickerJudge machine={this.state.machineCard} beGateway={this.props.beGateway}
             deck={deckCards} baseCards={this.props.gameInfo.baseCards} onPilesChange={(newPiles) => onPilesChange(newPiles)}/>
             break;
@@ -208,10 +208,13 @@ class WorkshopPage extends React.Component {
           <div className="postamble">
             <button id="machine_do" disabled={!this.state.goodToGo} onClick={(e) => onTurnCrank()}>Use it</button>
           </div>
-          <Modal className="my_modal" title="A new card" open={this.state.showModal} onOk={handleOk} onCancel={handleOk}>
-        <p>You have just added a {this.state.modalCardName} card to your deck!</p>
-        <CardDetail card={this.state.modalCard} gameInfo={this.props.gameInfo} deck={this.props.gameInfo.deck} />
-      </Modal>
+          <CardsModal title="A new card" open={this.state.showModal} onOk={handleOk} onCancel={handleOk}
+            cards={[this.state.modalCard]}
+            topHtml={<span>You have just added a {this.state.modalCardName} card to your deck</span>}
+            bottomHtml=""
+            gameInfo={this.props.gameInfo}
+            deck={this.props.gameInfo.deck}
+          />
         </div>
           {makeInputAreaUI()}
       </div>
@@ -220,3 +223,11 @@ class WorkshopPage extends React.Component {
 }
 
 export default WorkshopPage;
+
+// title - title
+//  topHtml - html to show above.
+//  bottomHtml - html to show below.
+// onOk, onCancel - callbacks
+// open - should I be open?
+// gameInfo - needed for description
+// deck - needed for description
