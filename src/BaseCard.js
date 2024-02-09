@@ -11,6 +11,7 @@ export const CARD_TYPES = {
     BATTLE_MODIFIER: 8,
     INGREDIENT: 9,
     TICKET: 10,
+    SCORE: 11
 };
 
 /**
@@ -120,6 +121,7 @@ export class BaseCard { // abstract base class
             case CARD_TYPES.BATTLE_MODIFIER: return new CardTypeBattleModifier(db);
             case CARD_TYPES.INGREDIENT: return new CardTypeIngredient(db);
             case CARD_TYPES.TICKET: return new CardTypeTicket(db);
+            case CARD_TYPES.SCORE: return new CardTypeScore(db);
             default:
                 console.warn(`gc.type of ${type} unknown`);
                 return new CardTypeNothing(db);
@@ -358,5 +360,12 @@ class CardTypeTicket extends BaseCard {
     }
     AltText() { return "Golden Ticket" }
     IconURL() { return "pix/card_types/golden_ticket.png"; }
+}
+// a Score card
+class CardTypeScore extends BaseCard {
+    constructor(db) {
+        super(CARD_TYPES.SCORE, db);
+    }
+    AltText() { return "Score" }
 }
 

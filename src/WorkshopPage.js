@@ -1,4 +1,5 @@
 import React from 'react';
+import { Modal} from 'antd';
 import Card from './Card';
 import CardDetail from './CardDetail';
 import StatusMessage from './StatusMessage';
@@ -20,7 +21,10 @@ class WorkshopPage extends React.Component {
       statusMessage: "",
       statusType: 'info',
       goodToGo: false,
-      inputPiles: []
+      inputPiles: [],
+      showModal: false,
+      modalCard: {},
+      modalCardName: '',
     }
   }
 
@@ -87,7 +91,8 @@ class WorkshopPage extends React.Component {
       return this.chooseMachineCard();
     }
     let onChooseDifferent = () => {
-      this.setState({ machineCard: null });
+      this.setState({showModal: true, modalCard: this.props.playerInfo.deck[0]});
+      // this.setState({ machineCard: null });
     }
 
     let onPilesChange = (newPiles) => {
@@ -149,7 +154,9 @@ class WorkshopPage extends React.Component {
       }
       this.props.beGateway.use(gameId, playerId, machineId, pilesOfIds).then((v) => {
         console.log(`fe: beGateway.use.ok = ${v.ok}, v = ${JSON.stringify(v)}`);
-        if (v.ok) {
+        if (v.statusText) { // this is an error message....
+          this.setState({ statusMessage: v.statusText, statusType: 'error', goodToGo: false });
+        } else {
           // this should be a tuple, first is the IDs of deleted cards,
           // second is the body of new cards
           let deletedIds = v[0];
@@ -168,17 +175,21 @@ class WorkshopPage extends React.Component {
             msg += ` ${numDeleted} cards consumed`;
           }
           msg += ` Added: ${addedCardNames.join()}`;
-          this.setState({ statusMessage: msg, statusType: 'info' });
+          this.setState({ statusMessage: msg, statusType: 'success',
+          showModal: true, modalCardName: addedCards[0].game_card.display_name, modalCard: addedCards[0]});
           if (this.props.onPlayerDeckBEChange) {
             this.props.onPlayerDeckBEChange();
           }
-        } else {
-          this.setState({ statusMessage: v.statusText, statusType: 'error', goodToGo: false });
         }
+
       }).catch((e) => {
         console.log(`fe:beGateway.use e = ${e}, e.name = ${e.name}, message=${e.message}`);
         this.setState({ statusMessage: e.message, statusType: 'error' });
       });
+    }
+
+    const handleOk = () => {
+      this.setState({showModal: false});
     }
 
     // status message across the top, so it doesn't get lost.
@@ -197,6 +208,10 @@ class WorkshopPage extends React.Component {
           <div className="postamble">
             <button id="machine_do" disabled={!this.state.goodToGo} onClick={(e) => onTurnCrank()}>Use it</button>
           </div>
+          <Modal className="my_modal" title="A new card" open={this.state.showModal} onOk={handleOk} onCancel={handleOk}>
+        <p>You have just added a {this.state.modalCardName} card to your deck!</p>
+        <CardDetail card={this.state.modalCard} gameInfo={this.props.gameInfo} deck={this.props.gameInfo.deck} />
+      </Modal>
         </div>
           {makeInputAreaUI()}
       </div>

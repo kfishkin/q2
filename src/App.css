@@ -336,3 +336,7 @@ div.workshop_inputs {
 background-color: greenyellow;
 height: 40px;
 }
+
+div.my_modal {
+  background-image: url('../public/pix/card_backgrounds/congrats.png');
+}
