@@ -303,6 +303,21 @@ class CardTypeRecipe extends BaseCard {
     GetNumInputs() {
         return this.db.machine.num_inputs;
     }    
+    FullyDescribe(baseCards) {
+        let recipe = this.db.recipe;
+        //console.log(`recipe outline fully describe of${JSON.stringify(outline)}`);
+        if (!recipe) return super.FullyDescribe(baseCards);
+
+        let numSteps = recipe.amounts.length;
+
+        let stepDescrs = [];
+        for (let step = 0; step < numSteps; step++) {
+            let amount = recipe.amounts[step];
+            let ingredient = baseCards[recipe.ingredients[step]].GetDisplayName();
+            stepDescrs.push(<li><span>{amount} of {ingredient}</span></li>);
+        }
+        return <div className="recipe_description">The Recipe has <b>{numSteps}</b> steps:<ol>{stepDescrs}</ol></div>;
+    }    
 
 }
 // a Battle card

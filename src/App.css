@@ -355,3 +355,7 @@ span.score_1 {
 span.score_2 {
   background-color: lightgreen;
 }
+
+div.recipe_description {
+  font-size: larger;
+}
