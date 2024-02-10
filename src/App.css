@@ -359,3 +359,8 @@ span.score_2 {
 div.recipe_description {
   font-size: larger;
 }
+
+img.thumb_icon {
+  width: 24px;
+  margin-left: 8px;
+}

@@ -4,6 +4,7 @@ import Card from './Card';
 import CardDetail from './CardDetail';
 import StatusMessage from './StatusMessage';
 import WorkshopInputPickerJudge from './WorkshopInputPickerJudge';
+import WorkshopInputPickerRecipe from './WorkshopInputPickerRecipe';
 
 
 // props
@@ -69,7 +70,7 @@ class WorkshopPage extends React.Component {
 
   chooseMachineCard() {
     let cardBoxes = this.state.machineCards.map((card) => {
-      return (<li style={{ "display": "inline-block" }} onClick={(e) => this.onMachineSelect(card)}><CardDetail card={card.GetDb()} gameInfo={this.props.gameInfo} deck={this.props.gameInfo.deck} /></li>)
+      return (<li style={{ "display": "inline-block" }} onClick={(e) => this.onMachineSelect(card)}><CardDetail card={card.GetDb()} baseCards={this.props.gameInfo.baseCards} deck={this.props.gameInfo.deck} /></li>)
     })
     return (<div>
       Click on the card you would like to use:
@@ -95,7 +96,7 @@ class WorkshopPage extends React.Component {
     }
 
     let onPilesChange = (newPiles) => {
-      console.log(`newPiles = ${JSON.stringify(newPiles)}`);
+      console.log(`newPiles:called`);
       this.setState({inputPiles: newPiles, goodToGo: true});
     }
 
@@ -116,19 +117,24 @@ class WorkshopPage extends React.Component {
       //         <{this.state.machineCard.GetBase().GetInputUI()} life="42"/>
       // so instead for once hard-wire things, sorry...
       let pickerName = base.GetInputPickerComponentName();
-      // onPilesChange - f(newPiles, complete) -
+      // onPilesChange - f(newPiles) -
       // complete means that there's something in each required input,
       // needs to take deck as input so can show candidates
       // 
       let picker = "";
+      // TODO: remove when playerInfo.deck is Cards.
+      let deckCards = this.props.playerInfo.deck.map((c) => Card.Of(c));
       switch (pickerName) {
         case 'WorkshopInputPickerJudge':
-          // TODO: remove when playerInfo.deck is Cards.
-          let deckCards = this.props.playerInfo.deck.map((c) => Card.Of(c));
+
           picker = <WorkshopInputPickerJudge machine={this.state.machineCard} beGateway={this.props.beGateway}
-            deck={deckCards} baseCards={this.props.gameInfo.baseCards} onPilesChange={(newPiles) => onPilesChange(newPiles)}/>
-            break;
-            default:
+            deck={deckCards} baseCards={this.props.gameInfo.baseCards} onPilesChange={(newPiles) => onPilesChange(newPiles)} />
+          break;
+        case 'WorkshopInputPickerRecipe':
+          picker = <WorkshopInputPickerRecipe machine={this.state.machineCard} beGateway={this.props.beGateway}
+            deck={deckCards} baseCards={this.props.gameInfo.baseCards} onPilesChange={(newPiles) => onPilesChange(newPiles)}/>;
+          break;
+        default:
       }
       return <div className='workshop_inputs'>
         {picker}
@@ -145,10 +151,10 @@ class WorkshopPage extends React.Component {
       let statusMessage = `..trying to use the ${card.game_card.display_name}`;
       this.setState({statusMessage: statusMessage, statusType: 'info'});
 
-      // the input piles for the BE just have Ids in them...
+      // the input piles for the BE are cards
       let pilesOfIds = [];
       for (let step = 0; step < this.state.inputPiles.length; step++) {
-        let pileOfIds = this.state.inputPiles[step].map((baseCard) => baseCard.GetId());
+        let pileOfIds = this.state.inputPiles[step].map((card) => card.GetId());
         pilesOfIds.push(pileOfIds);
       }
       this.props.beGateway.use(gameId, playerId, machineId, pilesOfIds).then((v) => {

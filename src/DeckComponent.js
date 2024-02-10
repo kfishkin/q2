@@ -188,6 +188,7 @@ export class DeckComponent extends React.Component {
       console.log(`you cancelled the transaction`);
     }
     let sentenceObject = (this.state.selectedCards.length === 1) ? 'this card' : `these ${this.state.selectedCards.length} cards`;
+    console.log(`baseCards has length ${this.props.baseCards.length}`);
     return <div className='deck' flavor={this.flavor} current={this.props.current}>
       <span>{preamble}</span>
       <CardDetail card={this.state.focusCard} baseCards={this.props.baseCards} />

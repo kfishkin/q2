@@ -158,6 +158,7 @@ class TopLevel extends React.Component {
             case WORKSHOP_PAGE:
                 ans = <WorkshopPage beGateway={this.state.beGateway}
                     gameInfo={this.state.gameInfo} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
+                    baseCards={this.state.gameInfo.baseCards}
                     playerInfo={this.state.playerInfo} />;
                 break;              
             case LOOT_PAGE:

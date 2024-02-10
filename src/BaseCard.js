@@ -106,6 +106,10 @@ export class BaseCard { // abstract base class
         return null;
     }
 
+    GetRecipeInfo() {
+        return this.db.recipe;
+    }
+
     // factory method: make one for a given game card:
     static make(type, db) {
         switch (type) {
@@ -300,8 +304,12 @@ class CardTypeRecipe extends BaseCard {
     CanMakeCards() {
         return true;
     }
+    GetInputPickerComponentName() {
+        return "WorkshopInputPickerRecipe";
+
+    }
     GetNumInputs() {
-        return this.db.machine.num_inputs;
+        return this.db.recipe.ingredients.length;
     }    
     FullyDescribe(baseCards) {
         let recipe = this.db.recipe;
