@@ -65,7 +65,7 @@ export class BaseCard { // abstract base class
     GetDescription() {
         return this.db.description;
     }
-    
+
     GetDisplayName() {
         return this.db.display_name;
     }
@@ -92,7 +92,7 @@ export class BaseCard { // abstract base class
     }
 
     // fully describe the semantics of this card, which is of this type
-    FullyDescribe(gameInfo, playerDeck) {
+    FullyDescribe(gameInfo) {
         return <div><hr /><b>{this.db.display_name}</b> card: {this.db.description}</div>;
     }
 
@@ -242,21 +242,15 @@ class CardTypeRecipeOutline extends BaseCard {
     OpaqueDisplayName() {
         return "Recipe Outline"; // don't tell 'em what it's an outline for.
     }    
-    FullyDescribe(gameInfo, playerDeck) {
+    FullyDescribe(gameInfo) {
         let outline = this.db.recipe_outline;
-        console.log(`recipe outline fully describe of${JSON.stringify(outline)}`);
-        if (!outline) return super.FullyDescribe(gameInfo, playerDeck);
+        //console.log(`recipe outline fully describe of${JSON.stringify(outline)}`);
+        if (!outline) return super.FullyDescribe(gameInfo);
 
-        let preamble = this.db.description;
+        let preamble = this.GetDescription();
         if (outline.num_steps === 0) {
             return <div>{preamble}, which has <i>no</i> inputs</div>
         }
-        let baseCardCounts = {}; // key: base card id. value: # of times found.
-        if (playerDeck) playerDeck.forEach((card) => {
-            let prev = (this.db._id in baseCardCounts) ? baseCardCounts[this.db._id] : 0;
-            baseCardCounts[this.db._id] = prev + 1;
-        });
-        console.log(`baseCardCounts = ${JSON.stringify(baseCardCounts)}`);
 
         let amountString = (amtArray) => {
             if (amtArray.length === 1) return (<b>{amtArray[0]}</b>);
@@ -265,17 +259,13 @@ class CardTypeRecipeOutline extends BaseCard {
             return (<b>({firstPart} or {lastOne})</b>);
         }
         let ingredientString = (ingredArray) => {
-            let ingredName = (ingredId, index) => { // note it returns html.
+            let ingredName = (ingredId, index) => {
                 if (!ingredId) return "null";
-                if (!gameInfo || !gameInfo.baseCards) return ingredId + "A";
-                if (!(ingredId in gameInfo.baseCards)) return ingredId + "B";
-                let amtHave = (ingredId in baseCardCounts) ? baseCardCounts[ingredId] : 0;
-                let has = (amtHave > 0);
-                return <span has={has ? "yes" : "no"}>{index > 0 ? ", " : ""}{gameInfo.baseCards[ingredId].display_name}</span>;
+                return gameInfo.baseCards[ingredId].GetDisplayName();
             };
 
             if (ingredArray.length === 1) return (<b>{ingredArray[0]}</b>);
-            let firstPart = ingredArray.slice(0, -1).map((id, index) => ingredName(id, index));
+            let firstPart = ingredArray.slice(0, -1).map((id, index) => ingredName(id, index)).join();
             let lastOne = ingredName(ingredArray[ingredArray.length - 1]);
             return (<b>({firstPart} or {lastOne})</b>);
         }
@@ -288,8 +278,7 @@ class CardTypeRecipeOutline extends BaseCard {
             let ingredDescr = ingredientString(outline.possible_ingredients[step]);
             stepDescrs.push(<li><span><b>Step #{step + 1}:</b></span><span>is {amtDescr} of {ingredDescr}</span></li>);
         }
-        return <div>The Recipe has <b>{outline.num_steps}</b> {stepWord}:<ol>{stepDescrs}</ol>
-            <br />Ingredients look like <span has="yes">This</span> if you have them, <span has="no">That</span> if you don't</div>;
+        return <div>The Recipe has <b>{outline.num_steps}</b> {stepWord}:<ol>{stepDescrs}</ol></div>;
     }
 }
 // a Recipe card
@@ -380,5 +369,6 @@ class CardTypeScore extends BaseCard {
         super(CARD_TYPES.SCORE, db);
     }
     AltText() { return "Score" }
+    IconURL() { return "pix/card_types/score.png"; }
 }
 

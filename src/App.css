@@ -143,6 +143,8 @@ div.card_face_description {
   left: 40px;
   z-index: 5;
   font-family: Arial, Helvetica, sans-serif;
+  width: 250px;
+  text-align: left;
 }
 div.card_face_description_bg {
   z-index: 1;
@@ -337,11 +339,19 @@ background-color: greenyellow;
 height: 40px;
 }
 
-div.cards_modal {
-  background-image: url('../public/pix/card_backgrounds/congrats.png');
-}
-
 img.nav_arrow {
   margin-left: 1em;
   margin-right: 1em;
+}
+
+span.score_0 {
+  background-color: lightcoral;
+}
+
+span.score_1 {
+  background-color: lightyellow;
+}
+
+span.score_2 {
+  background-color: lightgreen;
 }

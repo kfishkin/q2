@@ -34,15 +34,17 @@ export class Card { // abstract base class
         }
         switch (db.game_card.type) {
             case BaseCard.CARD_TYPES.MACHINE:
-                    return new CardMachine(db);
-                default:
-                    return new Card(db);
+                return new CardMachine(db);
+            case BaseCard.CARD_TYPES.SCORE:
+                return new CardScore(db);
+            default:
+                return new Card(db);
 
         }
     }
 
     FullyDescribe(gameInfo, playerDeck) {
-        return this.baseCard.FullyDescribe(gameInfo, playerDeck)
+        return this.baseCard.FullyDescribe(gameInfo);
     }
 
     GetPlayerId() {
@@ -92,5 +94,66 @@ class CardMachine extends Card {
     }
 
 }
+
+class CardScore extends Card {
+    FullyDescribe(gameInfo, playerDeck) {
+        let score = this.db.score_info;
+        if (!score) {
+            return super.FullyDescribe(gameInfo, playerDeck);
+        }
+        // oof, a lot to say here.
+        // could compute this once and store it in the BE, but I don't
+        // want the BE to be in the business of storing HTML. Plus
+        // computers is fast.
+        let outlineBaseId = this.db.score_info.outline_id;
+        let outlineBase = gameInfo.baseCards[outlineBaseId];
+        if (!outlineBase) {
+            console.warn(`can't find outline ${outlineBaseId}`);
+            return super.FullyDescribe(gameInfo, playerDeck);
+        }
+        let recipeBaseId = this.db.score_info.recipe_id;
+        let recipeBase = gameInfo.baseCards[recipeBaseId];
+        if (!recipeBase) {
+            console.warn(`can't find recipe ${recipeBaseId}`);
+            return super.FullyDescribe(gameInfo, playerDeck);
+        }
+        let when = dayjs(this.db.score_info.when);
+        let whenStr = when.format('D MMM');
+        let numSteps = score.amounts.length;
+
+        const fillInSteps = (scoreInfo, baseCards) => {
+            let stepDescrs = [];
+            for (let step = 0; step < scoreInfo.amounts.length; step++) {
+                let amount = scoreInfo.amounts[step];
+                let ingredient = baseCards[scoreInfo.ingredient_ids[step]];
+                let amountScore = scoreInfo.amount_scores[step];
+                let ingredientScore = scoreInfo.ingredient_scores[step];
+                let stepDescr = <div>
+                    <span>Step <b>{step + 1}:</b></span>
+                    <span className={`score_${amountScore}`}>{amount}</span>
+                    &nbsp;of&nbsp;
+                    <span className={`score_${ingredientScore}`}>{ingredient.GetDisplayName()}</span>
+                </div>
+                stepDescrs.push(stepDescr);
+            }
+            return stepDescrs;
+        }
+
+        return (<div>
+            <span>{whenStr} score for a try at the <i>{recipeBase.GetDisplayName()}</i> recipe,
+            with {numSteps} steps.</span>
+            <hr/>
+            {fillInSteps(this.db.score_info, gameInfo.baseCards)}
+            <hr/>
+            <span>Legend:</span>
+            <br/><span class="score_2">1</span> -- right!
+            <br/><span class="score_1">1</span> -- right value, wrong position
+            <br/><span class="score_0">1</span> -- value not in the recipe.
+        </div>);
+
+    }
+
+}
+
 
 export default Card;
