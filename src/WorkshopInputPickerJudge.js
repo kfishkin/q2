@@ -1,5 +1,6 @@
 import React from 'react';
 import { Select, Space } from 'antd';
+import CardsModal from './CardsModal';
 
 
 
@@ -13,6 +14,8 @@ class WorkshopInputPickerJudge extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      showModal: false,
+      cardsForModal: [],
       statusMessage: "",
       statusType: "",
       outline: null // the base card for the recipe outline
@@ -100,7 +103,7 @@ class WorkshopInputPickerJudge extends React.Component {
 
       let preamble = <span>The recipe has <b>{outlineInfo.num_steps}</b> steps.
       For each one, specify the ingredient to use, and in what amount.
-      Ingredients that you don't have are shown <span class="dont_have">like this</span>.
+      Ingredients that you don't have are shown <span className="dont_have">like this</span>.
       </span>;
       // need to figure out, for each ingredient, the cards they have for that ingredient:
       let deckByBaseCardId = {}; // from id to array of Cards.
@@ -111,6 +114,30 @@ class WorkshopInputPickerJudge extends React.Component {
         deckByBaseCardId[baseId] = prev;
       });
       let stepsUI = []; // array, react element for the UI for each step.
+
+      // find previous scores against this outline, and let the use see them if they want.
+      const showHistory= () => {
+        let scoreCards = this.props.deck.filter((c) => c.GetBase().IsScore());
+        console.log(`scoreCards = ${JSON.stringify(scoreCards)}`);
+        // were any of them against this outline?
+        // done as two .filter() instead of one for clarity.
+        scoreCards = scoreCards.filter((c) => {
+          let info = c.GetScoreInfo();
+          if (info && info.outline_id === outlineBase.GetId()) {
+            return true;
+          }
+          return false;
+        })
+        console.log(`scoreCards2 = ${JSON.stringify(scoreCards)}`);
+
+        const showScoreCards = (scoreCards) => {
+          this.setState({ showModal: true, cardsForModal: scoreCards});
+        };
+        if (scoreCards && scoreCards.length > 0) {
+          return <button onClick={(e) => showScoreCards(scoreCards)}>See Scoring history</button>;
+        }
+        return "";
+      }
 
       const checkPile = (firstStep) => {
         let allOk = true;
@@ -204,7 +231,18 @@ class WorkshopInputPickerJudge extends React.Component {
       if (this.state.statusMessage.length > 0) {
         epilogue = (<div className='status_message' flavor={this.state.statusType}><span className='status_text'>{this.state.statusMessage}</span></div>);
       }
-      return (<div>{preamble}{stepsUI}{epilogue}</div>);
+
+      const handleOk = () => {
+        this.setState({showModal: false});
+      }
+
+      return (<div>{preamble}{showHistory()}{stepsUI}{epilogue}
+                <CardsModal title="Scores" open={this.state.showModal} onOk={handleOk} onCancel={handleOk}
+            cards={this.state.cardsForModal}
+            topHtml={<span>Previous score cards...</span>}
+            bottomHtml=""
+            baseCards={this.props.baseCards}
+          /></div>);
     }
 
     if (this.state.outline) {

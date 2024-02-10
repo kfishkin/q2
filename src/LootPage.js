@@ -65,7 +65,7 @@ class LootPage extends React.Component {
       return <div>Sorry, there was no treasure left in the room</div>
     }
     return <div>You found some treasure!
-      <DeckComponent deck={this.state.deck} gameInfo={this.props.gameInfo} ronly={true} />
+      <DeckComponent deck={this.state.deck} baseCards={this.props.gameInfo.baseCards} ronly={true} />
       <button onClick={(e) => onDoLoot(this.props.gameInfo.gameId, this.props.owner._id, this.props.playerId)}
         disabled={!transferrable}>Add to my deck</button>
       <StatusMessage message={this.state.statusMessage} type={this.state.statusType} />

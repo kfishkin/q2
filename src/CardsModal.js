@@ -12,8 +12,7 @@ import CardDetail from './CardDetail';
 //  bottomHtml - html to show below.
 // onOk, onCancel - callbacks
 // open - should I be open?
-// gameInfo - needed for description
-// deck - needed for description
+// baseCards - needed for description
 class CardsModal extends React.Component {
   // this is called once when the page first loads, NOT each time the parent state changes.
   constructor(props) {
@@ -54,7 +53,7 @@ class CardsModal extends React.Component {
 
     return (<Modal className="cards_modal" open={this.props.open} title={this.props.title} onOk={this.props.onOk} onCancel={this.props.onCancel}>
       {this.props.topHtml}
-       <CardDetail card={card} gameInfo={this.props.gameInfo} deck={this.props.deck} />
+       <CardDetail card={card} baseCards={this.props.baseCards} />
        {this.props.bottomHtml}
        {renderNavigation()}
   </Modal>)

@@ -91,8 +91,7 @@ class WorkshopPage extends React.Component {
       return this.chooseMachineCard();
     }
     let onChooseDifferent = () => {
-      this.setState({showModal: true, modalCard: this.props.playerInfo.deck[0]});
-      // this.setState({ machineCard: null });
+      this.setState({ machineCard: null });
     }
 
     let onPilesChange = (newPiles) => {
@@ -203,7 +202,7 @@ class WorkshopPage extends React.Component {
             The workshop is using a <b>{this.state.machineCard.game_card.display_name}</b> card.
             <br /> You can also <button onClick={(e) => onChooseDifferent()}>choose a different one</button>
           </div>
-          <CardDetail card={this.state.machineCard} gameInfo={this.props.gameInfo} deck={this.props.gameInfo.deck} />
+          <CardDetail card={this.state.machineCard} baseCards={this.props.gameInfo.baseCards} />
 
           <div className="postamble">
             <button id="machine_do" disabled={!this.state.goodToGo} onClick={(e) => onTurnCrank()}>Use it</button>
@@ -212,8 +211,7 @@ class WorkshopPage extends React.Component {
             cards={[this.state.modalCard]}
             topHtml={<span>You have just added a {this.state.modalCardName} card to your deck</span>}
             bottomHtml=""
-            gameInfo={this.props.gameInfo}
-            deck={this.props.gameInfo.deck}
+            baseCards={this.props.baseCards}
           />
         </div>
           {makeInputAreaUI()}

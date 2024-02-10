@@ -43,8 +43,8 @@ export class Card { // abstract base class
         }
     }
 
-    FullyDescribe(gameInfo, playerDeck) {
-        return this.baseCard.FullyDescribe(gameInfo);
+    FullyDescribe(baseCards) {
+        return this.baseCard.FullyDescribe(baseCards);
     }
 
     GetPlayerId() {
@@ -68,10 +68,14 @@ export class Card { // abstract base class
     GetBase() {
         return this.baseCard;
     }
+
+    GetScoreInfo() {
+        return this.db.score_info;
+    }
 }
 
 class CardMachine extends Card {
-    FullyDescribe(gameInfo, playerDeck) {
+    FullyDescribe(baseCards) {
         let machineInfo = this.db.machine;
         let message = 'has never been used.'
         if (machineInfo && machineInfo.last_used) {
@@ -96,26 +100,26 @@ class CardMachine extends Card {
 }
 
 class CardScore extends Card {
-    FullyDescribe(gameInfo, playerDeck) {
+    FullyDescribe(baseCards) {
         let score = this.db.score_info;
         if (!score) {
-            return super.FullyDescribe(gameInfo, playerDeck);
+            return super.FullyDescribe(baseCards);
         }
         // oof, a lot to say here.
         // could compute this once and store it in the BE, but I don't
         // want the BE to be in the business of storing HTML. Plus
         // computers is fast.
         let outlineBaseId = this.db.score_info.outline_id;
-        let outlineBase = gameInfo.baseCards[outlineBaseId];
+        let outlineBase = baseCards[outlineBaseId];
         if (!outlineBase) {
             console.warn(`can't find outline ${outlineBaseId}`);
-            return super.FullyDescribe(gameInfo, playerDeck);
+            return super.FullyDescribe(baseCards);
         }
         let recipeBaseId = this.db.score_info.recipe_id;
-        let recipeBase = gameInfo.baseCards[recipeBaseId];
+        let recipeBase = baseCards[recipeBaseId];
         if (!recipeBase) {
             console.warn(`can't find recipe ${recipeBaseId}`);
-            return super.FullyDescribe(gameInfo, playerDeck);
+            return super.FullyDescribe(baseCards);
         }
         let when = dayjs(this.db.score_info.when);
         let whenStr = when.format('D MMM');
@@ -143,7 +147,7 @@ class CardScore extends Card {
             <span>{whenStr} score for a try at the <i>{recipeBase.GetDisplayName()}</i> recipe,
             with {numSteps} steps.</span>
             <hr/>
-            {fillInSteps(this.db.score_info, gameInfo.baseCards)}
+            {fillInSteps(this.db.score_info, baseCards)}
             <hr/>
             <span>Legend:</span>
             <br/><span class="score_2">1</span> -- right!

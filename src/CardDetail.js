@@ -4,8 +4,7 @@ import Card from './Card';
 
 // props: 
 //  card - the card to show detail for.
-// gameInfo - top-level game info, needed for the description/semantics.
-// deck - the players current deck
+// baseCards - the base cards
 class CardDetail extends React.Component {
   render() {
     if (!this.props.card) {
@@ -37,7 +36,7 @@ class CardDetail extends React.Component {
         {baseCard.GetBattleValue()}
       </div>,
       <div className='card_face_description'>
-        {card.FullyDescribe(this.props.gameInfo, this.props.deck)}
+        {card.FullyDescribe(this.props.baseCards)}
       </div>);
     let imgUrl = baseCard.DescriptionBackgroundImageURL();
     if (imgUrl) {

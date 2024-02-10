@@ -83,6 +83,9 @@ export class BaseCard { // abstract base class
     IsJudgeable() {
         return false;
     }
+    IsScore() {
+        return false;
+    }
 
     DescriptionBackgroundImageURL() {
         return "";
@@ -92,7 +95,7 @@ export class BaseCard { // abstract base class
     }
 
     // fully describe the semantics of this card, which is of this type
-    FullyDescribe(gameInfo) {
+    FullyDescribe(baseCards) {
         return <div><hr /><b>{this.db.display_name}</b> card: {this.db.description}</div>;
     }
 
@@ -242,10 +245,10 @@ class CardTypeRecipeOutline extends BaseCard {
     OpaqueDisplayName() {
         return "Recipe Outline"; // don't tell 'em what it's an outline for.
     }    
-    FullyDescribe(gameInfo) {
+    FullyDescribe(baseCards) {
         let outline = this.db.recipe_outline;
         //console.log(`recipe outline fully describe of${JSON.stringify(outline)}`);
-        if (!outline) return super.FullyDescribe(gameInfo);
+        if (!outline) return super.FullyDescribe(baseCards);
 
         let preamble = this.GetDescription();
         if (outline.num_steps === 0) {
@@ -261,11 +264,11 @@ class CardTypeRecipeOutline extends BaseCard {
         let ingredientString = (ingredArray) => {
             let ingredName = (ingredId, index) => {
                 if (!ingredId) return "null";
-                return gameInfo.baseCards[ingredId].GetDisplayName();
+                return baseCards[ingredId].GetDisplayName();
             };
 
             if (ingredArray.length === 1) return (<b>{ingredArray[0]}</b>);
-            let firstPart = ingredArray.slice(0, -1).map((id, index) => ingredName(id, index)).join();
+            let firstPart = ingredArray.slice(0, -1).map((id, index) => ingredName(id, index)).join(', ');
             let lastOne = ingredName(ingredArray[ingredArray.length - 1]);
             return (<b>({firstPart} or {lastOne})</b>);
         }
@@ -276,7 +279,7 @@ class CardTypeRecipeOutline extends BaseCard {
             let possible_amounts = outline.possible_amounts[step];
             let amtDescr = amountString(possible_amounts);
             let ingredDescr = ingredientString(outline.possible_ingredients[step]);
-            stepDescrs.push(<li><span><b>Step #{step + 1}:</b></span><span>is {amtDescr} of {ingredDescr}</span></li>);
+            stepDescrs.push(<li><span>{amtDescr} of {ingredDescr}</span></li>);
         }
         return <div>The Recipe has <b>{outline.num_steps}</b> {stepWord}:<ol>{stepDescrs}</ol></div>;
     }
@@ -370,5 +373,6 @@ class CardTypeScore extends BaseCard {
     }
     AltText() { return "Score" }
     IconURL() { return "pix/card_types/score.png"; }
+    IsScore() { return true; }
 }
 

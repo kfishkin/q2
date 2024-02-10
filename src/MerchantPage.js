@@ -115,9 +115,9 @@ class MerchantPage extends React.Component {
     let buying = this.state.buying;
     return <div>Hello from the merchant page for merchant {this.props.owner.name}'s store.
       <br />{showModalUI()}
-      <DeckComponentMerchant deck={this.state.merchantDeck} gameInfo={this.props.gameInfo} current={buying ? "yes" : "no"}
+      <DeckComponentMerchant deck={this.state.merchantDeck} baseCards={this.props.gameInfo.baseCards} current={buying ? "yes" : "no"}
         onTransact={(cards) => this.onStartBuy(cards)} />
-      <DeckComponent deck={this.props.playerInfo.deck} gameInfo={this.props.gameInfo} current={buying ? "no" : "yes"}
+      <DeckComponent deck={this.props.playerInfo.deck} baseCards={this.props.gameInfo.baseCards} current={buying ? "no" : "yes"}
         onTransact={(cards) => this.onStartSell(cards)} />
       <StatusMessage message={this.state.statusMessage} type={this.state.statusType} />
     </div>;

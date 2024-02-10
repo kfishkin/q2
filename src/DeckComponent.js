@@ -7,7 +7,7 @@ import CardsModal from './CardsModal';
 
 // props:
 // deck - array of cards
-// gameInfo
+// baseCards
 // ronly - read-only. No buying or selling.
 // onTransact - f(cards), called if user indicates they want to buy/sell the given cards.
 export class DeckComponent extends React.Component {
@@ -118,7 +118,7 @@ export class DeckComponent extends React.Component {
 
   // props
   // deck - array of cards in the deck.
-  // gameInfo - top-level game info, a dict.
+  // baseCards - top-level game info, a dict.
   render() {
     let deck = this.props.deck;
     if (!deck || deck.length === 0) {
@@ -190,7 +190,7 @@ export class DeckComponent extends React.Component {
     let sentenceObject = (this.state.selectedCards.length === 1) ? 'this card' : `these ${this.state.selectedCards.length} cards`;
     return <div className='deck' flavor={this.flavor} current={this.props.current}>
       <span>{preamble}</span>
-      <CardDetail card={this.state.focusCard} gameInfo={this.props.gameInfo} deck={deck} />
+      <CardDetail card={this.state.focusCard} baseCards={this.props.baseCards} />
       <StatusMessage message={this.state.statusMessage} type={this.state.statusType}
         onClick={(e) => this.onStatusMessageClick(e)} />
       <Table columns={columns} dataSource={antInnards} rowSelection={this.rowSelectionController}
@@ -204,8 +204,7 @@ export class DeckComponent extends React.Component {
   cards={this.state.selectedCards}
   topHtml={<span>Sure you want to {this.state.verb} {sentenceObject}?</span>}
   bottomHtml=""
-  gameInfo={this.props.gameInfo}
-  deck={this.props.deck}
+  baseCards={this.props.baseCards}
 />
     </div>
   }
