@@ -104,6 +104,8 @@ class WorkshopInputPickerJudge extends React.Component {
       let preamble = <span>The recipe has <b>{outlineInfo.num_steps}</b> steps.
       For each one, specify the ingredient to use, and in what amount.
       Ingredients that you don't have are shown <span className="dont_have">like this</span>.
+      Steps with <img src='pix/icons/consumed64.png' className='consumed_icon' alt='consumed'></img>
+      by them show that the ingredient(s) will be destroyed as part of the judging.
       </span>;
       // need to figure out, for each ingredient, the cards they have for that ingredient:
       let deckByBaseCardId = {}; // from id to array of Cards.
@@ -218,11 +220,13 @@ class WorkshopInputPickerJudge extends React.Component {
       for (let step = 0; step < outlineInfo.num_steps; step++) {
         let amts = outlineInfo.possible_amounts[step];
         let ingredIds = outlineInfo.possible_ingredients[step];
+        let consumed = outlineInfo.consumes[step];
+        let consumedImg = consumed?(<img className='consumed_icon' alt='consumed' src='pix/icons/consumed64.png'/>):'';
         stepsUI.push(
           <div className='picker_step'>
-            <span className='leadin'>Step #{step + 1} :</span>
-            <span>amount: {renderAmountSelect(step, amts)}</span>
-            <span>, ingredient: {renderIngredSelect(step, ingredIds)}</span>
+            <span className='leadin'>Step #{step + 1} {consumedImg}: &nbsp;</span>
+            <span>{renderAmountSelect(step, amts)}</span>
+            <span> of  {renderIngredSelect(step, ingredIds)}</span>
             </div>
         )
       }

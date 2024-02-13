@@ -364,3 +364,13 @@ img.thumb_icon {
   width: 24px;
   margin-left: 8px;
 }
+
+tbody tr {
+  cursor: pointer;
+}
+
+img.consumed_icon {
+  width: 24px;;
+  border:0;
+  vertical-align: middle;
+}
