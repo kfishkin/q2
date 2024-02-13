@@ -188,7 +188,7 @@ export class DeckComponent extends React.Component {
       console.log(`you cancelled the transaction`);
     }
     let sentenceObject = (this.state.selectedCards.length === 1) ? 'this card' : `these ${this.state.selectedCards.length} cards`;
-    console.log(`baseCards has length ${this.props.baseCards.length}`);
+    //console.log(`baseCards has length ${this.props.baseCards.length}`);
     return <div className='deck' flavor={this.flavor} current={this.props.current}>
       <span>{preamble}</span>
       <CardDetail card={this.state.focusCard} baseCards={this.props.baseCards} />
@@ -222,7 +222,7 @@ export class DeckComponentMerchant extends DeckComponent {
 
   // can buy for sell value + markup, and at least $1
   valueDataMaker(card) {
-    let MARKUP = 1.30; // seems about right...
+    let MARKUP = 2.00; // as per Jim :)
     let price = Math.max(1, Math.ceil(card.game_card.sell_value * MARKUP));
     return ['price', price];
   };

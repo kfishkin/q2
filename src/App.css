@@ -120,14 +120,14 @@ div.card_face_title {
   font-size:larger
 }
 
-div.card_face_battle_image {
+div.card_face_weapon_image {
   position: absolute;
   top: 8px;
   right: 8px;
   z-index: 0;
   opacity: 30%;
 }
-div.card_face_battle_value {
+div.card_face_weapon_value {
   position: absolute;
   top: 8px;
   right: 14px;

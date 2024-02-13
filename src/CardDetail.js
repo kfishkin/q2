@@ -29,11 +29,11 @@ class CardDetail extends React.Component {
       <div className='card_face_value'>
         ({baseCard.GetSellValue()})
       </div>,
-      <div className='card_face_battle_image'>
-        <img src="pix/general/sword_icon.png" width="32" alt="battle" />
+      <div className='card_face_weapon_image'>
+        <img src="pix/general/sword_icon.png" width="32" alt="weapon" />
       </div>,
-      <div className='card_face_battle_value'>
-        {baseCard.GetBattleValue()}
+      <div className='card_face_weapon_value'>
+        {baseCard.GetWeaponValue()}
       </div>,
       <div className='card_face_description'>
         {card.FullyDescribe(this.props.baseCards)}

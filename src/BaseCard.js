@@ -7,11 +7,12 @@ export const CARD_TYPES = {
     MACHINE: 4,
     RECIPE_OUTLINE: 5,
     RECIPE: 6,
-    BATTLE: 7,
+    WEAPON: 7,
     BATTLE_MODIFIER: 8,
     INGREDIENT: 9,
     TICKET: 10,
-    SCORE: 11
+    SCORE: 11,
+    ARMOR: 12
 };
 
 /**
@@ -29,8 +30,8 @@ export class BaseCard { // abstract base class
         return this.type;
     }
 
-    GetBattleValue() {
-        return this.db.battle_value;
+    GetWeaponValue() {
+        return 'weapon_value' in this.db ? this.db.weapon_value : 0;
     }
     
     GetId() {
@@ -137,7 +138,8 @@ export class BaseCard { // abstract base class
                 }
             case CARD_TYPES.RECIPE_OUTLINE: return new CardTypeRecipeOutline(db);
             case CARD_TYPES.RECIPE: return new CardTypeRecipe(db);
-            case CARD_TYPES.BATTLE: return new CardTypeBattle(db);
+            case CARD_TYPES.WEAPON: return new CardTypeWeapon(db);
+            case CARD_TYPES.ARMOR: return new CardTypeArmor(db);
             case CARD_TYPES.BATTLE_MODIFIER: return new CardTypeBattleModifier(db);
             case CARD_TYPES.INGREDIENT: return new CardTypeIngredient(db);
             case CARD_TYPES.TICKET: return new CardTypeTicket(db);
@@ -271,9 +273,10 @@ class CardTypeRecipeOutline extends BaseCard {
                 return baseCards[ingredId].GetDisplayName();
             };
 
-            if (ingredArray.length === 1) return (<b>{ingredArray[0]}</b>);
+            
             let firstPart = ingredArray.slice(0, -1).map((id, index) => ingredName(id, index)).join(', ');
             let lastOne = ingredName(ingredArray[ingredArray.length - 1]);
+            if (ingredArray.length === 1) return (<b>{lastOne}</b>);
             return (<b>({firstPart} or {lastOne})</b>);
         }
 
@@ -328,18 +331,38 @@ class CardTypeRecipe extends BaseCard {
     }    
 
 }
-// a Battle card
-class CardTypeBattle extends BaseCard {
+// a Weapon card
+class CardTypeWeapon extends BaseCard {
     constructor(db) {
-        super(CARD_TYPES.BATTLE, db);
+        super(CARD_TYPES.WEAPON, db);
     }
-    AltText() { return "Battle" }
-    IconURL() { return "pix/card_types/battle.png"; }
+    AltText() { return "Weapon" }
+    IconURL() { return "pix/card_types/weapon.png"; }
     BattleModifierImage() {
         return "";
     }
-
+    FullyDescribe(baseCards) {
+        // TODO: incorporate wear
+        return super.FullyDescribe(baseCards);
+    }
 }
+
+// an Armor card
+class CardTypeArmor extends BaseCard {
+    constructor(db) {
+        super(CARD_TYPES.ARMOR, db);
+    }
+    AltText() { return "Armor" }
+    IconURL() { return "pix/card_types/armor.png"; }
+    BattleModifierImage() {
+        return "";
+    }
+    FullyDescribe(baseCards) {
+        // TODO: incorporate wear
+        return super.FullyDescribe(baseCards);
+    }
+}
+
 
 // must match what's in BE.
 const BattleModifierType = {
