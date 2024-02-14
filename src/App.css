@@ -33,6 +33,12 @@ div.deck[current="no"] {
 div.deck[current="yes"] {
   display: block;
 }
+div.repair_component[current="no"] {
+  display: none;
+}
+div.repair_component[current="yes"] {
+  display: block;
+}
 
 #userEntry input {
   background-color: bisque;
@@ -136,6 +142,24 @@ div.card_face_weapon_value {
   font-size:xx-large;
   color:black;
 }
+
+div.card_face_armor_image {
+  position: absolute;
+  top: 8px;
+  right: 6px;
+  z-index: 0;
+  opacity: 30%;
+}
+div.card_face_armor_value {
+  position: absolute;
+  top: 8px;
+  right: 14px;
+  z-index: 1;
+  font-weight: bold;
+  font-size:xx-large;
+  color:black;
+}
+
 
 div.card_face_description {
   position: absolute;
@@ -373,4 +397,60 @@ img.consumed_icon {
   width: 24px;;
   border:0;
   vertical-align: middle;
+}
+
+span.wear_damage {
+  font-weight: bolder;
+  color: darkred;
+}
+
+div[horiz] {
+  display: inline-block;
+}
+
+ul.repair_list {
+  cursor: pointer;
+}
+
+ul.repair_list li:hover {
+  background-color: pink;
+}
+
+div.map_display {
+  position: relative;
+  height: 420px;
+}
+
+div.map_rooms_display {
+  text-align: left;
+  width: 512px;
+  z-index: 1;
+}
+
+img.biome_pic {
+  width: 192px;
+  position: absolute;
+  opacity: 30%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+img[quadrant='nw'] {
+  left: 24px;
+  top: 0;
+}
+
+img[quadrant='ne'] {
+  left: 240px;
+  top: 0;
+}
+
+img[quadrant='sw'] {
+  left: 24px;
+  top: 216px;
+}
+
+img[quadrant='se'] {
+  left: 240px;
+  top: 216px;
 }

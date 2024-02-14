@@ -336,6 +336,29 @@ class BEGateway {
         }
     }    
 
+    // player (playerId) in game (gameId) wants to repair the cards with the given IDs
+    async repair(gameId, playerId, cardIds) {
+        const url = this.beURI
+            + "cards/repair";
+        let body = {
+            gameId: gameId,
+            playerId: playerId,
+            cardIds: cardIds
+        };
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }
+        try {
+            const response = await fetch(url, requestOptions);
+            console.log(`fe.repair: fetch returns ${response}`);
+            return response;
+        } catch (e) {
+            return Promise.reject(e.name + ":" + e.message);
+        }
+    }        
+
     // in game (gameId), can player (playerId), use machine (machineId),
     // where (piles) is the piles of input cards?
     // note the answer may change between when this is computed and when

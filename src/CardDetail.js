@@ -28,14 +28,29 @@ class CardDetail extends React.Component {
       </div>,
       <div className='card_face_value'>
         ({baseCard.GetSellValue()})
-      </div>,
-      <div className='card_face_weapon_image'>
-        <img src="pix/general/sword_icon.png" width="32" alt="weapon" />
-      </div>,
-      <div className='card_face_weapon_value'>
-        {baseCard.GetWeaponValue()}
-      </div>,
-      <div className='card_face_description'>
+      </div>);
+
+    if (baseCard.GetRawArmorValue() > 0) {
+      parts.push(
+        <div className='card_face_armor_image'>
+          <img src="pix/icons/armor.png" width="32" alt="armor" />
+        </div>,
+        <div className='card_face_armor_value'>
+          {card.GetNetArmorValue()}
+        </div>)
+    };
+
+    if (baseCard.GetRawWeaponValue() > 0) {
+      parts.push(
+        <div className='card_face_weapon_image'>
+          <img src="pix/general/sword_icon.png" width="32" alt="weapon" />
+        </div>,
+        <div className='card_face_weapon_value'>
+          {card.GetNetWeaponValue()}
+        </div>)
+    };
+
+      parts.push(<div className='card_face_description'>
         {card.FullyDescribe(this.props.baseCards)}
       </div>);
     let imgUrl = baseCard.DescriptionBackgroundImageURL();

@@ -55,6 +55,13 @@ class TopLevel extends React.Component {
         })
     }
 
+    onUnloadCurrentGame() {
+        let newPlayerData = { ...this.state.playerInfo };
+        delete newPlayerData.deck;
+
+        this.setState({gameInfo: null, playerInfo: newPlayerData});
+    }
+
     onLogout() {
         console.log('logging out');
         this.setState({
@@ -143,7 +150,9 @@ class TopLevel extends React.Component {
             case GAME_ADMIN_PAGE:
                 ans = <GameChoicePage playerInfo={this.state.playerInfo} beGateway={this.state.beGateway}
                     gameInfo={this.state.gameInfo}
-                    onSetCurrentGame={(gameId, gameName) => this.onSetCurrentGame(gameId, gameName)}></GameChoicePage>
+                    onSetCurrentGame={(gameId, gameName) => this.onSetCurrentGame(gameId, gameName)}
+                        onUnloadCurrentGame={() => this.onUnloadCurrentGame()}>
+                    </GameChoicePage>
                 break;
             case GAME_PAGE:
                 ans = <GamePage playerInfo={this.state.playerInfo} gameInfo={this.state.gameInfo} beGateway={this.state.beGateway}
@@ -181,12 +190,14 @@ class TopLevel extends React.Component {
         // make the templates for the nav menu. could/should be done in the ctor,
         // but those should be short and simple, and computers is fast.
         let loggedIn = this.state.playerInfo && this.state.playerInfo.handle;
+        let haveGame = this.state.gameInfo && this.state.gameInfo.gameId;
+        let haveDeck = this.state.playerInfo && this.state.playerInfo.deck;
         let pageTemplates = [
             new PageTemplate(LOGIN_PAGE, loggedIn ? "Logout" : "Login", true),
             new PageTemplate(GAME_ADMIN_PAGE, "Game Admin", loggedIn),
-            new PageTemplate(GAME_PAGE, "Game", this.state.gameInfo && this.state.gameInfo.gameId),
-            new PageTemplate(WORKSHOP_PAGE, "Workshop", this.state.playerInfo && this.state.playerInfo.deck),
-            new PageTemplate(CASHIER_PAGE, "Cashier",this.state.playerInfo && this.state.playerInfo.deck),
+            new PageTemplate(GAME_PAGE, "Game", haveGame),
+            new PageTemplate(WORKSHOP_PAGE, "Workshop", haveGame && haveDeck),
+            new PageTemplate(CASHIER_PAGE, "Cashier", haveGame && haveDeck),
             new PageTemplate(CONFIG_PAGE, "Config", true)
         ]
 

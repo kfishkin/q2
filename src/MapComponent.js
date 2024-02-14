@@ -123,8 +123,17 @@ class MapComponent extends React.Component {
       }
       rows.push(<div><span>{label}  </span>{cols}</div>)
     }
-    return <div>
-      <br />{rows}</div>;
+    return <div><div className='map_display'>
+
+      <div className='map_rooms_display'>
+        {rows}
+        <img src='pix/biomes/earth.png' quadrant='nw' className='biome_pic' alt='' />
+      <img src='pix/biomes/fire.png' quadrant='ne' className='biome_pic' alt='' />
+      <img src='pix/biomes/ice.png' quadrant='sw' className='biome_pic'  alt=''/>
+      <img src='pix/biomes/air.png' quadrant='se' className='biome_pic' alt='' /></div>
+      </div>
+
+    </div>
   }
 }
 export default MapComponent;

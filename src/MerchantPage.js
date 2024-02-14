@@ -2,6 +2,7 @@ import React from 'react';
 import Card from './Card';
 import StatusMessage from './StatusMessage';
 import { DeckComponent, DeckComponentMerchant } from './DeckComponent';
+import RepairComponent from './RepairComponent';
 
 
 // props
@@ -10,14 +11,21 @@ import { DeckComponent, DeckComponentMerchant } from './DeckComponent';
 // gameInfo
 // playerInfo
 // onPlayerDeckBEChange
+const Action = {
+  BUYING: 0,
+  SELLING: 1,
+  BLACKSMITH: 2
+}
+
 class MerchantPage extends React.Component {
+
   constructor(props) {
     super(props);
     this.state = {
       merchantDeck: null,
       statusMessage: "",
       statusType: "info",
-      buying: true
+      action: Action.BUYING
     };
     this.loadingMerchant = false;
   }
@@ -96,30 +104,62 @@ class MerchantPage extends React.Component {
       });
   }
 
+  onStartRepair(cards) {
+    console.log(`wants to repair cards ${JSON.stringify(cards)}`);
+    // just need the IDs to send over the wire.
+    if (!cards) return;
+    let cardIds = cards.map((card) => card._id);
+    this.setState({ statusMessage: `repairing...`, statusType: 'info' });
+    this.props.beGateway.repair(this.props.gameInfo.gameId, this.props.playerInfo.playerId,cardIds)
+      .then((v) => {
+        console.log(`onStartRepair: v = ${JSON.stringify(v)}`);
+        if (!v.ok) {
+          console.log(`fail in onStartRepair`);
+          this.setState({ statusMessage: `error ${v.status} on repair: ${v.statusText}`, statusType: 'error' });
+        }
+        this.setState({ statusMessage: 'repaired!', statusType: 'success' });
+        this.props.onPlayerDeckBEChange(); // the player deck has changed
+      }).catch((e) => {
+        this.setState({ statusMessage: JSON.stringify(e), statusType: 'error' });
+      });    
+  }
+
   render() {
     if (!this.props.owner) {
       return <div>Oops, merchant page, but no merchant supplied</div>
     }
     let showModalUI = () => {
-      let setBuying = (val) => { this.setState({ buying: val }) };
+      let setAction = (val) => { 
+        this.setState({ action: val }
+          ) };
 
-      let buying = this.state.buying;
+      let buying = this.state.action === Action.BUYING;
+      let selling = this.state.action === Action.SELLING;
+      let repairing = this.state.action === Action.BLACKSMITH;
 
-      return <div><button className="merchant" current={buying ? "yes" : "no"} onClick={(e) => setBuying(true)}>Buy</button>
-        <button className="merchant" current={buying ? "no" : "yes"} onClick={(e) => setBuying(false)}>Sell</button>
+      return <div><button className="merchant" current={buying ? "yes" : "no"} onClick={(e) => setAction(Action.BUYING)}>Buy</button>
+        <button className="merchant" current={selling ? "yes" : "no"} onClick={(e) => setAction(Action.SELLING)}>Sell</button>
+        <button className="merchant" current={repairing ? "yes" : "no"} onClick={(e) => setAction(Action.BLACKSMITH)}>Repair</button>
       </div>;
 
     }
 
 
-    let buying = this.state.buying;
+    let buying = this.state.action === Action.BUYING;
+    let selling = this.state.action === Action.SELLING;
+    let repairing = this.state.action === Action.BLACKSMITH;
+    // TODO: remove once playerInfo.deck is real cards.
+    let deckObjs = this.props.playerInfo.deck.map((dbObj) => Card.Of(dbObj));
     return <div>Hello from the merchant page for merchant {this.props.owner.name}'s store.
       <br />{showModalUI()}
       <DeckComponentMerchant deck={this.state.merchantDeck} baseCards={this.props.gameInfo.baseCards} current={buying ? "yes" : "no"}
         onTransact={(cards) => this.onStartBuy(cards)} />
-      <DeckComponent deck={this.props.playerInfo.deck} baseCards={this.props.gameInfo.baseCards} current={buying ? "no" : "yes"}
+      <DeckComponent deck={this.props.playerInfo.deck} baseCards={this.props.gameInfo.baseCards} current={selling ? "yes" : "no"}
         onTransact={(cards) => this.onStartSell(cards)} />
-      <StatusMessage message={this.state.statusMessage} type={this.state.statusType} />
+        <RepairComponent deck={deckObjs} current={repairing ? "yes" : "no"}
+        onTransact={(cards) => this.onStartRepair(cards)} />
+      <StatusMessage message={this.state.statusMessage} type={this.state.statusType}
+      />
     </div>;
   }
 }

@@ -11,6 +11,7 @@ dayjs.extend(localizedFormat);
 // beGateway - BE gateway
 // onSetCurrentGame - f(gameId, gameName)
 // gameInfo
+// onUnloadCurrentGame - if current game is deleted.
 
 class GameChoicePage extends React.Component {
   BEFORE = 0;
@@ -176,7 +177,10 @@ class GameChoicePage extends React.Component {
             .then((v) => {
               console.log(`v from delete game = ${v}`);
               this.loadingState = this.BEFORE;
-              this.setState({ statusMessage: "game deleted", playerGames: null, statusType: 'error'});
+              this.setState({ statusMessage: "game deleted", playerGames: null, statusType: 'info'});
+              if (this.props.gameInfo && this.props.gameInfo.gameId === gameId && this.props.onUnloadCurrentGame) {
+                this.props.onUnloadCurrentGame();
+              }
             }).catch((e) => {
               console.errpr(`e from delete game ${e}`);
               this.setState({ statusMessage: "couldn't delete the game, sorry" , statusType: "error"});

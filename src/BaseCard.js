@@ -30,7 +30,11 @@ export class BaseCard { // abstract base class
         return this.type;
     }
 
-    GetWeaponValue() {
+    GetRawArmorValue() {
+        return 'armor_value' in this.db ? this.db.armor_value : 0;
+    }
+
+    GetRawWeaponValue() {
         return 'weapon_value' in this.db ? this.db.weapon_value : 0;
     }
     
@@ -341,6 +345,9 @@ class CardTypeWeapon extends BaseCard {
     BattleModifierImage() {
         return "";
     }
+    DescriptionBackgroundImageURL() {
+        return `pix/card_backgrounds/${this.db.handle}.png`;
+    }       
     FullyDescribe(baseCards) {
         // TODO: incorporate wear
         return super.FullyDescribe(baseCards);
@@ -357,6 +364,10 @@ class CardTypeArmor extends BaseCard {
     BattleModifierImage() {
         return "";
     }
+
+    DescriptionBackgroundImageURL() {
+        return `pix/card_backgrounds/${this.db.handle}.png`;
+    }    
     FullyDescribe(baseCards) {
         // TODO: incorporate wear
         return super.FullyDescribe(baseCards);

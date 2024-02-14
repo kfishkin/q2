@@ -33,13 +33,16 @@ export class Card { // abstract base class
             return db;
         }
         switch (db.game_card.type) {
+            case BaseCard.CARD_TYPES.ARMOR:
+                return new CardArmor(db);
             case BaseCard.CARD_TYPES.MACHINE:
                 return new CardMachine(db);
             case BaseCard.CARD_TYPES.SCORE:
                 return new CardScore(db);
+            case BaseCard.CARD_TYPES.WEAPON:
+                return new CardWeapon(db);
             default:
                 return new Card(db);
-
         }
     }
 
@@ -72,6 +75,26 @@ export class Card { // abstract base class
     GetScoreInfo() {
         return this.db.score_info;
     }
+
+    GetArmorWear() {
+        return (this.db && this.db.armor_info && ('wear' in this.db.armor_info))
+            ? this.db.armor_info.wear : 0;
+    }
+
+    GetWeaponWear() {
+        return (this.db && this.db.weapon_info && ('wear' in this.db.weapon_info))
+            ? this.db.weapon_info.wear : 0;
+    }
+
+    GetNetArmorValue() {
+        let val = this.GetBase().GetRawArmorValue();
+        return Math.max(0, val - this.GetArmorWear());
+    }
+
+    GetNetWeaponValue() {
+        let val = this.GetBase().GetRawWeaponValue();
+        return Math.max(0, val - this.GetWeaponWear());
+    }    
 }
 
 class CardMachine extends Card {
@@ -96,8 +119,39 @@ class CardMachine extends Card {
 
         return (<div><hr/><b>{base.GetDisplayName()}</b> card: {base.GetDescription()}.<hr/>It {message}</div>);
     }
-
 }
+
+class CardArmor extends Card {
+    FullyDescribe(baseCards) {
+        if (this.GetArmorWear() === 0) {
+            return super.FullyDescribe(baseCards);
+        }
+        let base = this.GetBase();
+        return (<div>
+            <hr/>
+            <span><b>{base.GetDisplayName()}</b> card: {base.GetDescription()}.</span>
+            <hr/>
+            <span>worth {base.GetRawArmorValue()}, but has wear damage of </span><span class="wear_damage">{this.GetArmorWear()}</span>
+        </div>);
+    }
+}
+
+
+class CardWeapon extends Card {
+    FullyDescribe(baseCards) {
+        if (this.GetWeaponWear() === 0) {
+            return super.FullyDescribe(baseCards);
+        }
+        let base = this.GetBase();
+        return (<div>
+            <hr/>
+            <span><b>{base.GetDisplayName()}</b> card: {base.GetDescription()}.</span>
+            <hr/>
+            <span>worth {base.GetRawWeaponValue()}, but has wear damage of </span><span class="wear_damage">{this.GetWeaponWear()}</span>
+        </div>);
+    }
+}
+
 
 class CardScore extends Card {
     FullyDescribe(baseCards) {
