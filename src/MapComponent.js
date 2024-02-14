@@ -8,6 +8,7 @@ import { LOOT_PAGE, MERCHANT_PAGE } from './NavMenu';
 // gameId - gameId.
 // playerId - playerId
 // beGateway
+// onLoadMap() - BE map has changed.
 class MapComponent extends React.Component {
   constructor(props) {
     super(props);
@@ -24,6 +25,7 @@ class MapComponent extends React.Component {
         // TODO: make this an attribute, not kludged:
         let room = rooms[col];
         if (room.per_player_info && room.per_player_info.traversable) {
+          console.log(`[${row}, ${col}] is traversable`);
           room.reachable = true;
           stack.push([row, col]);
         }
@@ -34,6 +36,7 @@ class MapComponent extends React.Component {
       let tuple = stack.shift();
       let meRow = tuple[0];
       let meCol = tuple[1];
+      console.log(`popped [${meRow}, ${meCol}] is traversable`);
       // let room = map.rooms[meRow][meCol];
       for (let row = meRow - 1; row <= meRow + 1; row++) {
         if (row < 0 || row >= map.height) continue;
@@ -74,11 +77,13 @@ class MapComponent extends React.Component {
             // v[1] will have more info....
             switch (code) {
               case 'EMPTY':
+                this.props.onLoadMap(); // empty room is now traversable.
                 window.confirm('The room is empty');
                 break;
               case 'LOOT':
                 window.confirm("You may have found some treasure!");
                 owner = v[1]; // the pseudo-player who owns the loot.
+                this.props.onLoadMap();
                 showPageFunc(LOOT_PAGE, { owner: owner });
                 break;
               case 'MERCHANT':
@@ -105,11 +110,14 @@ class MapComponent extends React.Component {
         let reachableStyle = reachable ? "yes" : "no";
         let per_player_message = room.per_player_info && room.per_player_info.description ? room.per_player_info.description : "";
         let elt = null;
-        let mapLabel = room.per_player_info && room.reachable ? room.title : (" ???? ");
+        let mapLabel = room.per_player_info && room.reachable ? room.title : ("???");
+        // kludge for display...
+        if (mapLabel === 'Empty')
+          mapLabel = '---';
         if (reachable) {
-          elt = <button reachable="yes" title={per_player_message} onClick={(e) => enterRoom(this.props.gameId, row, col, x, y, this.props.playerId)}> {mapLabel} </button>
+          elt = <button className='map_room_button' reachable="yes" title={per_player_message} onClick={(e) => enterRoom(this.props.gameId, row, col, x, y, this.props.playerId)}>{mapLabel}</button>
         } else {
-          elt = <span reachable={reachableStyle} title={per_player_message}>&nbsp;{mapLabel}&nbsp;</span>
+          elt = <button className='map_room_button' disabled="disabled" reachable={reachableStyle} title={per_player_message}>{mapLabel}</button>
         }
         /*
         if (room.owner && room.owner.type === PlayerTypes.MERCHANT) {
@@ -121,19 +129,26 @@ class MapComponent extends React.Component {
 
         cols.push(elt);
       }
-      rows.push(<div><span>{label}  </span>{cols}</div>)
+      rows.push(<li><span>{label}  </span>{cols}</li>)
     }
-    return <div><div className='map_display'>
-
+    let fireDict = {'background-image': 'url(\'./pix/biomes/fire.png\')'};
+    return <div className='map_display'>
       <div className='map_rooms_display'>
-        {rows}
-        <img src='pix/biomes/earth.png' quadrant='nw' className='biome_pic' alt='' />
-      <img src='pix/biomes/fire.png' quadrant='ne' className='biome_pic' alt='' />
-      <img src='pix/biomes/ice.png' quadrant='sw' className='biome_pic'  alt=''/>
-      <img src='pix/biomes/air.png' quadrant='se' className='biome_pic' alt='' /></div>
+        <span className='map_biome_label' style={{'background-image': "url('./pix/biomes/earth_50transparent.png')"}}>{'earth'.concat('_'.repeat(30))}</span>
+        <span className='map_biome_label' style={fireDict}>{'_'.repeat(30).concat('Fire')}</span>
+        <ul className='map_room_rows'>{rows}</ul>
+        <span className='map_biome_label' style={{'background-image': "url('./pix/biomes/ice.png')"}}>{'ice'.concat('_'.repeat(30))}</span>
+        <span className='map_biome_label' style={{'background-image': "url('./pix/biomes/air.png')"}}>{'_'.repeat(30).concat('Air')}</span>
       </div>
-
+<br/>
+<br/>
     </div>
   }
 }
+/*
+<img src='pix/biomes/earth.png' quadrant='nw' className='biome_pic' alt='' />
+      <img src='pix/biomes/fire.png' quadrant='ne' className='biome_pic' alt='' />
+      <img src='pix/biomes/ice.png' quadrant='sw' className='biome_pic'  alt=''/>
+      <img src='pix/biomes/air.png' quadrant='se' className='biome_pic' alt='' /></div>
+*/
 export default MapComponent;

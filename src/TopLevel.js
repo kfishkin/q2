@@ -59,7 +59,7 @@ class TopLevel extends React.Component {
         let newPlayerData = { ...this.state.playerInfo };
         delete newPlayerData.deck;
 
-        this.setState({gameInfo: null, playerInfo: newPlayerData});
+        this.setState({ gameInfo: null, playerInfo: newPlayerData });
     }
 
     onLogout() {
@@ -98,6 +98,19 @@ class TopLevel extends React.Component {
             });
     }
 
+    // reload the map for the current game
+    onLoadMap() {
+        let newGameData = this.state.gameInfo;
+        console.log(`loading new map for game`);
+        this.state.beGateway.getGameInfo(newGameData.gameId).then((v) => {
+            //console.log(`getGameInfo: v = ${v}, ${JSON.stringify(v)}`);
+            newGameData.map = v.map;
+            console.log(`got new game map info`);
+            this.setState({ gameInfo: newGameData });
+        }).catch((e) => {
+            console.log(`getGameInfo: e = ${e}, ${JSON.stringify(e)}`);
+        });
+    }
 
     // TODO: have this call an async helper function, get out of .then chaining indentation.
     onSetCurrentGame(gameId, gameName) {
@@ -118,8 +131,9 @@ class TopLevel extends React.Component {
                     //console.log(`getGameCards(${gameId}): returned ${JSON.stringify(v)}`);
                     // base cards are hashed by id
                     let baseCards = {};
-                    v.forEach((bc) => { 
-                        baseCards[bc._id] = BaseCard.make(bc.type, bc) });
+                    v.forEach((bc) => {
+                        baseCards[bc._id] = BaseCard.make(bc.type, bc)
+                    });
 
                     newGameData.baseCards = baseCards;
                     this.setState({ gameInfo: newGameData });
@@ -135,9 +149,9 @@ class TopLevel extends React.Component {
         var ans = "";
         switch (this.state.currentPage) {
             case CASHIER_PAGE:
-                ans = <CashierPage beGateway={this.state.beGateway} 
-                deck={this.state.playerInfo.deck} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
-                baseCards={this.state.gameInfo.baseCards} />
+                ans = <CashierPage beGateway={this.state.beGateway}
+                    deck={this.state.playerInfo.deck} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
+                    baseCards={this.state.gameInfo.baseCards} />
                 break;
             case LOGIN_PAGE:
                 ans = <LoginPage beGateway={this.state.beGateway} onLogin={(id, handle, name) => this.onLogin(id, handle, name)}
@@ -151,28 +165,29 @@ class TopLevel extends React.Component {
                 ans = <GameChoicePage playerInfo={this.state.playerInfo} beGateway={this.state.beGateway}
                     gameInfo={this.state.gameInfo}
                     onSetCurrentGame={(gameId, gameName) => this.onSetCurrentGame(gameId, gameName)}
-                        onUnloadCurrentGame={() => this.onUnloadCurrentGame()}>
-                    </GameChoicePage>
+                    onUnloadCurrentGame={() => this.onUnloadCurrentGame()}>
+                </GameChoicePage>
                 break;
             case GAME_PAGE:
                 ans = <GamePage playerInfo={this.state.playerInfo} gameInfo={this.state.gameInfo} beGateway={this.state.beGateway}
                     showPageFunc={(which, extra) => this.handleShowPage(which, extra)}
-                    onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()} />
+                    onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
+                    onLoadMap={() => this.onLoadMap()} />
                 break;
             case MERCHANT_PAGE:
                 ans = <MerchantPage owner={this.state.extra.owner} beGateway={this.state.beGateway}
                     gameInfo={this.state.gameInfo} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
-                    playerInfo={this.state.playerInfo}/>;
+                    playerInfo={this.state.playerInfo} />;
                 break;
             case WORKSHOP_PAGE:
                 ans = <WorkshopPage beGateway={this.state.beGateway}
                     gameInfo={this.state.gameInfo} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
                     baseCards={this.state.gameInfo.baseCards}
                     playerInfo={this.state.playerInfo} />;
-                break;              
+                break;
             case LOOT_PAGE:
                 ans = <LootPage owner={this.state.extra.owner} beGateway={this.state.beGateway}
-                    gameInfo={this.state.gameInfo} playerId={this.state.playerInfo.playerId} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}/>;
+                    gameInfo={this.state.gameInfo} playerId={this.state.playerInfo.playerId} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()} />;
                 break;
             case HOME_PAGE:
                 ans = <div>Welcome! Pick an option on the left...</div>;

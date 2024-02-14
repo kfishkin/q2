@@ -62,8 +62,16 @@ class LootPage extends React.Component {
     }
     let transferrable = (this.state.deck !== null && this.state.deck.length > 0);
     if (this.state.deck !== null && this.state.deck.length === 0) {
-      return <div>Sorry, there was no treasure left in the room</div>
+      return <div>Sorry, there was no treasure left in the room.<br/>(click on 'Game' to return to the map)</div>
     }
+    /*
+              <CardsModal title="A new card" open={this.state.showModal} onOk={handleOk} onCancel={handleOk}
+            cards={[this.state.modalCard]}
+            topHtml={<span>You have just added a {this.state.modalCardName} card to your deck</span>}
+            bottomHtml=""
+            baseCards={this.props.baseCards}
+          />
+          */
     return <div>You found some treasure!
       <DeckComponent deck={this.state.deck} baseCards={this.props.gameInfo.baseCards} ronly={true} />
       <button onClick={(e) => onDoLoot(this.props.gameInfo.gameId, this.props.owner._id, this.props.playerId)}

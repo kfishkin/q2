@@ -418,7 +418,7 @@ ul.repair_list li:hover {
 
 div.map_display {
   position: relative;
-  height: 420px;
+  height: 500px;
 }
 
 div.map_rooms_display {
@@ -453,4 +453,25 @@ img[quadrant='sw'] {
 img[quadrant='se'] {
   left: 240px;
   top: 216px;
+}
+
+ul.map_room_rows {
+  list-style-type: none;
+}
+
+button.map_room_button {
+  width:30px;
+  height: 30px;
+  margin-left: 0px;
+  margin-right: 0px;;
+  border-left: 0px;
+  border-right: 0px;
+}
+
+span.map_biome_label {
+  text-transform: capitalize;
+  font-weight: bold;
+  font-family: Arial, Helvetica, sans-serif;
+  background-size: contain;
+  background-clip: content-box;
 }
