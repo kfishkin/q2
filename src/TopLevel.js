@@ -98,18 +98,21 @@ class TopLevel extends React.Component {
             });
     }
 
-    // reload the map for the current game
-    onLoadMap() {
+    // mark the given room as traversable
+    onPlantFlag(row, col) {
         let newGameData = this.state.gameInfo;
-        console.log(`loading new map for game`);
-        this.state.beGateway.getGameInfo(newGameData.gameId).then((v) => {
-            //console.log(`getGameInfo: v = ${v}, ${JSON.stringify(v)}`);
-            newGameData.map = v.map;
-            console.log(`got new game map info`);
-            this.setState({ gameInfo: newGameData });
-        }).catch((e) => {
-            console.log(`getGameInfo: e = ${e}, ${JSON.stringify(e)}`);
-        });
+        let room = newGameData.map.rooms[row][col];
+        // don't need to make a BE trip for this, just stamp it locally
+        // to mirror what the BE has already done.
+        let perPlayerInfo = ('per_player_info' in room) ? room.per_player_info
+          : { player_id: this.state.playerInfo.playerId,
+              description: 'empty',
+              when: new Date() };
+        perPlayerInfo.traversable = true;
+        room.per_player_info = perPlayerInfo;
+        room.title = '---';
+        newGameData.map.rooms[row][col] = room; // prolly not needed
+        this.setState({gameInfo: newGameData });
     }
 
     // TODO: have this call an async helper function, get out of .then chaining indentation.
@@ -172,7 +175,7 @@ class TopLevel extends React.Component {
                 ans = <GamePage playerInfo={this.state.playerInfo} gameInfo={this.state.gameInfo} beGateway={this.state.beGateway}
                     showPageFunc={(which, extra) => this.handleShowPage(which, extra)}
                     onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
-                    onLoadMap={() => this.onLoadMap()} />
+                    onPlantFlag={(row, col) => this.onPlantFlag(row, col)} />
                 break;
             case MERCHANT_PAGE:
                 ans = <MerchantPage owner={this.state.extra.owner} beGateway={this.state.beGateway}

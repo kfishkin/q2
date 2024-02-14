@@ -8,7 +8,7 @@ import { LOOT_PAGE, MERCHANT_PAGE } from './NavMenu';
 // gameId - gameId.
 // playerId - playerId
 // beGateway
-// onLoadMap() - BE map has changed.
+// onPlantFlag(row, col) - map[row][col] is now traversable.
 class MapComponent extends React.Component {
   constructor(props) {
     super(props);
@@ -25,7 +25,7 @@ class MapComponent extends React.Component {
         // TODO: make this an attribute, not kludged:
         let room = rooms[col];
         if (room.per_player_info && room.per_player_info.traversable) {
-          console.log(`[${row}, ${col}] is traversable`);
+          //console.log(`[${row}, ${col}] is traversable`);
           room.reachable = true;
           stack.push([row, col]);
         }
@@ -36,7 +36,7 @@ class MapComponent extends React.Component {
       let tuple = stack.shift();
       let meRow = tuple[0];
       let meCol = tuple[1];
-      console.log(`popped [${meRow}, ${meCol}] is traversable`);
+      //console.log(`popped [${meRow}, ${meCol}] is traversable`);
       // let room = map.rooms[meRow][meCol];
       for (let row = meRow - 1; row <= meRow + 1; row++) {
         if (row < 0 || row >= map.height) continue;
@@ -77,13 +77,13 @@ class MapComponent extends React.Component {
             // v[1] will have more info....
             switch (code) {
               case 'EMPTY':
-                this.props.onLoadMap(); // empty room is now traversable.
+                this.props.onPlantFlag(row, col);
                 window.confirm('The room is empty');
                 break;
               case 'LOOT':
                 window.confirm("You may have found some treasure!");
                 owner = v[1]; // the pseudo-player who owns the loot.
-                this.props.onLoadMap();
+                this.props.onPlantFlag(row, col);
                 showPageFunc(LOOT_PAGE, { owner: owner });
                 break;
               case 'MERCHANT':

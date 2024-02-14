@@ -17,8 +17,8 @@ export const WORKSHOP_PAGE = "workshop";
 
 class NavMenu extends React.Component {
   render() {
-    let menuItems = this.props.pageTemplates.map((template) => {
-      return (<Menu.Item onClick={(e) => this.props.showPageFunc(template.PageDescriptor())} disabled={template.IsEnabledNow()?"":"disabled"}>
+    let menuItems = this.props.pageTemplates.map((template, i) => {
+      return (<Menu.Item key={`menu_${i}`} onClick={(e) => this.props.showPageFunc(template.PageDescriptor())} disabled={template.IsEnabledNow()?"":"disabled"}>
         <span>{template.SideBarText()}</span>
       </Menu.Item>)
     })

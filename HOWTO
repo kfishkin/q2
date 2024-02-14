@@ -4,3 +4,5 @@ add everything
 git add --all
 
 npm start -- start on localhost
+
+git push

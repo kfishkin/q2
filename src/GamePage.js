@@ -9,7 +9,7 @@ class GamePage extends React.Component {
 // beGateway - BE gateway
 // showpageFunc - to jump to a different top-level UI
 // onPlayerDeckBEChange={() => the deck has changed on the BE, reload.
-// onLoadMap() - map has changed on the BE, reload
+// onPlantFlag(row, col) - (row, col) is now traversable)
 
   render() {
     return (<div>
@@ -17,7 +17,7 @@ class GamePage extends React.Component {
       <MapComponent map={this.props.gameInfo.map} showPageFunc={(which, extra) => this.props.showPageFunc(which, extra)}
       beGateway={this.props.beGateway} gameId={this.props.gameInfo.gameId} playerId={this.props.playerInfo.playerId}
       onPlayerDeckBEChange={() => this.props.onPlayerDeckBEChange()}
-      onLoadMap={() => this.props.onLoadMap()} />
+      onPlantFlag={(row, col) => this.props.onPlantFlag(row, col)} />
       <DeckComponent deck={this.props.playerInfo.deck} baseCards={this.props.gameInfo.baseCards} ronly={true}/>
     </div>);
   }
