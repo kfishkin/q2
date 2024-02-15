@@ -12,7 +12,8 @@ export const CARD_TYPES = {
     INGREDIENT: 9,
     TICKET: 10,
     SCORE: 11,
-    ARMOR: 12
+    ARMOR: 12,
+    MONSTER: 13
 };
 
 /**
@@ -148,6 +149,7 @@ export class BaseCard { // abstract base class
             case CARD_TYPES.INGREDIENT: return new CardTypeIngredient(db);
             case CARD_TYPES.TICKET: return new CardTypeTicket(db);
             case CARD_TYPES.SCORE: return new CardTypeScore(db);
+            case CARD_TYPES.MONSTER: return new CardTypeMonster(db);
             default:
                 console.warn(`gc.type of ${type} unknown`);
                 return new CardTypeNothing(db);
@@ -433,3 +435,14 @@ class CardTypeScore extends BaseCard {
     IsScore() { return true; }
 }
 
+class CardTypeMonster extends BaseCard {
+    constructor(db) {
+        super(CARD_TYPES.MONSTER, db);
+
+
+    }
+    AltText() { return "Monster"}
+    GetSellValue() {
+        return 0
+    }
+}

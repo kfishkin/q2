@@ -90,6 +90,9 @@ class MapComponent extends React.Component {
                 owner = v[1];
                 showPageFunc(MERCHANT_PAGE, { owner: owner });
                 break;
+              case 'MONSTER':
+                window.confirm('there is a monster here!');
+                break;
               default:
                 break;
             }
@@ -119,13 +122,6 @@ class MapComponent extends React.Component {
         } else {
           elt = <button className='map_room_button' disabled="disabled" reachable={reachableStyle} title={per_player_message}>{mapLabel}</button>
         }
-        /*
-        if (room.owner && room.owner.type === PlayerTypes.MERCHANT) {
-          elt=<button reachable={reachableStyle} title={per_player_message} onClick={(e) => gotoShop(room.owner)} disabled={!reachable}>{room.owner.name}'s {mapLabel}</button>
-        } else {
-          elt=<span reachable={reachableStyle} title={per_player_message}>&nbsp;{mapLabel}&nbsp;</span>
-        } 
-        */
 
         cols.push(elt);
       }
@@ -145,10 +141,4 @@ class MapComponent extends React.Component {
     </div>
   }
 }
-/*
-<img src='pix/biomes/earth.png' quadrant='nw' className='biome_pic' alt='' />
-      <img src='pix/biomes/fire.png' quadrant='ne' className='biome_pic' alt='' />
-      <img src='pix/biomes/ice.png' quadrant='sw' className='biome_pic'  alt=''/>
-      <img src='pix/biomes/air.png' quadrant='se' className='biome_pic' alt='' /></div>
-*/
 export default MapComponent;

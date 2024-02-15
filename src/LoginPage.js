@@ -43,7 +43,7 @@ class LoginPage extends React.Component {
       }
 
       const onFinishFailed = (errorInfo) => {
-        console.errpr('Failed:', errorInfo);
+        console.error('Failed:', errorInfo);
       };
       return (
         <div>
@@ -179,7 +179,7 @@ class LoginPage extends React.Component {
           });
       };
       const onFinishFailed = (errorInfo) => {
-        console.errpr('Failed:', errorInfo);
+        console.error('Failed:', errorInfo);
       };
       // from https://ant.design/components/form
       return (

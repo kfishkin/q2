@@ -35,7 +35,6 @@ class BEGateway {
         const url = this.beURI
             + "games/name";
         const response = await fetch(url);
-        console.log('suggestGameName: response = ' + response + ' ok = ', response.ok);
         return response.text();
     }
 
@@ -114,7 +113,7 @@ class BEGateway {
             body: JSON.stringify(newPlayerData)
         };
         const response = await fetch(url, requestOptions).catch((e) => {
-            console.errpr(`createPlayer fetch exception ${e}`);
+            console.error(`createPlayer fetch exception ${e}`);
             return {};
         });
 

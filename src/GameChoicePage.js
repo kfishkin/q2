@@ -36,7 +36,7 @@ class GameChoicePage extends React.Component {
       .then((v) => {
         this.setState({ gameNameSuggestion: v });
       })
-      .catch((e) => { console.errpr("error on get suggestion: ", e) });
+      .catch((e) => { console.error("error on get suggestion: ", e) });
   }
 
   createNewGameUI(playerInfo) {
@@ -164,13 +164,13 @@ class GameChoicePage extends React.Component {
             this.setState({ statusMessage: "current game set" , statusType: 'success'});
             this.props.onSetCurrentGame(gameId, gameName);
           }).catch((e) => {
-            console.errpr("onLoad, e=", e);
+            console.error("onLoad, e=", e);
             this.setState({ statusMessage: `couldn't set current game, ${e}`, statusType: 'error' });
           })
       }
-      let onDelete = (e, gameId) => {
+      let onDelete = (e, gameId, gameName) => {
         console.log(`onDelete: e=${e}, gameId=${gameId}`);
-        if (window.confirm(`Are you sure you want to delete game ${gameId}? Can't be undone`)) {
+        if (window.confirm(`Are you sure you want to delete game ${gameName}? Can't be undone`)) {
           console.log("yes, you are sure");
           this.setState({ statusMessage: "deleting..." , statusType: 'info'});
           this.props.beGateway.deleteGame(gameId)
@@ -182,19 +182,16 @@ class GameChoicePage extends React.Component {
                 this.props.onUnloadCurrentGame();
               }
             }).catch((e) => {
-              console.errpr(`e from delete game ${e}`);
+              console.error(`e from delete game ${e}`);
               this.setState({ statusMessage: "couldn't delete the game, sorry" , statusType: "error"});
             });
         }
       }
       let currentGameId = this.state.gameInfo ? this.state.gameInfo.gameId : "";
-      console.log(`currentGameId = ${currentGameId}`);
-
 
       let antInnards = this.state.playerGames.map((game, i) => {
         let isCurrent = game.gameId === currentGameId;
         let gameName = game.name;
-        console.log(`gameName = ${gameName}`);
         return {
           key: 'tr_' + i,
           name: game.name,
@@ -205,7 +202,7 @@ class GameChoicePage extends React.Component {
           updatedAtUnix: dayjs(game.updatedAt).unix(),
           actions: (<span>
             {(isCurrent) ? "" : (<button gameid={game._id} onClick={(e) => onLoad(e, game._id, gameName)}>Load</button>)}
-            {(isCurrent) ? "" : (<button gameid={game._id} onClick={(e) => onDelete(e, game._id)}>Delete</button>)}</span>)
+            {(isCurrent) ? "" : (<button gameid={game._id} onClick={(e) => onDelete(e, game._id, gameName)}>Delete</button>)}</span>)
         };
       });
       let preamble = <span>You have created {this.state.playerGames.length} games.</span>;
