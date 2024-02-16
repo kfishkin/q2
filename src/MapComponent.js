@@ -1,5 +1,5 @@
 import React from 'react';
-import { LOOT_PAGE, MERCHANT_PAGE } from './NavMenu';
+import { FIGHT_PAGE,  LOOT_PAGE, MERCHANT_PAGE } from './NavMenu';
 
 
 // props
@@ -92,6 +92,7 @@ class MapComponent extends React.Component {
                 break;
               case 'MONSTER':
                 window.confirm('there is a monster here!');
+                showPageFunc(FIGHT_PAGE, { row, col});
                 break;
               default:
                 break;
@@ -113,7 +114,7 @@ class MapComponent extends React.Component {
         let reachableStyle = reachable ? "yes" : "no";
         let per_player_message = room.per_player_info && room.per_player_info.description ? room.per_player_info.description : "";
         let elt = null;
-        let mapLabel = room.per_player_info && room.reachable ? room.title : ("???");
+        let mapLabel =  (room.per_player_info && room.reachable && room.per_player_info.traversable) ? room.title : '???';
         // kludge for display...
         if (mapLabel === 'Empty')
           mapLabel = '---';

@@ -178,6 +178,12 @@ div.card_face_description_bg {
   left: 50px;
   width: 200px;
 }
+img.fight_image {
+  z-index: 0;
+  opacity: 90%;
+  width: 200px;
+}
+
 
 div.card_face_battle_modifier_image {
   position: absolute;
@@ -467,6 +473,35 @@ button.map_room_button {
   border-left: 0px;
   border-right: 0px;
 }
+
+div.fight_outer {
+  position: relative;
+  width: 600px;
+  height: 600px;
+  background-size: cover;
+  background-clip: border-box;
+}
+
+div.fight_outer[affinity="1"] {
+  background-image: url('../public/pix/biomes/bg_1.png');
+}
+div.fight_outer[affinity="2"] {
+  background-image: url('../public/pix/biomes/bg_2.png');
+}
+div.fight_outer[affinity="3"] {
+  background-image: url('../public/pix/biomes/bg_3.png');
+}
+div.fight_outer[affinity="4"] {
+  background-image: url('../public/pix/biomes/bg_4.png');
+}
+ul.fight_room {
+  list-style-type: none;
+}
+ul.fight_room li {
+  display: inline-block;
+}
+
+
 
 span.map_biome_label {
   text-transform: capitalize;

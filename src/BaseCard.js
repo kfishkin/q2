@@ -39,6 +39,10 @@ export class BaseCard { // abstract base class
         return 'weapon_value' in this.db ? this.db.weapon_value : 0;
     }
     
+    GetHandle() {
+        return this.db.handle;
+    }
+    
     GetId() {
         return this.db._id;
     }
@@ -118,6 +122,9 @@ export class BaseCard { // abstract base class
 
     // factory method: make one for a given game card:
     static make(type, db) {
+        if (db.db) { // was already made
+            return db;
+        }
         switch (type) {
             case CARD_TYPES.NONE: return new CardTypeNothing(db);
             case CARD_TYPES.MONEY: return new CardTypeMoney(db);
@@ -445,4 +452,7 @@ class CardTypeMonster extends BaseCard {
     GetSellValue() {
         return 0
     }
+    DescriptionBackgroundImageURL() {
+        return `pix/monsters/${this.GetHandle()}.png`;
+    }    
 }

@@ -4,8 +4,10 @@ import { VERSION } from './AboutPage';
 import { Layout } from 'antd';
 import { BaseCard } from './BaseCard';
 import BEGateway from './BEGateway';
+import Card from './Card';
 import CashierPage from './CashierPage';
 import ConfigPage from './ConfigPage';
+import FightPage from './FightPage';
 import GamePage from './GamePage';
 import GameChoicePage from './GameChoicePage';
 import LoginPage from './LoginPage';
@@ -15,7 +17,7 @@ import WorkshopPage from './WorkshopPage';
 import LootPage from './LootPage';
 import NavMenu, { CASHIER_PAGE, LOOT_PAGE, MERCHANT_PAGE, WORKSHOP_PAGE } from './NavMenu';
 import PageTemplate from './PageTemplate';
-import { CONFIG_PAGE, GAME_PAGE, GAME_ADMIN_PAGE, HOME_PAGE, LOGIN_PAGE } from './NavMenu';
+import { CONFIG_PAGE, FIGHT_PAGE, GAME_PAGE, GAME_ADMIN_PAGE, HOME_PAGE, LOGIN_PAGE } from './NavMenu';
 
 
 class TopLevel extends React.Component {
@@ -105,14 +107,16 @@ class TopLevel extends React.Component {
         // don't need to make a BE trip for this, just stamp it locally
         // to mirror what the BE has already done.
         let perPlayerInfo = ('per_player_info' in room) ? room.per_player_info
-          : { player_id: this.state.playerInfo.playerId,
-              description: 'empty',
-              when: new Date() };
+            : {
+                player_id: this.state.playerInfo.playerId,
+                description: 'empty',
+                when: new Date()
+            };
         perPlayerInfo.traversable = true;
         room.per_player_info = perPlayerInfo;
         room.title = '---';
         newGameData.map.rooms[row][col] = room; // prolly not needed
-        this.setState({gameInfo: newGameData });
+        this.setState({ gameInfo: newGameData });
     }
 
     // TODO: have this call an async helper function, get out of .then chaining indentation.
@@ -150,6 +154,8 @@ class TopLevel extends React.Component {
 
     renderContent() {
         var ans = "";
+        // temp until we make all the cards be Cards...
+        let deckObjs = (this.state.playerInfo && this.state.playerInfo.deck) ? this.state.playerInfo.deck.map((db) => Card.Of(db)): [];
         switch (this.state.currentPage) {
             case CASHIER_PAGE:
                 ans = <CashierPage beGateway={this.state.beGateway}
@@ -163,6 +169,13 @@ class TopLevel extends React.Component {
                 break;
             case CONFIG_PAGE:
                 ans = <ConfigPage beGateway={this.state.beGateway}></ConfigPage>;
+                break;
+            case FIGHT_PAGE:
+                let row = this.state.extra.row;
+                let col = this.state.extra.col;
+                let room = this.state.gameInfo.map.rooms[row][col];
+                ans = <FightPage room={room} deck={deckObjs}
+                    baseCards={this.state.gameInfo.baseCards} />;
                 break;
             case GAME_ADMIN_PAGE:
                 ans = <GameChoicePage playerInfo={this.state.playerInfo} beGateway={this.state.beGateway}

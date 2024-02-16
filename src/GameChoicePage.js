@@ -57,7 +57,7 @@ class GameChoicePage extends React.Component {
       component.state.beGateway.createGame(inputValue, playerInfo.playerId)
         .then((v) => {
           let gameData = v;
-          console.log('onSubmit.createGame.then, v=', JSON.stringify(v));
+          //console.log('onSubmit.createGame.then, v=', JSON.stringify(v));
           // a failed game creation comes back as an empty object.
           if (!gameData.name) {
             component.setState({
