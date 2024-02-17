@@ -113,12 +113,14 @@ class MerchantPage extends React.Component {
     this.props.beGateway.repair(this.props.gameInfo.gameId, this.props.playerInfo.playerId,cardIds)
       .then((v) => {
         console.log(`onStartRepair: v = ${JSON.stringify(v)}`);
-        if (!v.ok) {
+        if (v.ok) {
+          this.setState({ statusMessage: 'repaired!', statusType: 'success' });
+          this.props.onPlayerDeckBEChange(); // the player deck has changed
+        } else {
           console.log(`fail in onStartRepair`);
-          this.setState({ statusMessage: `error ${v.status} on repair: ${v.statusText}`, statusType: 'error' });
+          this.setState({ statusMessage: v.statusText, statusType: 'error' });
         }
-        this.setState({ statusMessage: 'repaired!', statusType: 'success' });
-        this.props.onPlayerDeckBEChange(); // the player deck has changed
+
       }).catch((e) => {
         this.setState({ statusMessage: JSON.stringify(e), statusType: 'error' });
       });    

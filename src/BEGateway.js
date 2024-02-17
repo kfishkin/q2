@@ -55,6 +55,10 @@ class BEGateway {
         }
         const response = await fetch(url, requestOptions);
         console.log('enterRoom: response = ' + response + ' ok = ', response.ok);
+        if (!response.ok) {
+            let msg = await response.text();
+            return [msg];
+        }
         return response.json();
     }
 
@@ -351,6 +355,13 @@ class BEGateway {
         }
         try {
             const response = await fetch(url, requestOptions);
+            if (!response.ok) {
+                let txt = await response.text();
+                return {
+                    ok: false,
+                    statusText: txt
+                }
+            }
             console.log(`fe.repair: fetch returns ${response}`);
             return response;
         } catch (e) {
@@ -431,5 +442,53 @@ class BEGateway {
             return Promise.reject(e.name + ":" + e.message);
         }
     }
+
+    async fight(gameId, playerId, row, col, armorId, weaponId) {
+        const url = this.beURI
+            + "rooms/fight";
+        let body = {
+            gameId, playerId, row, col
+        };    
+        if (armorId) {
+            body.armorId = armorId;
+        }
+        if (weaponId) {
+            body.weaponId = weaponId;
+        }
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }    
+        try {
+            const response = await fetch(url, requestOptions);
+            console.log(`fe.fight: fetch returns ${response}`);
+            if (response.ok) {
+                console.log(`beG.fight: 200 response, converting body to json`);
+                let dict = await response.json();
+                // if they got loot, convert it to card db objs so can display.
+                if (dict.loot && dict.loot.length > 0) {
+                    console.log(`beG.fight: converting loot ids ${JSON.stringify(dict.loot)} to cards`);
+                    let newDeck = await this.getPlayerCardsForGame(gameId, playerId);
+                    let newLoot = newDeck.filter((c) => dict.loot.some((lootId) => lootId === c._id));
+                    //console.log(`newLoot has length ${newLoot.length}, old has length ${dict.loot.length}`);
+                    dict.loot = newLoot;
+                }
+                return dict;
+            } else {
+                let msg = await response.text();
+                console.log(`beG.fight: msg = ${msg}`);
+                // it's an object which isn't 'ok', with a status text
+                return {
+                    ok: false,
+                    statusText: msg
+                }
+                //return new Error(msg);
+            }
+        } catch (e) {
+            return Promise.reject(e.name + ":" + e.message);
+        }
+    }
+
 }
 export default BEGateway;

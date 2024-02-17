@@ -94,7 +94,11 @@ class MapComponent extends React.Component {
                 window.confirm('there is a monster here!');
                 showPageFunc(FIGHT_PAGE, { row, col});
                 break;
+              case 'UNREACHABLE':
+                window.alert('you can\'t reach that room?');
+                break;
               default:
+                window.alert(`unknown code: ${code}`);
                 break;
             }
           }).catch((e) => {

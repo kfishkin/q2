@@ -12,7 +12,7 @@ class CardDetail extends React.Component {
     }
     let card = this.props.card;
     if (!(card.GetType)) {
-      console.warn(`non-card passed to CardDetail`);
+      //console.warn(`non-card passed to CardDetail`);
       card = Card.Of(card);
     }
     let baseCard = card.GetBase();

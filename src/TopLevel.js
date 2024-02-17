@@ -78,8 +78,6 @@ class TopLevel extends React.Component {
     onPlayerDeckBEChange() {
         let playerId = this.state.playerInfo.playerId;
         let gameId = this.state.gameInfo.gameId;
-        console.log(`BE change0 for player ${playerId} in game ${gameId}`);
-
         if (!playerId || !gameId)
             return;
 
@@ -98,6 +96,16 @@ class TopLevel extends React.Component {
             }).catch((e) => {
                 console.error(`onPlayerDeckBEChange: e=${e}`);
             });
+    }
+
+    async onGameDeckBEChange() {
+        console.log(`onGameDeckBEChange: called)`);
+        let gameId = this.state.gameInfo.gameId;
+        let v = await this.state.beGateway.getGameInfo(gameId)
+                let gameInfo = this.state.gameInfo;
+                gameInfo.map = v.map;
+                //console.log(`getGameInfo: v = ${v}, ${JSON.stringify(v)}`);
+                this.setState({ gameInfo: gameInfo });
     }
 
     // mark the given room as traversable
@@ -175,7 +183,15 @@ class TopLevel extends React.Component {
                 let col = this.state.extra.col;
                 let room = this.state.gameInfo.map.rooms[row][col];
                 ans = <FightPage room={room} deck={deckObjs}
-                    baseCards={this.state.gameInfo.baseCards} />;
+                    baseCards={this.state.gameInfo.baseCards}
+                    beGateway={this.state.beGateway} 
+                    row={row} col={col}
+                    gameId={this.state.gameInfo.gameId}
+                    playerId={this.state.playerInfo.playerId}
+                    onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
+                    onGameDeckBEChange={() => this.onGameDeckBEChange()}
+                    showPageFunc={(which, extra) => this.handleShowPage(which, extra)}
+                    />;
                 break;
             case GAME_ADMIN_PAGE:
                 ans = <GameChoicePage playerInfo={this.state.playerInfo} beGateway={this.state.beGateway}

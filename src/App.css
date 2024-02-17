@@ -62,8 +62,8 @@ div.sider {
   color: antiquewhite;
 }
 
-p.warning {
-  background-color: mediumpurple;
+span.warning {
+  background-color: lightcoral;
 }
 
 .error_message {
@@ -478,27 +478,31 @@ div.fight_outer {
   position: relative;
   width: 600px;
   height: 600px;
+}
+
+div.fight_header {
   background-size: cover;
   background-clip: border-box;
 }
 
-div.fight_outer[affinity="1"] {
-  background-image: url('../public/pix/biomes/bg_1.png');
+div.fight_header[affinity="1"] {
+  background-image: url('../public/pix/biomes/bg_1_25.png');
 }
-div.fight_outer[affinity="2"] {
-  background-image: url('../public/pix/biomes/bg_2.png');
+div.fight_header[affinity="2"] {
+  background-image: url('../public/pix/biomes/bg_2_25.png');
 }
-div.fight_outer[affinity="3"] {
-  background-image: url('../public/pix/biomes/bg_3.png');
+div.fight_header[affinity="3"] {
+  background-image: url('../public/pix/biomes/bg_3_25.png');
 }
-div.fight_outer[affinity="4"] {
-  background-image: url('../public/pix/biomes/bg_4.png');
+div.fight_header[affinity="4"] {
+  background-image: url('../public/pix/biomes/bg_4_25.png');
 }
 ul.fight_room {
   list-style-type: none;
 }
 ul.fight_room li {
-  display: inline-block;
+  display: block;
+  text-align: left;
 }
 
 

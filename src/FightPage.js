@@ -1,6 +1,10 @@
 import React from 'react';
 import { Select } from 'antd';
+import Card from './Card';
 import CardDetail from './CardDetail';
+import CardsModal from './CardsModal';
+import StatusMessage from './StatusMessage';
+import { GAME_PAGE } from './NavMenu';
 
 // TODO: sync this with BE
 const AffinityNames = {
@@ -16,7 +20,11 @@ const AffinityNames = {
 // room - the room for the fight
 // deck - player deck as Card objects
 // baseCards - base cards
-// deck - player deck.
+// beGateway
+// row, col - of the room
+// playerId
+// onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
+// showPageFunc={(which, extra) => this.handleShowPage(which, extra)}
 class FightPage extends React.Component {
   // this is called once when the page first loads, NOT each time the parent state changes.
   constructor(props) {
@@ -24,24 +32,33 @@ class FightPage extends React.Component {
 
     this.state = {
       selectedArmor: null,
-      selectedWeapon: null
+      selectedWeapon: null,
+      statusMessage: '',
+      statusType: 'info',
+      buttonText: 'Fight!',
+      lootCards: [],
+      showModal: false
     };
   }
 
-  playerUI() {
-    // find the weapon and armor cards....
-    let armorCards = this.props.deck.filter((c) => c.GetBase().GetRawArmorValue() > 0);
-    let weaponCards = this.props.deck.filter((c) => c.GetBase().GetRawWeaponValue() > 0);
-    // you can always try no armor/weapons...
-    let armorOptions = [{ label: 'No armor', value: 0 }];
-    if (armorCards && armorCards.length > 0) {
-      // appears the value can't be an object, react gets mad :(.)
-      armorOptions = armorOptions.concat(armorCards.map((c) => { return { label: c.GetBase().GetDisplayName(), value: c.GetId() } }));
+  monsterUI(monsterCard) {
+    if (monsterCard.GetBase().IsNothing()) {
+      return (<li>
+        The Monster is dead!
+        <br />
+        <CardDetail card={monsterCard} baseCards={this.props.baseCards} />
+      </li>);
+
+    } else {
+    return (<li>
+      The Monster is a level {monsterCard.GetBase().GetLevel()} <b>{monsterCard.GetBase().GetDisplayName()}</b>
+      <br />
+      <CardDetail card={monsterCard} baseCards={this.props.baseCards} />
+    </li>);
     }
-    let weaponOptions = [{ label: 'Bare-handed', value: 0 }];
-    if (weaponCards && weaponCards.length > 0) {
-      weaponOptions = weaponOptions.concat(weaponCards.map((c) => { return { label: c.GetBase().GetDisplayName(), value: c.GetId() } }));
-    }
+  }
+
+  weaponUI(weaponCards, nothingCard) {
     const onWeaponChoice = (val) => {
       console.log(`weaponChoice: ${val}`);
       if (val === 0) {
@@ -53,71 +70,215 @@ class FightPage extends React.Component {
         }
       }
     }
-
-    /*
-    const showWeaponCard = () => {
-      if (!this.state.selectedWeapon) return "";
-      return <CardDetail card={this.state.selectedWeapon} baseCards={this.props.baseCards}/>
+    let weaponOptions = [{ label: 'Bare-handed', value: 0 }];
+    if (weaponCards && weaponCards.length > 0) {
+      weaponOptions = weaponOptions.concat(weaponCards.map((c) => { return { label: c.GetBase().GetDisplayName(), value: c.GetId() } }));
     }
-    const showArmorCard = () => {
-      if (!this.state.selectedArmor) return "";
-      return <CardDetail card={this.state.selectedArmor} baseCards={this.props.baseCards}/>
-    } 
-    */   
+    let weaponCard = this.state.selectedWeapon || nothingCard;
 
+    return (
+      <li>
+        choose your weapon: <Select style={{ width: 200 }} onChange={(val) => onWeaponChoice(val)} options={weaponOptions} />
+        <br />
+        <CardDetail card={weaponCard} baseCards={this.props.baseCards} />
+      </li>)
+  }
+
+  armorUI(armorCards, nothingCard) {
     const onArmorChoice = (val) => {
       console.log(`armorChoice: ${val}`);
       if (val === 0) {
-        this.setState({ selectedWeapon: null });
+        this.setState({ selectedArmor: null });
       } else {
         let armorCard = armorCards.find((c) => c.GetId() === val);
         if (armorCard) {
-          this.setState({ selectedWeapon: armorCard });
+          this.setState({ selectedArmor: armorCard });
         }
       }
     }
+    let armorOptions = [{ label: 'None', value: 0 }];
+    if (armorCards && armorCards.length > 0) {
+      armorOptions = armorOptions.concat(armorCards.map((c) => { return { label: c.GetBase().GetDisplayName(), value: c.GetId() } }));
+    }
+    let armorCard = this.state.selectedArmor || nothingCard;
 
+    return (
+      <li>
+        choose your armor: <Select style={{ width: 200 }} onChange={(val) => onArmorChoice(val)} options={armorOptions} />
+        <br />
+        <CardDetail card={armorCard} baseCards={this.props.baseCards} />
+      </li>)
+  }
+
+  lowerPart() {
     const onStartFight = () => {
       console.log(`onStartFight: called`);
+      this.setState({ statusMessage: 'fighting...', statusType: 'info' });
+      let p = this.props.beGateway.fight(this.props.gameId, this.props.playerId,
+        this.props.row, this.props.col,
+        this.state.selectedArmor ? this.state.selectedArmor.GetId() : null,
+        this.state.selectedWeapon ? this.state.selectedWeapon.GetId() : null);
+      let msg;
+      let statusType = 'info';
+      const playByPlay = (v) => {
+        if (v.weaponRoll) {
+          msg += `You rolled a '${v.weaponRoll}' for your attack.`;
+        }
+        if (v.armorRoll) {
+          msg += `You rolled a '${v.armorRoll}' for your defense.`;
+        }        
+        if (v.armorDegraded) {
+          msg += ' Your armor was damaged.';
+        }
+        if (v.weaponDegraded) {
+          msg += ' Your weapon was damaged.';
+        }
+        if (v.lifeLost) {
+          msg += ' You lost a life!';
+        }
+      }
+      p.then((v) => {
+        console.log(`fe.fight: BE returned ${JSON.stringify(v)}`);
+        // odds are something changed...
+        let reloadDeck = false;
+        let reloadGame = false; // whenever map OR what's in a room change
 
-    };
 
+        switch (v.status) {
+          case 'CONTINUE':
+            msg = 'The fighting will continue.';
+            playByPlay(v);
+            msg += ` Press the '${this.state.buttonText}' button again for the next round`;
+            statusType = 'info';
+            reloadDeck = (v.armorDegraded || v.weaponDegraded || v.lifeLost);
+            break;
+          case 'DEAD':
+            msg = "You've died!";
+            // TODO: lots of stuff
+            statusType = 'error';
+            reloadDeck = reloadGame = true;
+            break;
+          case 'WIN':
+            msg = 'You won!';
+            playByPlay(v);
+            if (v.loot && v.loot.length > 0) {
+              msg += " You got some loot! Press the 'see loot' button to see it";
+              this.setState({ lootCards: v.loot, buttonText: 'see loot' });
+            }
+            reloadDeck = (v.armorDegraded || v.weaponDegraded || v.lifeLost ||
+              (v.loot && v.loot.length > 0));
+            reloadGame = true;
+            statusType = 'success';
+        }
+        if (reloadDeck) {
+          this.props.onPlayerDeckBEChange();
+        }
+        if (reloadGame) {
+          this.props.onGameDeckBEChange();
+        }
+        this.setState({ statusMessage: msg, statusType: statusType });
+        window.alert(msg);
+      }).catch((e) => {
+        console.log(`fe.fight: e = ${e.name}:${e.message} ${e.stack}`);
+        msg = `error: ${e.name}:${e.message}`;
+        statusType = 'error';
+        this.setState({ statusMessage: msg, statusType: statusType });
+        window.alert(msg);
+      });
+    }
 
-    return (<li>
-      choose your weapon: <Select style={{ width: 200 }} onChange={(val) => onWeaponChoice(val)} options={weaponOptions} />
-      <br />
-      <CardDetail card={this.state.selectedWeapon} baseCards={this.props.baseCards}/>
-      <br />choose your armor: <Select style={{ width: 200 }} onChange={(val) => onArmorChoice(val)} options={armorOptions} />
-      <CardDetail card={this.state.selectedArmor} baseCards={this.props.baseCards}/>
-      <br />
-      <button onClick={(e) => onStartFight()}>Start the Fight!</button>
-    </li>);
+    const onShowLoot = () => {
+      this.setState({ showModal: true });
+    }
+
+    let handler = (this.state.lootCards && this.state.lootCards.length > 0) ? onShowLoot : onStartFight;
+    const handleOk = () => {
+      this.setState({ showModal: false });
+      this.props.showPageFunc(GAME_PAGE, {});
+    }
+
+    return (
+      <div>
+        <button onClick={(e) => handler()}>{this.state.buttonText}</button>
+        <CardsModal title="Spoils of war" open={this.state.showModal} onOk={handleOk} onCancel={handleOk}
+          cards={this.state.lootCards}
+          topHtml={<span>You have just added spoils of war to your deck</span>}
+          bottomHtml=""
+          baseCards={this.props.baseCards}
+        />
+      </div>
+    )
   }
+
 
   render() {
     let affinity = this.props.room.affinity;
-    // find the base card for the monster.
-    let monsterHandle = this.props.room.owner.handle;
-    let monsterBaseCard = Object.values(this.props.baseCards)
-      .find((bc) => bc.GetHandle() === monsterHandle);
+    // find the base card for the monster. Might have gone if rendering after a win...
+
+    let nothingBaseCard = Object.values(this.props.baseCards)
+      .find((bc) => bc.IsNothing());
     // make a fake id card-card so can use CardDetail
-    //let fakeDb = { game_card: monsterBaseCard.db }
-    //let monsterCard = Card.Of(fakeDb);
+    let fakeDb = { game_card: nothingBaseCard.db }
+    // make a fake 'nothing' card for display
+    let nothingCard = Card.Of(fakeDb);
+    let decorBaseCard = nothingCard;
+    let monsterCard = null;
+    if (this.props.room && this.props.room.owner && this.props.room.owner.handle) {
+      let monsterHandle = this.props.room.owner.handle;
+      decorBaseCard = Object.values(this.props.baseCards)
+      .find((bc) => bc.GetHandle() === monsterHandle);
+      if (decorBaseCard) {
+        let fake2 = { game_card: decorBaseCard.db };
+        monsterCard = Card.Of(fake2);
+      }
+    }
+    if (monsterCard === null) {
+      // see if we can find the decor card for a grave...
+      let handle = 'decor_grave';
+      let decorBaseCard = Object.values(this.props.baseCards)
+      .find((bc) => bc.GetHandle() === handle);
+      if (decorBaseCard) {
+        let fake2 = { game_card: decorBaseCard.db };
+        monsterCard = Card.Of(fake2);
+      }
+    }
+    if (monsterCard === null) {
+      // worst case...
+      monsterCard = nothingCard;
+    }
+    if (monsterCard === null) {
+      console.warn('null monsterCard?');
+    }
+
+    // find the weapon and armor cards....
+    let armorCards = this.props.deck.filter((c) => c.GetBase().GetRawArmorValue() > 0);
+    let weaponCards = this.props.deck.filter((c) => c.GetBase().GetRawWeaponValue() > 0);
+    let lifeCards = this.props.deck.filter((c) => c.GetBase().IsLife());
+    let numLives = lifeCards.length;
+    let lifeMsg;
+    switch (numLives) {
+      case 0: lifeMsg = "You are dead!"; break;
+      case 1: lifeMsg = <span className='warning'>You only have 1 life to live. If the monster gets through your armor, you will die!</span>;
+        break;
+      default:
+        lifeMsg = <span>You have {numLives} lives. If the monster gets through your armor, you will have {numLives - 1} left</span>;
+    }
+
     return (<div>
-      <div>
+      <div className='fight_header' affinity={this.props.room.affinity}>
         This fight takes place in the <b>{AffinityNames[affinity]}</b> biome.
-        Other blah blah blah
+        {lifeMsg}
       </div>
 
-      <div className='fight_outer' affinity={this.props.room.affinity}>
+      <div className='fight_outer' >
         <ul className='fight_room'>
-          <li>
-            The Monster is a level {monsterBaseCard.GetLevel()} <b>{monsterBaseCard.GetDisplayName()}</b>
-            <br />
-            <img className='fight_image' src={monsterBaseCard.DescriptionBackgroundImageURL()} alt=''></img>
-          </li>
-          {this.playerUI()}
+          {this.monsterUI(monsterCard)}
+          {this.weaponUI(weaponCards, nothingCard)}
+          {this.armorUI(armorCards, nothingCard)}
         </ul>
+        {this.lowerPart()}
+        <StatusMessage message={this.state.statusMessage} type={this.state.statusType} />
+
       </div>
     </div>
     )

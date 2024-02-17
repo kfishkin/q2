@@ -13,7 +13,8 @@ export const CARD_TYPES = {
     TICKET: 10,
     SCORE: 11,
     ARMOR: 12,
-    MONSTER: 13
+    MONSTER: 13,
+    DECOR: 14
 };
 
 /**
@@ -93,7 +94,11 @@ export class BaseCard { // abstract base class
     IsJudgeable() {
         return false;
     }
+    IsLife() { return false; }
     IsScore() {
+        return false;
+    }
+    IsNothing() {
         return false;
     }
 
@@ -157,6 +162,7 @@ export class BaseCard { // abstract base class
             case CARD_TYPES.TICKET: return new CardTypeTicket(db);
             case CARD_TYPES.SCORE: return new CardTypeScore(db);
             case CARD_TYPES.MONSTER: return new CardTypeMonster(db);
+            case CARD_TYPES.DECOR: return new CardTypeDecor(db);
             default:
                 console.warn(`gc.type of ${type} unknown`);
                 return new CardTypeNothing(db);
@@ -171,6 +177,7 @@ class CardTypeNothing extends BaseCard {
         super(CARD_TYPES.NONE, db);
     }
     AltText() { return "None" }
+    IsNothing() { return true; }
 }
 // a Money card
 class CardTypeMoney extends BaseCard {
@@ -187,6 +194,19 @@ class CardTypeMoney extends BaseCard {
         return `pix/card_backgrounds/money_${this.db.sell_value}.png`;
     }
 }
+
+class CardTypeDecor extends BaseCard {
+    constructor(db) {
+        super(CARD_TYPES.DECOR, db);
+    }
+
+    AltText() { return "" }
+    IsNothing() { return true; }
+    DescriptionBackgroundImageURL(card) {
+        return `pix/general/decor_grave.png`;
+    }
+}
+
 // a Life card
 class CardTypeLife extends BaseCard {
     constructor(db) {
@@ -197,6 +217,7 @@ class CardTypeLife extends BaseCard {
     DescriptionBackgroundImageURL(card) {
         return `pix/card_backgrounds/life2.png`;
     }
+    IsLife() { return true; }
 }
 
 // a Clue card
