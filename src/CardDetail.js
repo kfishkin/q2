@@ -24,10 +24,12 @@ class CardDetail extends React.Component {
       </div>,
       <div className='card_face_level_value'>
         {baseCard.GetLevel()}
-      </div>,
-      <div className='card_face_value'>
+      </div>);
+    if (baseCard.IsSellable()) {
+      parts.push(<div className='card_face_value'>
         ({baseCard.GetSellValue()})
       </div>);
+    }
 
     if (baseCard.GetRawArmorValue() > 0) {
       parts.push(
@@ -49,9 +51,9 @@ class CardDetail extends React.Component {
         </div>)
     };
 
-      parts.push(<div className='card_face_description'>
-        {card.FullyDescribe(this.props.baseCards)}
-      </div>);
+    parts.push(<div className='card_face_description'>
+      {card.FullyDescribe(this.props.baseCards)}
+    </div>);
     let imgUrl = baseCard.DescriptionBackgroundImageURL();
     if (imgUrl) {
       parts.push(

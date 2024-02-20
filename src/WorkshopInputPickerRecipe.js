@@ -1,4 +1,5 @@
 import React from 'react';
+import { Select } from 'antd';
 
 // props:
 // machine - the card for the machine that needs input
@@ -51,17 +52,39 @@ class WorkshopInputPickerRecipe extends React.Component {
         for (const i in recipeInfo.ingredients) {
           let amount = recipeInfo.amounts[i];
           let ingredBaseId = recipeInfo.ingredients[i];
+          let baseCard = this.props.baseCards[ingredBaseId];
           let ingredName = this.props.baseCards[ingredBaseId].GetDisplayName();
-          let haves = this.props.deck.filter((c) => c.GetBase().GetId() === ingredBaseId);
-          let haveThis = (haves.length >= amount);
+          let candidates = baseCard.ContainedInDeck(this.props.deck);
+          if (baseCard.IsCategory()) {
+            candidates = candidates.filter((c) => c.GetArmorWear() > 0);
+          }
+
+          let have = candidates.length;
+          let haveThis = (have >= amount);
           let icon = 'thumbs_down.png';
           let alt = "not enough";
           if (haveThis) {
             icon = 'thumbs_up.png';
             alt = "good to go"
           }
+
+          const categoryUI = (baseCard, candidates) => {
+            let onArmorSpec = (val) => {
+              console.log(`you chose ${val}`);
+            }
+            let selectOptions = candidates.map((card) => {
+              return {
+                label: card.TerselyDescribe(),
+                value: card.GetId(),
+              }
+            })            
+
+            // if this was a category card, need to have user pick which one.
+            return <Select style={{width:150}} onChange={(val) => onArmorSpec(val)} options={selectOptions}/>
+          }
+
           steps.push(<li>
-            <span><b>{amount}</b> of <b>{ingredName}</b> (have {haves.length})</span>
+            <span><b>{amount}</b> of <b>{ingredName}</b> {(baseCard.IsCategory() && candidates.length > 0) ? categoryUI(baseCard, candidates):""}(have {have})</span>
             <img src={`pix/icons/${icon}`} className='thumb_icon' alt={alt}/>
           </li>)
         }

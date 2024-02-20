@@ -478,7 +478,7 @@ class CardTypeCategory extends BaseCard {
 
 class CardTypeCategoryArmor extends CardTypeCategory {
 
-    GetDisplayName() { return 'an Armor card' };
+    GetDisplayName() { return 'an Armor card with wear' };
     ContainedInDeck(cards) {
         return super.cardsOfType(cards, CARD_TYPES.ARMOR);
     }

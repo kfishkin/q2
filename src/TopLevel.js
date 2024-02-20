@@ -239,16 +239,17 @@ class TopLevel extends React.Component {
         let loggedIn = this.state.playerInfo && this.state.playerInfo.handle;
         let haveGame = this.state.gameInfo && this.state.gameInfo.gameId;
         let haveDeck = this.state.playerInfo && this.state.playerInfo.deck;
+        let fighting = (FIGHT_PAGE === this.state.currentPage);
         let pageTemplates = [
-            new PageTemplate(LOGIN_PAGE, loggedIn ? "Logout" : "Login", true),
-            new PageTemplate(GAME_ADMIN_PAGE, "Game Admin", loggedIn),
+            new PageTemplate(LOGIN_PAGE, loggedIn ? "Logout" : "Login", !fighting),
+            new PageTemplate(GAME_ADMIN_PAGE, "Game Admin", loggedIn && !fighting),
             new PageTemplate(GAME_PAGE, "Game", haveGame),
-            new PageTemplate(WORKSHOP_PAGE, "Workshop", haveGame && haveDeck),
-            new PageTemplate(CASHIER_PAGE, "Cashier", haveGame && haveDeck),
+            new PageTemplate(WORKSHOP_PAGE, "Workshop", haveGame && haveDeck && !fighting),
+            new PageTemplate(CASHIER_PAGE, "Cashier", haveGame && haveDeck && !fighting),
             new PageTemplate(CONFIG_PAGE, "Config", true)
         ]
 
-        console.log(`current page = [${this.state.currentPage}]`);
+        //console.log(`current page = [${this.state.currentPage}]`);
         let headerText = loggedIn ? `Welcome, ${this.state.playerInfo.displayName}` : "Please log in to start";
 
         return (

@@ -42,6 +42,40 @@ class FightPage extends React.Component {
     };
   }
 
+  componentDidMount() {
+    // selected armor and weapon default to the best available.
+    let armorCards = this.props.deck.filter((c) => c.GetBase().GetRawArmorValue() > 0);
+    let weaponCards = this.props.deck.filter((c) => c.GetBase().GetRawWeaponValue() > 0);
+    if (armorCards.length > 0) {
+      let bestArmor = null;
+      let bestValue = 0;
+      armorCards.forEach((c) => {
+        if (c.GetNetArmorValue() > 0) {
+          bestValue = c.GetNetArmorValue();
+          bestArmor = c;
+        }
+      });
+      if (bestArmor !== null) {
+        this.setState({selectedArmor: bestArmor});
+      }
+    }
+    if (weaponCards.length > 0) {
+      let bestWeapon = null;
+      let bestValue = 0;
+      weaponCards.forEach((c) => {
+        if (c.GetNetWeaponValue() > 0) {
+          bestValue = c.GetNetWeaponValue();
+          bestWeapon = c;
+        }
+      });
+      if (bestWeapon !== null) {
+        this.setState({selectedWeapon: bestWeapon});
+      }
+    }    
+    
+
+  }
+
   // if there's no monster/weapon/armor card, first choice is to use a base
   // card image with the given handle, second choice is to use the given card.
   makeFallback(firstOptionHandle, secondOptionCard) {
@@ -72,9 +106,11 @@ class FightPage extends React.Component {
   }
 
   weaponUI(weaponCards, nothingCard) {
+    const NONE = "none";
     const onWeaponChoice = (val) => {
+      val = val.target.value;
       console.log(`weaponChoice: ${val}`);
-      if (val === 0) {
+      if (val === NONE) {
         this.setState({ selectedWeapon: null });
       } else {
         let weaponCard = weaponCards.find((c) => c.GetId() === val);
@@ -83,34 +119,45 @@ class FightPage extends React.Component {
         }
       }
     }
-    let weaponOptions = [{ label: 'Bare-handed', value: 0 }];
-    let selectedValue = 0;
+    let weaponOptions = [{ label: 'Bare-handed', value: NONE, selected: !this.state.selectedWeapon}];
+
     if (weaponCards && weaponCards.length > 0) {
       weaponCards.forEach((card) => {
         let optDict = {
           label: card.TerselyDescribe(),
-          value: card.GetId()
+          value: card.GetId(),
+          selected: card == this.state.selectedWeapon
         }
         weaponOptions.push(optDict);
       });
 
     }
+    // moved away from ant select, too hard to set initial value.weird.
+    let htmlOpts = weaponOptions.map((dict) => {
+      return (<option value={dict.value} selected={dict.selected}>{dict.label}</option>)
+    });
+
     let weaponCard = this.state.selectedWeapon ? this.state.selectedWeapon
       : this.makeFallback('decor_fist', nothingCard);
+    let selectedValue = this.state.selectedWeapon ? this.state.selectedWeapon.GetId() : 0;      
+    console.log(`weapon: weapon = ${weaponCard.GetBase().GetHandle()}, value = ${selectedValue}`);    
 
     return (
       <li>
-        choose your weapon: <Select style={{ width: 200 }} onChange={(val) => onWeaponChoice(val)}
-         options={weaponOptions} defaultValue={selectedValue} />
+        choose your weapon: <select style={{ width: 200 }} onChange={(val) => onWeaponChoice(val)}>
+          {htmlOpts}
+          </select>
         <br />
         <CardDetail card={weaponCard} baseCards={this.props.baseCards} />
       </li>)
   }
 
   armorUI(armorCards, nothingCard) {
+    const NONE = "none";
     const onArmorChoice = (val) => {
       console.log(`armorChoice: ${val}`);
-      if (val === 0) {
+      val = val.target.value;
+      if (val === NONE) {
         this.setState({ selectedArmor: null });
       } else {
         let armorCard = armorCards.find((c) => c.GetId() === val);
@@ -119,15 +166,24 @@ class FightPage extends React.Component {
         }
       }
     }
-    let armorOptions = [{ label: 'None', value: 0 }];
-    if (armorCards && armorCards.length > 0) {
-      armorOptions = armorOptions.concat(armorCards.map((c) => { return { label: c.TerselyDescribe(), value: c.GetId() } }));
-    }
-    let armorCard = this.state.selectedArmor ? this.state.selectedArmor : nothingCard;
+    let selectedValue = this.state.selectedArmor ? this.state.selectedArmor.GetId() : 0;
+    let armorOptions = [{ label: 'None', value: NONE, selected: !this.state.selectedArmor }];
+      armorOptions = armorOptions.concat(armorCards.map((c) => { 
+        return { label: c.TerselyDescribe(), value: c.GetId(), selected: c == this.state.selectedArmor } }));
+    let htmlOpts = armorOptions.map((dict) => {
+      return (<option value={dict.value} selected={dict.selected}>{dict.label}</option>)
+    });
+    let armorCard = this.state.selectedArmor ? this.state.selectedArmor
+    : this.makeFallback('decor_no_armor', nothingCard);
+
+    console.log(`armorUI: armorCard = ${armorCard.GetBase().GetHandle()}, value = ${selectedValue}`);
 
     return (
       <li>
-        choose your armor: <Select style={{ width: 200 }} onChange={(val) => onArmorChoice(val)} options={armorOptions} />
+        choose your armor: <select style={{ width: 200 }} value={selectedValue} 
+          onChange={(val) => onArmorChoice(val)} >
+{htmlOpts}
+            </select>
         <br />
         <CardDetail card={armorCard} baseCards={this.props.baseCards} />
       </li>)
@@ -165,14 +221,17 @@ class FightPage extends React.Component {
         // odds are something changed...
         let reloadDeck = false;
         let reloadGame = false; // whenever map OR what's in a room change
-
+        let showLoot = false;
+        let toGamePage = false;
+        let fightOn = false;
 
         switch (v.status) {
           case 'CONTINUE':
             msg = 'The fighting will continue.';
             playByPlay(v);
-            msg += ` Press the '${this.state.buttonText}' button again for the next round`;
+            msg += ` Press the 'ok' button again for the next round`;
             statusType = 'info';
+            fightOn = true;
             reloadDeck = (v.armorDegraded || v.weaponDegraded || v.lifeLost);
             break;
           case 'DEAD':
@@ -185,13 +244,18 @@ class FightPage extends React.Component {
             msg = 'You won!';
             playByPlay(v);
             if (v.loot && v.loot.length > 0) {
-              msg += " You got some loot! Press the 'see loot' button to see it";
+              msg += " You got some loot! Press the 'ok' button to see it";
               this.setState({ lootCards: v.loot, buttonText: 'see loot' });
+              showLoot = true;
+            } else {
+              msg += "No loot found.";
+              toGamePage = true;
             }
             reloadDeck = (v.armorDegraded || v.weaponDegraded || v.lifeLost ||
               (v.loot && v.loot.length > 0));
             reloadGame = true;
             statusType = 'success';
+
             break;
             default:
               console.warn(`unknown fight status: ${v.status}`);
@@ -206,6 +270,13 @@ class FightPage extends React.Component {
         }
         this.setState({ statusMessage: msg, statusType: statusType, fighting: false });
         window.alert(msg);
+        if (showLoot) {
+          onShowLoot();
+        } else if (toGamePage) {
+          gotoGamePage();
+        } else if (fightOn) {
+          onStartFight();
+        }
       }).catch((e) => {
         console.log(`fe.fight: e = ${e.name}:${e.message} ${e.stack}`);
         msg = `error: ${e.name}:${e.message}`;
@@ -220,7 +291,7 @@ class FightPage extends React.Component {
     }
 
     let handler = (this.state.lootCards && this.state.lootCards.length > 0) ? onShowLoot : onStartFight;
-    const handleOk = () => {
+    const gotoGamePage = () => {
       this.setState({ showModal: false });
       this.props.showPageFunc(GAME_PAGE, {});
     }
@@ -228,7 +299,7 @@ class FightPage extends React.Component {
     return (
       <div>
         <button disabled={this.state.fighting} onClick={(e) => handler()}>{this.state.buttonText}</button>
-        <CardsModal title="Spoils of war" open={this.state.showModal} onOk={handleOk} onCancel={handleOk}
+        <CardsModal title="Spoils of war" open={this.state.showModal} onOk={gotoGamePage} onCancel={gotoGamePage}
           cards={this.state.lootCards}
           topHtml={<span>You have just added spoils of war to your deck</span>}
           bottomHtml=""

@@ -147,10 +147,19 @@ class MerchantPage extends React.Component {
       let selling = this.state.action === Action.SELLING;
       let repairing = this.state.action === Action.BLACKSMITH;
 
-      return <div><button className="merchant" current={buying ? "yes" : "no"} onClick={(e) => setAction(Action.BUYING)}>Buy</button>
+      let bankroll = 0;
+      this.props.playerInfo.deck.forEach((card) => {
+        // TODO: (deck) argument is array of Cards.
+        let cardObj = Card.Of(card);
+        if (cardObj.GetBase().IsMoney()) {
+          bankroll += cardObj.GetBase().GetSellValue();
+        }
+      });
+
+      return (<div> You have <b>${bankroll}</b>. <button className="merchant" current={buying ? "yes" : "no"} onClick={(e) => setAction(Action.BUYING)}>Buy</button>
         <button className="merchant" current={selling ? "yes" : "no"} onClick={(e) => setAction(Action.SELLING)}>Sell</button>
         <button className="merchant" current={repairing ? "yes" : "no"} onClick={(e) => setAction(Action.BLACKSMITH)}>Repair</button>
-      </div>;
+      </div>);
 
     }
 

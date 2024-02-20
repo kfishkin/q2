@@ -136,7 +136,7 @@ class MapComponent extends React.Component {
       }
       rows.push(<li><span>{label}  </span>{cols}</li>)
     }
-    let fireDict = {'background-image': 'url(\'./pix/biomes/fire.png\')'};
+    let fireDict = {'backgroundImage': 'url(\'./pix/biomes/fire.png\')'};
     return <div className='map_display'>
       <div className='map_rooms_display'>
         <span className='map_biome_label' style={{'background-image': "url('./pix/biomes/earth_50transparent.png')"}}>{'earth'.concat('_'.repeat(30))}</span>

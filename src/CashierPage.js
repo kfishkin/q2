@@ -53,7 +53,7 @@ class CashierPage extends React.Component {
     this.setState({moneyCards, moneyTotal, gameId, playerId, baseMoneyCards});
     this.props.beGateway.getTightMoneyOption(gameId, moneyTotal)
       .then((v) => {
-        console.log(`tight money option = ${JSON.stringify(v)}`);
+        //console.log(`tight money option = ${JSON.stringify(v)}`);
         this.setState({tightOption: v});
       }).catch((e) => {
         console.error(`error ${e} getting tight money option`);
