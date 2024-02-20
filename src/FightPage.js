@@ -1,5 +1,4 @@
 import React from 'react';
-import { Select } from 'antd';
 import Card from './Card';
 import CardDetail from './CardDetail';
 import CardsModal from './CardsModal';
@@ -50,7 +49,7 @@ class FightPage extends React.Component {
       let bestArmor = null;
       let bestValue = 0;
       armorCards.forEach((c) => {
-        if (c.GetNetArmorValue() > 0) {
+        if (c.GetNetArmorValue() > bestValue) {
           bestValue = c.GetNetArmorValue();
           bestArmor = c;
         }
@@ -63,7 +62,7 @@ class FightPage extends React.Component {
       let bestWeapon = null;
       let bestValue = 0;
       weaponCards.forEach((c) => {
-        if (c.GetNetWeaponValue() > 0) {
+        if (c.GetNetWeaponValue() > bestValue) {
           bestValue = c.GetNetWeaponValue();
           bestWeapon = c;
         }
@@ -126,7 +125,7 @@ class FightPage extends React.Component {
         let optDict = {
           label: card.TerselyDescribe(),
           value: card.GetId(),
-          selected: card == this.state.selectedWeapon
+          selected: card === this.state.selectedWeapon
         }
         weaponOptions.push(optDict);
       });
@@ -169,7 +168,7 @@ class FightPage extends React.Component {
     let selectedValue = this.state.selectedArmor ? this.state.selectedArmor.GetId() : 0;
     let armorOptions = [{ label: 'None', value: NONE, selected: !this.state.selectedArmor }];
       armorOptions = armorOptions.concat(armorCards.map((c) => { 
-        return { label: c.TerselyDescribe(), value: c.GetId(), selected: c == this.state.selectedArmor } }));
+        return { label: c.TerselyDescribe(), value: c.GetId(), selected: c === this.state.selectedArmor } }));
     let htmlOpts = armorOptions.map((dict) => {
       return (<option value={dict.value} selected={dict.selected}>{dict.label}</option>)
     });
