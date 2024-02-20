@@ -94,6 +94,10 @@ export class Card { // abstract base class
     GetNetWeaponValue() {
         let val = this.GetBase().GetRawWeaponValue();
         return Math.max(0, val - this.GetWeaponWear());
+    }  
+    
+    TerselyDescribe() {
+        return this.GetBase().GetDisplayName();
     }    
 }
 
@@ -122,6 +126,13 @@ class CardMachine extends Card {
 }
 
 class CardArmor extends Card {
+    TerselyDescribe() {
+        if (this.GetArmorWear() === 0) {
+            return super.TerselyDescribe();
+        } else {
+            return `${this.GetBase().GetDisplayName()} - wear ${this.GetArmorWear()}`;
+        }
+    }
     FullyDescribe(baseCards) {
         if (this.GetArmorWear() === 0) {
             return super.FullyDescribe(baseCards);
@@ -138,6 +149,13 @@ class CardArmor extends Card {
 
 
 class CardWeapon extends Card {
+    TerselyDescribe() {
+        if (this.GetWeaponWear() === 0) {
+            return super.TerselyDescribe();
+        } else {
+            return `${this.GetBase().GetDisplayName()} - wear ${this.GetWeaponWear()}`;
+        }
+    }    
     FullyDescribe(baseCards) {
         if (this.GetWeaponWear() === 0) {
             return super.FullyDescribe(baseCards);

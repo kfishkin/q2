@@ -8,13 +8,14 @@ export const CARD_TYPES = {
     RECIPE_OUTLINE: 5,
     RECIPE: 6,
     WEAPON: 7,
-    BATTLE_MODIFIER: 8,
+    BATTLE_MODIFIER: 8, // dead
     INGREDIENT: 9,
-    TICKET: 10,
+    TICKET: 10, // dead
     SCORE: 11,
     ARMOR: 12,
     MONSTER: 13,
-    DECOR: 14
+    DECOR: 14,
+    CATEGORY: 15
 };
 
 /**
@@ -26,6 +27,14 @@ export class BaseCard { // abstract base class
     constructor(type, dbObj) {
         this.db = dbObj; // the database record for this guy.
         this.type = type;
+    }
+
+    // given a deck of cards, which of them are of me?
+    ContainedInDeck(cards) {
+        if (!cards) return [];
+        return cards.filter((card) => {
+            return card.GetBase().GetId() === this.GetId()
+        });
     }
 
     GetType() {
@@ -87,7 +96,12 @@ export class BaseCard { // abstract base class
     IconURL() {
         return "pix/card_types/none.png";
     }
-    
+    IsBuyable() {
+        return ('buyable' in this.db) ? this.db.buyable : true;
+    }
+    IsCategory() {
+        return false;
+    }
     IsMoney() {
         return false;
     }
@@ -98,6 +112,10 @@ export class BaseCard { // abstract base class
     IsScore() {
         return false;
     }
+    IsSellable() {
+        return ('sellable' in this.db) ? this.db.sellable : true;
+    }
+
     IsNothing() {
         return false;
     }
@@ -157,12 +175,21 @@ export class BaseCard { // abstract base class
             case CARD_TYPES.RECIPE: return new CardTypeRecipe(db);
             case CARD_TYPES.WEAPON: return new CardTypeWeapon(db);
             case CARD_TYPES.ARMOR: return new CardTypeArmor(db);
-            case CARD_TYPES.BATTLE_MODIFIER: return new CardTypeBattleModifier(db);
             case CARD_TYPES.INGREDIENT: return new CardTypeIngredient(db);
-            case CARD_TYPES.TICKET: return new CardTypeTicket(db);
             case CARD_TYPES.SCORE: return new CardTypeScore(db);
             case CARD_TYPES.MONSTER: return new CardTypeMonster(db);
             case CARD_TYPES.DECOR: return new CardTypeDecor(db);
+            case CARD_TYPES.CATEGORY: 
+              switch (db.handle) {
+                case 'category_armor': return new CardTypeCategoryArmor(db); break;
+                case 'category_clue': return new CardTypeCategoryClue(db); break;
+                case 'category_outline': return new CardTypeCategoryOutline(db); break;
+                case 'category_weapon': return new CardTypeCategoryWeapon(db); break;
+                default:
+                    console.warn(`unknown category handle: ${db.handle}`);
+                    break;
+              }
+              break;
             default:
                 console.warn(`gc.type of ${type} unknown`);
                 return new CardTypeNothing(db);
@@ -202,8 +229,8 @@ class CardTypeDecor extends BaseCard {
 
     AltText() { return "" }
     IsNothing() { return true; }
-    DescriptionBackgroundImageURL(card) {
-        return `pix/general/decor_grave.png`;
+    DescriptionBackgroundImageURL() {
+        return `pix/general/${this.GetHandle()}.png`;
     }
 }
 
@@ -214,7 +241,7 @@ class CardTypeLife extends BaseCard {
     }
     AltText() { return "Life" }
     IconURL() { return "pix/card_types/life.png"; }
-    DescriptionBackgroundImageURL(card) {
+    DescriptionBackgroundImageURL() {
         return `pix/card_backgrounds/life2.png`;
     }
     IsLife() { return true; }
@@ -372,9 +399,7 @@ class CardTypeWeapon extends BaseCard {
     }
     AltText() { return "Weapon" }
     IconURL() { return "pix/card_types/weapon.png"; }
-    BattleModifierImage() {
-        return "";
-    }
+
     DescriptionBackgroundImageURL() {
         return `pix/card_backgrounds/${this.db.handle}.png`;
     }       
@@ -391,9 +416,7 @@ class CardTypeArmor extends BaseCard {
     }
     AltText() { return "Armor" }
     IconURL() { return "pix/card_types/armor.png"; }
-    BattleModifierImage() {
-        return "";
-    }
+
 
     DescriptionBackgroundImageURL() {
         return `pix/card_backgrounds/${this.db.handle}.png`;
@@ -405,38 +428,6 @@ class CardTypeArmor extends BaseCard {
 }
 
 
-// must match what's in BE.
-const BattleModifierType = {
-    NONE: 0,
-    FOG: 1,
-    ENCHANTMENT: 2,
-    RECON: 3
-};
-// a Battle Modifier card
-class CardTypeBattleModifier extends BaseCard {
-    constructor(db) {
-        super(CARD_TYPES.BATTLE_MODIFIER, db);
-    }
-    AltText() { return "Battle Modifier" }
-    IconURL() { return "pix/card_types/battle_modifier.png"; }
-
-    BattleModifierImage(card) {
-        let modType = this.db.battle_modifier.type;
-
-        switch (modType) {
-            case BattleModifierType.FOG:
-                return <img src="pix/general/fog.png" width="32" alt="fog" />
-            case BattleModifierType.RECON:
-                return <img src="pix/general/binocs_64.png" width="32" alt="recon" />
-            case BattleModifierType.ENCHANTMENT:
-                let modValue = this.db.battle_modifier.value;
-                let url = `pix/general/plus_${modValue}.png`;
-                return <img src={url} width="32" alt="enchantment" />
-            default:
-                return "";
-        }
-    }
-}
 // a Ingredient card
 class CardTypeIngredient extends BaseCard {
     constructor(db) {
@@ -445,14 +436,7 @@ class CardTypeIngredient extends BaseCard {
     AltText() { return "Ingredient" }
     IconURL() { return "pix/card_types/ingredient.png"; }
 }
-// a Golden Ticket card
-class CardTypeTicket extends BaseCard {
-    constructor(db) {
-        super(CARD_TYPES.TICKET, db);
-    }
-    AltText() { return "Golden Ticket" }
-    IconURL() { return "pix/card_types/golden_ticket.png"; }
-}
+
 // a Score card
 class CardTypeScore extends BaseCard {
     constructor(db) {
@@ -476,4 +460,47 @@ class CardTypeMonster extends BaseCard {
     DescriptionBackgroundImageURL() {
         return `pix/monsters/${this.GetHandle()}.png`;
     }    
+}
+
+class CardTypeCategory extends BaseCard {
+    constructor(db) {
+        super(CARD_TYPES.CATEGORY, db);
+    }
+
+    IsCategory() { return true; }
+    IsNothing() { return true; }
+
+    cardsOfType(deck, type) {
+        if (!deck) return [];
+        return deck.filter((c) => c.GetBase().GetType() === type);
+    }
+}
+
+class CardTypeCategoryArmor extends CardTypeCategory {
+
+    GetDisplayName() { return 'an Armor card' };
+    ContainedInDeck(cards) {
+        return super.cardsOfType(cards, CARD_TYPES.ARMOR);
+    }
+}
+
+class CardTypeCategoryClue extends CardTypeCategory {
+    GetDisplayName() { return 'a Clue card' };
+    ContainedInDeck(cards) {
+        return super.cardsOfType(cards, CARD_TYPES.CLUE);
+    }    
+}
+
+class CardTypeCategoryOutline extends CardTypeCategory {
+    GetDisplayName() { return 'a Recipe Outline card' };
+    ContainedInDeck(cards) {
+        return super.cardsOfType(cards, CARD_TYPES.RECIPE_OUTLINE);
+    }    
+}
+
+class CardTypeCategoryWeapon extends CardTypeCategory {
+    GetDisplayName() { return 'a Weapon card' };
+    ContainedInDeck(cards) {
+        return super.cardsOfType(cards, CARD_TYPES.WEAPON);
+    }
 }

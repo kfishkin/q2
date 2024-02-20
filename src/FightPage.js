@@ -37,9 +37,22 @@ class FightPage extends React.Component {
       statusType: 'info',
       buttonText: 'Fight!',
       lootCards: [],
-      showModal: false
+      showModal: false,
+      fighting: false
     };
   }
+
+  // if there's no monster/weapon/armor card, first choice is to use a base
+  // card image with the given handle, second choice is to use the given card.
+  makeFallback(firstOptionHandle, secondOptionCard) {
+      let firstCard = Object.values(this.props.baseCards)
+        .find((bc) => bc.GetHandle() === firstOptionHandle);
+      if (firstCard) {
+        let fake2 = { game_card: firstCard.db };
+        return Card.Of(fake2);
+      }
+      return secondOptionCard;
+    }    
 
   monsterUI(monsterCard) {
     if (monsterCard.GetBase().IsNothing()) {
@@ -50,11 +63,11 @@ class FightPage extends React.Component {
       </li>);
 
     } else {
-    return (<li>
-      The Monster is a level {monsterCard.GetBase().GetLevel()} <b>{monsterCard.GetBase().GetDisplayName()}</b>
-      <br />
-      <CardDetail card={monsterCard} baseCards={this.props.baseCards} />
-    </li>);
+      return (<li>
+        The Monster is a level {monsterCard.GetBase().GetLevel()} <b>{monsterCard.GetBase().GetDisplayName()}</b>
+        <br />
+        <CardDetail card={monsterCard} baseCards={this.props.baseCards} />
+      </li>);
     }
   }
 
@@ -71,14 +84,24 @@ class FightPage extends React.Component {
       }
     }
     let weaponOptions = [{ label: 'Bare-handed', value: 0 }];
+    let selectedValue = 0;
     if (weaponCards && weaponCards.length > 0) {
-      weaponOptions = weaponOptions.concat(weaponCards.map((c) => { return { label: c.GetBase().GetDisplayName(), value: c.GetId() } }));
+      weaponCards.forEach((card) => {
+        let optDict = {
+          label: card.TerselyDescribe(),
+          value: card.GetId()
+        }
+        weaponOptions.push(optDict);
+      });
+
     }
-    let weaponCard = this.state.selectedWeapon || nothingCard;
+    let weaponCard = this.state.selectedWeapon ? this.state.selectedWeapon
+      : this.makeFallback('decor_fist', nothingCard);
 
     return (
       <li>
-        choose your weapon: <Select style={{ width: 200 }} onChange={(val) => onWeaponChoice(val)} options={weaponOptions} />
+        choose your weapon: <Select style={{ width: 200 }} onChange={(val) => onWeaponChoice(val)}
+         options={weaponOptions} defaultValue={selectedValue} />
         <br />
         <CardDetail card={weaponCard} baseCards={this.props.baseCards} />
       </li>)
@@ -98,9 +121,9 @@ class FightPage extends React.Component {
     }
     let armorOptions = [{ label: 'None', value: 0 }];
     if (armorCards && armorCards.length > 0) {
-      armorOptions = armorOptions.concat(armorCards.map((c) => { return { label: c.GetBase().GetDisplayName(), value: c.GetId() } }));
+      armorOptions = armorOptions.concat(armorCards.map((c) => { return { label: c.TerselyDescribe(), value: c.GetId() } }));
     }
-    let armorCard = this.state.selectedArmor || nothingCard;
+    let armorCard = this.state.selectedArmor ? this.state.selectedArmor : nothingCard;
 
     return (
       <li>
@@ -113,7 +136,7 @@ class FightPage extends React.Component {
   lowerPart() {
     const onStartFight = () => {
       console.log(`onStartFight: called`);
-      this.setState({ statusMessage: 'fighting...', statusType: 'info' });
+      this.setState({ statusMessage: 'fighting...', statusType: 'info', fighting: true });
       let p = this.props.beGateway.fight(this.props.gameId, this.props.playerId,
         this.props.row, this.props.col,
         this.state.selectedArmor ? this.state.selectedArmor.GetId() : null,
@@ -126,7 +149,7 @@ class FightPage extends React.Component {
         }
         if (v.armorRoll) {
           msg += `You rolled a '${v.armorRoll}' for your defense.`;
-        }        
+        }
         if (v.armorDegraded) {
           msg += ' Your armor was damaged.';
         }
@@ -176,13 +199,13 @@ class FightPage extends React.Component {
         if (reloadGame) {
           this.props.onGameDeckBEChange();
         }
-        this.setState({ statusMessage: msg, statusType: statusType });
+        this.setState({ statusMessage: msg, statusType: statusType, fighting: false });
         window.alert(msg);
       }).catch((e) => {
         console.log(`fe.fight: e = ${e.name}:${e.message} ${e.stack}`);
         msg = `error: ${e.name}:${e.message}`;
         statusType = 'error';
-        this.setState({ statusMessage: msg, statusType: statusType });
+        this.setState({ statusMessage: msg, statusType: statusType, fighting: false });
         window.alert(msg);
       });
     }
@@ -199,7 +222,7 @@ class FightPage extends React.Component {
 
     return (
       <div>
-        <button onClick={(e) => handler()}>{this.state.buttonText}</button>
+        <button disabled={this.state.fighting} onClick={(e) => handler()}>{this.state.buttonText}</button>
         <CardsModal title="Spoils of war" open={this.state.showModal} onOk={handleOk} onCancel={handleOk}
           cards={this.state.lootCards}
           topHtml={<span>You have just added spoils of war to your deck</span>}
@@ -221,33 +244,19 @@ class FightPage extends React.Component {
     let fakeDb = { game_card: nothingBaseCard.db }
     // make a fake 'nothing' card for display
     let nothingCard = Card.Of(fakeDb);
-    let decorBaseCard = nothingCard;
+    let baseCard = nothingCard;
     let monsterCard = null;
     if (this.props.room && this.props.room.owner && this.props.room.owner.handle) {
       let monsterHandle = this.props.room.owner.handle;
-      decorBaseCard = Object.values(this.props.baseCards)
-      .find((bc) => bc.GetHandle() === monsterHandle);
-      if (decorBaseCard) {
-        let fake2 = { game_card: decorBaseCard.db };
+      baseCard = Object.values(this.props.baseCards)
+        .find((bc) => bc.GetHandle() === monsterHandle);
+      if (baseCard) {
+        let fake2 = { game_card: baseCard.db };
         monsterCard = Card.Of(fake2);
       }
     }
-    if (monsterCard === null) {
-      // see if we can find the decor card for a grave...
-      let handle = 'decor_grave';
-      let decorBaseCard = Object.values(this.props.baseCards)
-      .find((bc) => bc.GetHandle() === handle);
-      if (decorBaseCard) {
-        let fake2 = { game_card: decorBaseCard.db };
-        monsterCard = Card.Of(fake2);
-      }
-    }
-    if (monsterCard === null) {
-      // worst case...
-      monsterCard = nothingCard;
-    }
-    if (monsterCard === null) {
-      console.warn('null monsterCard?');
+    if (!monsterCard) {
+      monsterCard = this.makeFallback('decor_grave', nothingCard);
     }
 
     // find the weapon and armor cards....

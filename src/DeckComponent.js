@@ -68,7 +68,7 @@ export class DeckComponent extends React.Component {
   }
   // and for description
   descriptionMaker(card) {
-    return card.GetBase().GetDescription();
+    return card.TerselyDescribe();
   }
   // and for clicking on a row in the table
   onRowClick(row) {
@@ -149,17 +149,21 @@ export class DeckComponent extends React.Component {
     }
     columns.push(
       {
-        title: 'battle_value', dataIndex: 'battle_value',
-        sorter: (row1, row2) => row1.battle_value - row2.battle_value
-      },
-      {
         title: 'description', dataIndex: 'description',
         sorter: (row1, row2) => row1.description.localeCompare(row2.description)
-      }
+      },
+      {
+        title: 'obtained', dataIndex: 'obtained',
+        sorter: (row1, row2) => row1.obtainedMillis - row2.obtainedMillis
+      },      
+
     );
     let antInnards = deck.map((card, i) => {
       let gc = card.game_card;
       let cardObj = Card.Of(card); // TODO: deck is card objects
+      let obtainedStr = cardObj.db.player_got_when;
+      let obtainedDate = new Date(obtainedStr);
+
       let row = {
         key: 'tr_' + i,
         type: gc.type,
@@ -167,10 +171,11 @@ export class DeckComponent extends React.Component {
         display_name: this.displayNameMaker(cardObj),
         handle: gc.handle,
         level: gc.level,
-        battle_value: gc.battle_value,
         description: this.descriptionMaker(cardObj),
         card: card,
-        cardObj: cardObj
+        cardObj: cardObj,
+        obtained: obtainedDate.toLocaleString(),
+        obtainedMillis: obtainedDate.valueOf()
       };
       let tuple = this.valueDataMaker(card);
       row[tuple[0]] = tuple[1];

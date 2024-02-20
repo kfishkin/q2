@@ -122,6 +122,10 @@ class MapComponent extends React.Component {
         // kludge for display...
         if (mapLabel === 'Empty')
           mapLabel = '---';
+        // and another....
+        if (per_player_message.toLowerCase().startsWith('you defeated a') && mapLabel === '---') {
+          mapLabel = '-v-';
+        }
         if (reachable) {
           elt = <button className='map_room_button' reachable="yes" title={per_player_message} onClick={(e) => enterRoom(this.props.gameId, row, col, x, y, this.props.playerId)}>{mapLabel}</button>
         } else {

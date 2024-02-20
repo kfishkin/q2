@@ -185,14 +185,6 @@ img.fight_image {
 }
 
 
-div.card_face_battle_modifier_image {
-  position: absolute;
-  top: 8px;
-  right: 40px;
-  z-index: 0;
-  opacity: 80%;
-}
-
 
 div.deck {
   /* from https://www.w3schools.com/css/tryit.asp?filename=trycss_table_fancy */
@@ -429,7 +421,7 @@ div.map_display {
 
 div.map_rooms_display {
   text-align: left;
-  width: 512px;
+  width: 720px;
   z-index: 1;
 }
 
@@ -466,7 +458,7 @@ ul.map_room_rows {
 }
 
 button.map_room_button {
-  width:30px;
+  width:40px;
   height: 30px;
   margin-left: 0px;
   margin-right: 0px;;

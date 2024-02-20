@@ -47,6 +47,14 @@ class MerchantPage extends React.Component {
           //console.log(`got shopkeeper inventory of ${JSON.stringify(v)}`);
           this.loadingMerchant = false;
           let deck = v.map((dbObj) => Card.Of(dbObj));
+          console.log(`raw merchant deck has length ${deck.length}`);
+          deck.forEach((c) =>{
+            if (!c.GetBase().IsBuyable()) {
+              console.log(`card ${c.GetBase().GetHandle()} is not IsBuyable`);
+            }
+          })
+          deck = deck.filter((c) => c.GetBase().IsBuyable());
+          console.log(`filtered merchant deck has length ${deck.length}`);
           this.setState({ statusMessage: `loaded ${v.length}-card inventory...`, statusType: 'success', merchantDeck: deck });
         }).catch((e) => {
           this.loadingMerchant = false;
@@ -152,11 +160,17 @@ class MerchantPage extends React.Component {
     let repairing = this.state.action === Action.BLACKSMITH;
     // TODO: remove once playerInfo.deck is real cards.
     let deckObjs = this.props.playerInfo.deck.map((dbObj) => Card.Of(dbObj));
+    deckObjs.forEach((c) => {
+      if (!c.GetBase().IsSellable()) {
+        console.log(`player card ${c.GetBase().GetHandle()} is not sellable`);
+      }
+    });
+    deckObjs = deckObjs.filter((c) => c.GetBase().IsSellable());
     return <div>Hello from the merchant page for merchant {this.props.owner.name}'s store.
       <br />{showModalUI()}
       <DeckComponentMerchant deck={this.state.merchantDeck} baseCards={this.props.gameInfo.baseCards} current={buying ? "yes" : "no"}
         onTransact={(cards) => this.onStartBuy(cards)} />
-      <DeckComponent deck={this.props.playerInfo.deck} baseCards={this.props.gameInfo.baseCards} current={selling ? "yes" : "no"}
+      <DeckComponent deck={deckObjs} baseCards={this.props.gameInfo.baseCards} current={selling ? "yes" : "no"}
         onTransact={(cards) => this.onStartSell(cards)} />
         <RepairComponent deck={deckObjs} current={repairing ? "yes" : "no"}
         onTransact={(cards) => this.onStartRepair(cards)} />

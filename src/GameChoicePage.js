@@ -115,6 +115,7 @@ class GameChoicePage extends React.Component {
 
   existingGamesUI() {
     if (this.state.playerGames === null) {
+      // TODO: move this all into component did mount.
       switch (this.loadingState) {
         case this.BEFORE:
           this.loadingState = this.DURING;

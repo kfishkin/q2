@@ -62,14 +62,6 @@ class CardDetail extends React.Component {
       );
     }
 
-    if (baseCard.GetType() === CARD_TYPES.BATTLE_MODIFIER) {
-      parts.push(
-        <div className='card_face_battle_modifier_image'>
-          {baseCard.BattleModifierImage()}
-        </div>);
-      ;
-
-    }
     return (
       <div className='card_face_border'>
         {parts}

@@ -159,7 +159,8 @@ class WorkshopInputPickerJudge extends React.Component {
             allOk = false;
             continue;
           }
-          let have = (ingred.GetId() in deckByBaseCardId) ? deckByBaseCardId[ingred.GetId()].length : 0;
+          let have = ingred.ContainedInDeck(this.props.deck);
+          //let have = (ingred.GetId() in deckByBaseCardId) ? deckByBaseCardId[ingred.GetId()].length : 0;
           if (ingred.GetId() in used) {
             have -= used[ingred.GetId()];
           }
@@ -192,18 +193,33 @@ class WorkshopInputPickerJudge extends React.Component {
       };
 
       const renderIngredSelect = (step, ingredIds) => {
-        let baseCards = this.props.baseCards;
-        let selectOptions = ingredIds.map((id) => {
-          let baseCard = baseCards[id];
-          let amount = (id in deckByBaseCardId) ? deckByBaseCardId[id].length : 0;
+        // if the ingredient id is a category, replace it with an array of base
+        // cards, one for each they have in their deck.
+        let selectBaseCards = [];
+        ingredIds.forEach((ingredId) => {
+          let baseCard = this.props.baseCards[ingredId];
+          if (baseCard.IsCategory()) {
+          // however, if this was a category, need to collapse them from
+          // cards back to base cards.            
+            // annoying...
+            let cardsOf = baseCard.ContainedInDeck(this.props.deck);
+            let baseCards = {};
+            cardsOf.forEach((c) => baseCards[c.GetBase().GetId()] = c.GetBase());
+            selectBaseCards.push(... Object.values(baseCards));
+          } else {
+            selectBaseCards.push(baseCard);
+          }
+        });
+        let selectOptions = selectBaseCards.map((baseCard) => {
+          let amount = baseCard.ContainedInDeck(this.props.deck).length;
           return {
             label: `${baseCard.GetDisplayName()} (${amount})`,
-            value: id,
+            value: baseCard.GetId(),
             dont_have: (amount === 0)
           }
         })
         const onIngredChange = (step, baseCardId) => {
-          this.currentIngreds[step] = baseCards[baseCardId];
+          this.currentIngreds[step] = this.props.baseCards[baseCardId];
           checkPile(step);
         }
 
