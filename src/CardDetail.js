@@ -1,5 +1,4 @@
 import React from 'react';
-import { CARD_TYPES } from './BaseCard';
 import Card from './Card';
 
 // props: 

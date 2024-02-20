@@ -173,6 +173,8 @@ class MerchantPage extends React.Component {
       <DeckComponent deck={deckObjs} baseCards={this.props.gameInfo.baseCards} current={selling ? "yes" : "no"}
         onTransact={(cards) => this.onStartSell(cards)} />
         <RepairComponent deck={deckObjs} current={repairing ? "yes" : "no"}
+        beGateway={this.props.beGateway}
+        gameId={this.props.gameInfo.gameId}
         onTransact={(cards) => this.onStartRepair(cards)} />
       <StatusMessage message={this.state.statusMessage} type={this.state.statusType}
       />

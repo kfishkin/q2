@@ -192,6 +192,11 @@ class FightPage extends React.Component {
               (v.loot && v.loot.length > 0));
             reloadGame = true;
             statusType = 'success';
+            break;
+            default:
+              console.warn(`unknown fight status: ${v.status}`);
+              msg += `unknown fight status: ${v.status}`;
+              statusType = 'error';
         }
         if (reloadDeck) {
           this.props.onPlayerDeckBEChange();

@@ -490,5 +490,16 @@ class BEGateway {
         }
     }
 
+    async getArtisanPrices(gameId) {
+        const url = this.beURI
+            + "games/" + gameId
+            + "/costs";
+        const requestOptions = {
+            method: 'GET',
+        };
+        const response = await fetch(url, requestOptions);
+        return response.json();
+    }
+
 }
 export default BEGateway;

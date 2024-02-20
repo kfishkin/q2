@@ -205,7 +205,7 @@ class WorkshopInputPickerJudge extends React.Component {
             let cardsOf = baseCard.ContainedInDeck(this.props.deck);
             let baseCards = {};
             cardsOf.forEach((c) => baseCards[c.GetBase().GetId()] = c.GetBase());
-            selectBaseCards.push(... Object.values(baseCards));
+            selectBaseCards.push(...Object.values(baseCards));
           } else {
             selectBaseCards.push(baseCard);
           }

@@ -5,16 +5,36 @@ import React from 'react';
 // current - am I currently being shown?
 // deck - player deck.
 // onTransact(cards) - indicate desire to repair (cards)
+// beGateway
+// gameId
 class RepairComponent extends React.Component {
   // this is called once when the page first loads, NOT each time the parent state changes.
   constructor(props) {
     super(props);
 
     this.state = {
+      prices: {}
     };
   }
 
+  componentDidMount() {
+    console.log(`repair page DCM: asking for prices`);
+    this.props.beGateway.getArtisanPrices(this.props.gameId)
+      .then((v) => {
+        console.log(`repair: v = ${JSON.stringify(v)}`);
+        this.setState({prices: v});
+
+      }).catch((e) => {
+        console.log(`repair: e = ${JSON.stringify(e)}`);
+
+      });
+
+  }
+
   repairableUI() {
+    if (!this.state.prices.anvil) {
+      return '...no price list yet, please come back later';
+    }
     let candidates = [];
     if (this.props.deck) {
       candidates = this.props.deck.filter((card) => {
@@ -26,9 +46,17 @@ class RepairComponent extends React.Component {
       return <div>You have nothing repairable.</div>;
     }
     const repairCost = (card) => {
-      let maxWear = Math.max(card.GetArmorWear(), card.GetWeaponWear());
-      const FEE_PER_WEAR = 10;
-      return maxWear * FEE_PER_WEAR;
+      let level = card.GetBase().GetLevel();
+      let wear = card.GetArmorWear();
+      let cost = 50;
+      if (wear > 0) {
+        cost = this.state.prices.anvil[level - 1];
+      } else {
+        wear = card.GetWeaponWear();
+        cost = this.state.prices.whetstone[level - 1];
+      }
+      // TODO: should cost be a function of how worn it is?
+      return cost;
     }
 
     const wantsToBuy = (card) => {
@@ -39,7 +67,8 @@ class RepairComponent extends React.Component {
     };
 
     let ui = candidates.map((card) => {
-      return <li onClick={(e) => wantsToBuy(card)}>{card.GetBase().GetDisplayName()} ... ${repairCost(card)}</li>;
+      return <li onClick={(e) => wantsToBuy(card)}>
+        {card.GetBase().GetDisplayName()} ... ${repairCost(card)}</li>;
     });
     return <div><span>Which one do you wish to repair?</span>
       <ul className='repair_list'>{ui}</ul></div>

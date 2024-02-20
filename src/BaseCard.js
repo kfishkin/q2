@@ -181,10 +181,10 @@ export class BaseCard { // abstract base class
             case CARD_TYPES.DECOR: return new CardTypeDecor(db);
             case CARD_TYPES.CATEGORY: 
               switch (db.handle) {
-                case 'category_armor': return new CardTypeCategoryArmor(db); break;
-                case 'category_clue': return new CardTypeCategoryClue(db); break;
-                case 'category_outline': return new CardTypeCategoryOutline(db); break;
-                case 'category_weapon': return new CardTypeCategoryWeapon(db); break;
+                case 'category_armor': return new CardTypeCategoryArmor(db);
+                case 'category_clue': return new CardTypeCategoryClue(db);
+                case 'category_outline': return new CardTypeCategoryOutline(db);
+                case 'category_weapon': return new CardTypeCategoryWeapon(db);
                 default:
                     console.warn(`unknown category handle: ${db.handle}`);
                     break;
