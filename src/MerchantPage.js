@@ -196,6 +196,7 @@ class MerchantPage extends React.Component {
       <SeerComponent deck={deckObjs} current={seeing ? "yes" : "no"}
         beGateway={this.props.beGateway}
         gameId={this.props.gameInfo.gameId}
+        baseCards={this.props.gameInfo.baseCards}
         onTransact={(cards) => this.onStartCluing(cards)} />
       <StatusMessage message={this.state.statusMessage} type={this.state.statusType}
       />

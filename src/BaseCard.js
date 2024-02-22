@@ -192,7 +192,6 @@ export class BaseCard { // abstract base class
                     console.warn(`unknown category handle: ${db.handle}`);
                     return new CardTypeNothing(db)
               }
-              break;
             default:
                 console.warn(`gc.type of ${type} unknown`);
                 return new CardTypeNothing(db);
@@ -312,6 +311,9 @@ class CardTypeRecipeOutline extends BaseCard {
     }
     AltText() { return "Recipe Outline" }
     IconURL() { return "pix/card_types/recipe_outline.png"; }
+    DescriptionBackgroundImageURL() {
+        return `pix/card_backgrounds/recipe_outline.png`;
+    }
     IsJudgeable() {
         return true;
     }
@@ -398,7 +400,7 @@ class CardTypeRecipe extends BaseCard {
         for (let step = 0; step < numSteps; step++) {
             let amount = recipe.amounts[step];
             let ingredient = baseCards[recipe.ingredients[step]].GetDisplayName();
-            stepDescrs.push(<li><span>{amount} of {ingredient}</span></li>);
+            stepDescrs.push(<li key={`ingred_${step}`}><span>{amount} of {ingredient}</span></li>);
         }
         return <div className="recipe_description">The Recipe has <b>{numSteps}</b> steps:<ol>{stepDescrs}</ol></div>;
     }    

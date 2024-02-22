@@ -497,12 +497,14 @@ ul.fight_room li {
   text-align: left;
 }
 
-
-
 span.map_biome_label {
   text-transform: capitalize;
   font-weight: bold;
   font-family: Arial, Helvetica, sans-serif;
   background-size: contain;
   background-clip: content-box;
+}
+
+div.seer_component {
+  position: relative;
 }

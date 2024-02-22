@@ -1,5 +1,6 @@
 import React from 'react';
-import { BaseCard, CARD_TYPES } from './BaseCard';
+import { CARD_TYPES } from './BaseCard';
+import CardDetail from './CardDetail';
 
 // lets users repair armor/weapons for $$.
 // props:
@@ -8,6 +9,7 @@ import { BaseCard, CARD_TYPES } from './BaseCard';
 // onTransact(cards) - indicate desire to repair (cards)
 // beGateway
 // gameId
+// baseCards
 class SeerComponent extends React.Component {
   // this is called once when the page first loads, NOT each time the parent state changes.
   constructor(props) {
@@ -19,7 +21,8 @@ class SeerComponent extends React.Component {
       selectedClueCard: null,
       selectedStep: 0,
       outlineCards: [],
-      clueCards: []
+      clueCards: [],
+      detailCard: null
     };
   }
 
@@ -40,12 +43,12 @@ class SeerComponent extends React.Component {
     let clueCards = this.props.deck.filter((card) => {
       return card.GetBase().GetType() === CARD_TYPES.CLUE;
     });
-    this.setState({
-      outlineCards: outlineCards,
-      clueCards: clueCards,
-      selectedOutlineCard: (outlineCards.length === 1) ? outlineCards[0] : null,
-      selectedClueCard: (clueCards.length === 1) ? clueCards[0] : null,
-    })      
+    let selectedOutlineCard =  (outlineCards.length === 1) ? outlineCards[0] : null;
+    let selectedClueCard = (clueCards.length === 1) ? clueCards[0] : null;
+    let detailCard = selectedOutlineCard ? selectedOutlineCard
+      : (selectedClueCard ? selectedClueCard : null);
+    this.setState({ outlineCards, clueCards, selectedOutlineCard,
+      selectedClueCard, detailCard});
   }
 
   outlineUI() {
@@ -54,7 +57,7 @@ class SeerComponent extends React.Component {
       console.log(`val = ${val}`);
       let card = this.state.outlineCards.find((c) => c.GetId() === val);
       if (card) {
-        this.setState({selectedOutlineCard: card});
+        this.setState({selectedOutlineCard: card, detailCard: card});
       } else {
         console.warn(`no outline with id ${val}`);
       }
@@ -84,7 +87,7 @@ class SeerComponent extends React.Component {
       console.log(`val = ${val}`);
       let card = this.state.clueCards.find((c) => c.GetId() === val);
       if (card) {
-        this.setState({selectedClueCard: card});
+        this.setState({selectedClueCard: card, detailCard: card});
       } else {
         console.warn(`no clue with id ${val}`);
       }
@@ -146,11 +149,20 @@ class SeerComponent extends React.Component {
     return <span>The analysis will cost <b>${price}</b></span>
   }
 
+  showLastSelectedCardUI() {
+    if (!this.state.detailCard) {
+      return "";
+    }
+    return <CardDetail card={this.state.detailCard} baseCards={this.props.baseCards}/>;
+  }
+
   seerUI() {
     if (!this.state.prices.crystal_ball) {
       return '...no price list yet, please come back later';
     }
-    return (<div><ul className='seer_input_list'>
+    return (<div>
+      {this.showLastSelectedCardUI()}
+      <ul className='seer_input_list'>
       <li>{this.outlineUI()}</li>
       <li>{this.clueUI()}</li>
       <li>{this.stepUI()}</li>
@@ -162,14 +174,16 @@ class SeerComponent extends React.Component {
   render() {
     let imgUrl = "pix/card_backgrounds/jigsaw_puzzle_player.png";
     return (
-      <div className='repair_component' current={this.props.current}>
-        <div className='card_face_border' horiz='yes'>
+      <div className='seer_component' current={this.props.current}>
+        <div horiz='yes'>
+          <span>The Seer can turn Clues into Knowledge...</span>
+        <div className='card_face_border'>
           <div className="card_face_description_bg">
             <img src={imgUrl} width="250" alt="" />
           </div>
         </div>
+        </div>
         <div horiz='yes'>
-          <span>The Seer can turn Clues into Knowledge...</span>
           {this.seerUI()}
         </div>
       </div>
