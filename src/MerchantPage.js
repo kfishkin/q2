@@ -3,7 +3,7 @@ import Card from './Card';
 import StatusMessage from './StatusMessage';
 import { DeckComponent, DeckComponentMerchant } from './DeckComponent';
 import RepairComponent from './RepairComponent';
-
+import SeerComponent from './SeerComponent';
 
 // props
 // owner: the player structure for the merchant that owns this shop.
@@ -14,7 +14,8 @@ import RepairComponent from './RepairComponent';
 const Action = {
   BUYING: 0,
   SELLING: 1,
-  BLACKSMITH: 2
+  BLACKSMITH: 2,
+  SEER: 3
 }
 
 class MerchantPage extends React.Component {
@@ -32,7 +33,7 @@ class MerchantPage extends React.Component {
 
   componentDidMount() {
 
-    console.log(`component did mount, owner = ${JSON.stringify(this.props.owner)}`);
+    //console.log(`component did mount, owner = ${JSON.stringify(this.props.owner)}`);
     this.loadMerchantDeck();
   }
 
@@ -134,6 +135,10 @@ class MerchantPage extends React.Component {
       });    
   }
 
+  onStartCluing(cards) {
+    console.log(`wants to clue in on cards ${JSON.stringify(cards)}`);
+  }  
+
   render() {
     if (!this.props.owner) {
       return <div>Oops, merchant page, but no merchant supplied</div>
@@ -146,6 +151,7 @@ class MerchantPage extends React.Component {
       let buying = this.state.action === Action.BUYING;
       let selling = this.state.action === Action.SELLING;
       let repairing = this.state.action === Action.BLACKSMITH;
+      let seeing = this.state.action === Action.SEER;
 
       let bankroll = 0;
       this.props.playerInfo.deck.forEach((card) => {
@@ -159,6 +165,7 @@ class MerchantPage extends React.Component {
       return (<div> You have <b>${bankroll}</b>. <button className="merchant" current={buying ? "yes" : "no"} onClick={(e) => setAction(Action.BUYING)}>Buy</button>
         <button className="merchant" current={selling ? "yes" : "no"} onClick={(e) => setAction(Action.SELLING)}>Sell</button>
         <button className="merchant" current={repairing ? "yes" : "no"} onClick={(e) => setAction(Action.BLACKSMITH)}>Repair</button>
+        <button className="merchant" current={seeing ? "yes" : "no"} onClick={(e) => setAction(Action.SEER)}>Use Clue</button>
       </div>);
 
     }
@@ -167,6 +174,7 @@ class MerchantPage extends React.Component {
     let buying = this.state.action === Action.BUYING;
     let selling = this.state.action === Action.SELLING;
     let repairing = this.state.action === Action.BLACKSMITH;
+    let seeing = this.state.action === Action.SEER;
     // TODO: remove once playerInfo.deck is real cards.
     let deckObjs = this.props.playerInfo.deck.map((dbObj) => Card.Of(dbObj));
     deckObjs.forEach((c) => {
@@ -181,10 +189,14 @@ class MerchantPage extends React.Component {
         onTransact={(cards) => this.onStartBuy(cards)} />
       <DeckComponent deck={deckObjs} baseCards={this.props.gameInfo.baseCards} current={selling ? "yes" : "no"}
         onTransact={(cards) => this.onStartSell(cards)} />
-        <RepairComponent deck={deckObjs} current={repairing ? "yes" : "no"}
+      <RepairComponent deck={deckObjs} current={repairing ? "yes" : "no"}
         beGateway={this.props.beGateway}
         gameId={this.props.gameInfo.gameId}
         onTransact={(cards) => this.onStartRepair(cards)} />
+      <SeerComponent deck={deckObjs} current={seeing ? "yes" : "no"}
+        beGateway={this.props.beGateway}
+        gameId={this.props.gameInfo.gameId}
+        onTransact={(cards) => this.onStartCluing(cards)} />
       <StatusMessage message={this.state.statusMessage} type={this.state.statusType}
       />
     </div>;

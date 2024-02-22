@@ -15,7 +15,8 @@ export const CARD_TYPES = {
     ARMOR: 12,
     MONSTER: 13,
     DECOR: 14,
-    CATEGORY: 15
+    CATEGORY: 15,
+    NUMBER: 16
 };
 
 /**
@@ -179,15 +180,17 @@ export class BaseCard { // abstract base class
             case CARD_TYPES.SCORE: return new CardTypeScore(db);
             case CARD_TYPES.MONSTER: return new CardTypeMonster(db);
             case CARD_TYPES.DECOR: return new CardTypeDecor(db);
+            case CARD_TYPES.NUMBER: return new CardTypeNumber(db);
             case CARD_TYPES.CATEGORY: 
               switch (db.handle) {
                 case 'category_armor': return new CardTypeCategoryArmor(db);
                 case 'category_clue': return new CardTypeCategoryClue(db);
                 case 'category_outline': return new CardTypeCategoryOutline(db);
                 case 'category_weapon': return new CardTypeCategoryWeapon(db);
+                case 'category_number': return new CardTypeCategoryNumber(db);
                 default:
                     console.warn(`unknown category handle: ${db.handle}`);
-                    break;
+                    return new CardTypeNothing(db)
               }
               break;
             default:
@@ -206,6 +209,15 @@ class CardTypeNothing extends BaseCard {
     AltText() { return "None" }
     IsNothing() { return true; }
 }
+
+class CardTypeNumber extends BaseCard {
+    constructor(db) {
+        super(CARD_TYPES.NUMBER, db);
+    }
+    AltText() { return "None" }
+    IsNothing() { return true; }
+}
+
 // a Money card
 class CardTypeMoney extends BaseCard {
     constructor(db) {
@@ -230,7 +242,7 @@ class CardTypeDecor extends BaseCard {
     AltText() { return "" }
     IsNothing() { return true; }
     DescriptionBackgroundImageURL() {
-        return `pix/general/${this.GetHandle()}.png`;
+        return `pix/card_backgrounds/${this.GetHandle()}.png`;
     }
 }
 
@@ -502,5 +514,13 @@ class CardTypeCategoryWeapon extends CardTypeCategory {
     GetDisplayName() { return 'a Weapon card' };
     ContainedInDeck(cards) {
         return super.cardsOfType(cards, CARD_TYPES.WEAPON);
+    }
+}
+
+
+class CardTypeCategoryNumber extends CardTypeCategory {
+    GetDisplayName() { return 'a Number card' };
+    ContainedInDeck(cards) {
+        return cards.filter((c) => c.GetBase().GetHandle().startsWith('number_'));
     }
 }
