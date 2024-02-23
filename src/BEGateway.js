@@ -390,10 +390,6 @@ class BEGateway {
         }
         try {
             const response = await fetch(url, requestOptions);
-            console.log(`fe.canUse: fetch returns ${response}`);
-            //console.log(`text = ${response.text()}`);
-            //console.log(`body = ${response.body}`);
-
             // if it was bad, i need to find out why, this is in the body,
             // but sadly .text() returns a promise...
             let msg = await response.text();
@@ -424,7 +420,6 @@ class BEGateway {
         }
         try {
             const response = await fetch(url, requestOptions);
-            console.log(`fe.use: fetch returns ${response}`);
             if (response.ok) {
                 console.log(`beG.use: 200 response, converting body to json`);
                 return response.json();
@@ -434,7 +429,7 @@ class BEGateway {
                 // it's an object which isn't 'ok', with a status text
                 return {
                     ok: false,
-                    statusText: msg
+                    errorText: msg
                 }
                 //return new Error(msg);
             }

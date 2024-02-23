@@ -18,6 +18,10 @@ class WorkshopInputPickerRecipe extends React.Component {
   }
 
   componentDidMount() {
+    this.makePilesAndSignal();
+  }
+
+  makePilesAndSignal() {
     let recipeCard = this.props.machine;
     let recipeInfo = recipeCard.GetBase().GetRecipeInfo();
     let inputPiles = [];
@@ -26,16 +30,22 @@ class WorkshopInputPickerRecipe extends React.Component {
       let ingredBaseId = recipeInfo.ingredients[i];
       let haves = this.props.deck.filter((c) => c.GetBase().GetId() === ingredBaseId);
       let haveThis = (haves.length >= amount);
+      let pile;
       if (haveThis) {
-        let pile = haves.slice(0, amount);
-        inputPiles.push(pile);
+        pile = haves.slice(0, amount);
+      } else {
+        // this happens if a category, you don't "have" that in your deck.
+        // so UI will pick, just put a placeholder:
+        pile = ['category_placeholder'];
       }
+      inputPiles.push(pile);
     }
     let haveAll = (inputPiles.length >= recipeInfo.ingredients.length);
-    this.setState({piles: inputPiles, haveAll: haveAll});
+    this.setState({ piles: inputPiles, haveAll: haveAll });
     if (haveAll) {
       this.props.onPilesChange(inputPiles);
     }
+
   }
 
   render() {
@@ -43,61 +53,69 @@ class WorkshopInputPickerRecipe extends React.Component {
     let recipeInfo = recipeCard.GetBase().GetRecipeInfo();
     let numSteps = recipeInfo.ingredients.length;
 
-      const preamble = () => {
-        return <span>The {recipeCard.GetBase().GetDisplayName()} recipe has <b>{numSteps}</b> steps:</span>;
-      }
+    const preamble = () => {
+      return <span>The {recipeCard.GetBase().GetDisplayName()} recipe has <b>{numSteps}</b> steps:</span>;
+    }
 
-      const stepsUI = () => {
-        let steps = [];
-        for (const i in recipeInfo.ingredients) {
-          let amount = recipeInfo.amounts[i];
-          let ingredBaseId = recipeInfo.ingredients[i];
-          let baseCard = this.props.baseCards[ingredBaseId];
-          let ingredName = this.props.baseCards[ingredBaseId].GetDisplayName();
-          let candidates = baseCard.ContainedInDeck(this.props.deck);
-          if (baseCard.IsCategory()) {
-            candidates = candidates.filter((c) => c.GetArmorWear() > 0);
-          }
-
-          let have = candidates.length;
-          let haveThis = (have >= amount);
-          let icon = 'thumbs_down.png';
-          let alt = "not enough";
-          if (haveThis) {
-            icon = 'thumbs_up.png';
-            alt = "good to go"
-          }
-
-          const categoryUI = (baseCard, candidates) => {
-            let onArmorSpec = (val) => {
-              console.log(`you chose ${val}`);
-            }
-            let selectOptions = candidates.map((card) => {
-              return {
-                label: card.TerselyDescribe(),
-                value: card.GetId(),
-              }
-            })            
-
-            // if this was a category card, need to have user pick which one.
-            return <Select style={{width:150}} onChange={(val) => onArmorSpec(val)} options={selectOptions}/>
-          }
-
-          steps.push(<li>
-            <span><b>{amount}</b> of <b>{ingredName}</b> {(baseCard.IsCategory() && candidates.length > 0) ? categoryUI(baseCard, candidates):""}(have {have})</span>
-            <img src={`pix/icons/${icon}`} className='thumb_icon' alt={alt}/>
-          </li>)
+    const stepsUI = () => {
+      let steps = [];
+      for (const i in recipeInfo.ingredients) {
+        let amount = recipeInfo.amounts[i];
+        let ingredBaseId = recipeInfo.ingredients[i];
+        let baseCard = this.props.baseCards[ingredBaseId];
+        let ingredName = this.props.baseCards[ingredBaseId].GetDisplayName();
+        let candidates = baseCard.ContainedInDeck(this.props.deck);
+        if (baseCard.IsCategory()) {
+          candidates = candidates.filter((c) => c.GetArmorWear() > 0);
         }
 
-        return <ol>{steps}</ol>;
+        let have = candidates.length;
+        let haveThis = (have >= amount);
+        let icon = 'thumbs_down.png';
+        let alt = "not enough";
+        if (haveThis) {
+          icon = 'thumbs_up.png';
+          alt = "good to go"
+        }
+
+        const categoryUI = (baseCard, candidates) => {
+          let onArmorSpec = (val) => {
+            console.log(`you chose ${val}`);
+            let card = this.props.deck.find((c) => c.GetId() === val);
+            //console.log(`card = ${JSON.stringify(card)}`);
+            if (card) {
+              let newPiles = this.state.piles;
+              newPiles[0] = [card];
+              this.setState({ piles: newPiles, goodToGo: true });
+              this.props.onPilesChange(newPiles);
+            }
+          }
+          let selectOptions = candidates.map((card) => {
+            return {
+              label: card.TerselyDescribe(),
+              value: card.GetId(),
+            }
+          })
+
+          // if this was a category card, need to have user pick which one.
+          return <Select style={{ width: 210 }} onChange={(val) => onArmorSpec(val)} options={selectOptions} />
+        }
+
+        steps.push(<li>
+          <span><b>{amount}</b> of <b>{ingredName}</b> {(baseCard.IsCategory() && candidates.length > 0) ? categoryUI(baseCard, candidates) : ""}(have {have})</span>
+          <img src={`pix/icons/${icon}`} className='thumb_icon' alt={alt} />
+        </li>)
       }
 
-
-      return (<div>
-        {preamble()}
-        {stepsUI()}
-          </div>);
+      return <ol>{steps}</ol>;
     }
+
+
+    return (<div>
+      {preamble()}
+      {stepsUI()}
+    </div>);
+  }
 }
 
 export default WorkshopInputPickerRecipe;

@@ -27,17 +27,12 @@ span.spoiler {
   font-weight: bold;
 }
 
-div.deck[current="no"] {
-  display: none;
+div[current="no"] {
+  display:none;
 }
-div.deck[current="yes"] {
-  display: block;
-}
-div.repair_component[current="no"] {
-  display: none;
-}
-div.repair_component[current="yes"] {
-  display: block;
+
+div[current="yes"] {
+  display:block;
 }
 
 #userEntry input {
@@ -248,6 +243,10 @@ button[reachable=no] {
 
 span[current] {
   background-color: lightpink;
+}
+tr[current] {
+  background-color: lightpink;
+
 }
 
 div.picker_step span.leadin {

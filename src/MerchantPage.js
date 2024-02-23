@@ -35,6 +35,15 @@ class MerchantPage extends React.Component {
 
     //console.log(`component did mount, owner = ${JSON.stringify(this.props.owner)}`);
     this.loadMerchantDeck();
+    let bankroll = 0;
+    this.props.playerInfo.deck.forEach((card) => {
+      // TODO: (deck) argument is array of Cards.
+      let cardObj = Card.Of(card);
+      if (cardObj.GetBase().IsMoney()) {
+        bankroll += cardObj.GetBase().GetSellValue();
+      }
+    });
+    this.setState({bankroll});
   }
 
   loadMerchantDeck() {
@@ -177,11 +186,6 @@ class MerchantPage extends React.Component {
     let seeing = this.state.action === Action.SEER;
     // TODO: remove once playerInfo.deck is real cards.
     let deckObjs = this.props.playerInfo.deck.map((dbObj) => Card.Of(dbObj));
-    deckObjs.forEach((c) => {
-      if (!c.GetBase().IsSellable()) {
-        console.log(`player card ${c.GetBase().GetHandle()} is not sellable`);
-      }
-    });
     deckObjs = deckObjs.filter((c) => c.GetBase().IsSellable());
     return <div>Hello from the merchant page for merchant {this.props.owner.name}'s store.
       <br />{showModalUI()}
@@ -197,6 +201,7 @@ class MerchantPage extends React.Component {
         beGateway={this.props.beGateway}
         gameId={this.props.gameInfo.gameId}
         baseCards={this.props.gameInfo.baseCards}
+        bankroll={this.state.bankroll}
         onTransact={(cards) => this.onStartCluing(cards)} />
       <StatusMessage message={this.state.statusMessage} type={this.state.statusType}
       />

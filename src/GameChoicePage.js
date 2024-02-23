@@ -164,6 +164,7 @@ class GameChoicePage extends React.Component {
             console.log('onLoad: v=', v);
             this.setState({ statusMessage: "current game set" , statusType: 'success'});
             this.props.onSetCurrentGame(gameId, gameName);
+            this.forceUpdate();
           }).catch((e) => {
             console.error("onLoad, e=", e);
             this.setState({ statusMessage: `couldn't set current game, ${e}`, statusType: 'error' });
@@ -189,9 +190,10 @@ class GameChoicePage extends React.Component {
         }
       }
       let currentGameId = this.state.gameInfo ? this.state.gameInfo.gameId : "";
+      currentGameId = "FIX_ME";
 
       let antInnards = this.state.playerGames.map((game, i) => {
-        let isCurrent = game.gameId === currentGameId;
+        let isCurrent = game._id === currentGameId;
         let gameName = game.name;
         return {
           key: 'tr_' + i,

@@ -10,6 +10,7 @@ import CardDetail from './CardDetail';
 // beGateway
 // gameId
 // baseCards
+// bankroll
 class SeerComponent extends React.Component {
   // this is called once when the page first loads, NOT each time the parent state changes.
   constructor(props) {
@@ -156,6 +157,23 @@ class SeerComponent extends React.Component {
     return <CardDetail card={this.state.detailCard} baseCards={this.props.baseCards}/>;
   }
 
+  doitUI() {
+    if (!this.state.selectedClueCard || !this.state.selectedOutlineCard || !this.state.selectedStep) {
+      return "";
+    }
+    let level = Math.max(
+      this.state.selectedOutlineCard.GetBase().GetLevel(),
+      this.state.selectedClueCard.GetBase().GetLevel(),
+    )
+    const PRICE_KEY = 'crystal_ball';
+    let price = this.state.prices[PRICE_KEY][level - 1];    
+    let bankroll = this.props.bankroll;
+    if (price > bankroll) {
+      return <div>Not enough money yet for the analysis.</div>
+    }
+
+  }
+
   seerUI() {
     if (!this.state.prices.crystal_ball) {
       return '...no price list yet, please come back later';
@@ -168,6 +186,7 @@ class SeerComponent extends React.Component {
       <li>{this.stepUI()}</li>
       </ul>
       {this.priceUI()}
+      {this.doitUI()}
       </div>);
   }
 
@@ -175,7 +194,7 @@ class SeerComponent extends React.Component {
     let imgUrl = "pix/card_backgrounds/jigsaw_puzzle_player.png";
     return (
       <div className='seer_component' current={this.props.current}>
-        <div horiz='yes'>
+        <div horiz='yes' style={{verticalAlign: 'top'}}>
           <span>The Seer can turn Clues into Knowledge...</span>
         <div className='card_face_border'>
           <div className="card_face_description_bg">

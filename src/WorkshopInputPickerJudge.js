@@ -119,24 +119,14 @@ class WorkshopInputPickerJudge extends React.Component {
 
       // find previous scores against this outline, and let the use see them if they want.
       const showHistory= () => {
-        let scoreCards = this.props.deck.filter((c) => c.GetBase().IsScore());
-        console.log(`scoreCards = ${JSON.stringify(scoreCards)}`);
-        // were any of them against this outline?
-        // done as two .filter() instead of one for clarity.
-        scoreCards = scoreCards.filter((c) => {
-          let info = c.GetScoreInfo();
-          if (info && info.outline_id === outlineBase.GetId()) {
-            return true;
-          }
-          return false;
-        })
+        let scoreCards = this.props.deck.filter((c) => c.isLearningFor(outlineBase.GetId()));
         console.log(`scoreCards2 = ${JSON.stringify(scoreCards)}`);
 
         const showScoreCards = (scoreCards) => {
           this.setState({ showModal: true, cardsForModal: scoreCards});
         };
         if (scoreCards && scoreCards.length > 0) {
-          return <button onClick={(e) => showScoreCards(scoreCards)}>See Scoring history</button>;
+          return <button onClick={(e) => showScoreCards(scoreCards)}>See Learnings</button>;
         }
         return "";
       }

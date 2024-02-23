@@ -96,6 +96,10 @@ export class Card { // abstract base class
         return Math.max(0, val - this.GetWeaponWear());
     }  
     
+    isLearningFor(baseCardId) {
+        return false;
+    }
+    
     TerselyDescribe() {
         return this.GetBase().GetDisplayName();
     }    
@@ -228,6 +232,10 @@ class CardScore extends Card {
         </div>);
 
     }
+    isLearningFor(baseCardId) {
+          let info = this.GetScoreInfo();
+          return (info && info.outline_id === baseCardId);
+    }    
 
 }
 

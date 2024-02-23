@@ -24,8 +24,9 @@ class WorkshopPage extends React.Component {
       goodToGo: false,
       inputPiles: [],
       showModal: false,
-      modalCard: {},
-      modalCardName: '',
+      modalTopHtml: '',
+      modalBottomHtml: '',
+      modalCards: {},
     }
   }
 
@@ -159,17 +160,20 @@ class WorkshopPage extends React.Component {
       }
       this.props.beGateway.use(gameId, playerId, machineId, pilesOfIds).then((v) => {
         console.log(`fe: beGateway.use.ok = ${v.ok}, v = ${JSON.stringify(v)}`);
-        if (v.statusText) { // this is an error message....
-          this.setState({ statusMessage: v.statusText, statusType: 'error', goodToGo: false });
+        if (!v.ok) {
+          this.setState({ statusMessage: v.errorText, statusType: 'error', goodToGo: false });
         } else {
-          // this should be a tuple, first is the IDs of deleted cards,
-          // second is the body of new cards
-          let deletedIds = v[0];
+          // v is a dict.
+          // delete - ids of cards deleted.
+          // add - cardDbs of cards added
+          // change - cardDbs of adds changed
+          // topHtml, bottomHtml - for modal
+          let deletedIds = v.delete;
           console.log(`deleted ids = ${JSON.stringify(deletedIds)}`);
           let numDeleted = deletedIds ? deletedIds.length : 0;
           let addedCardNames = [];
-          let addedCards = v[1];
-          console.log(`added cards = ${JSON.stringify(v[1])}`);
+          let addedCards = v.add;
+          console.log(`added cards = ${JSON.stringify(addedCards)}`);
           if (addedCards) {
             addedCardNames = addedCards.map((c) => c.game_card.display_name);
           }
@@ -180,8 +184,14 @@ class WorkshopPage extends React.Component {
             msg += ` ${numDeleted} cards consumed`;
           }
           msg += ` Added: ${addedCardNames.join()}`;
-          this.setState({ statusMessage: msg, statusType: 'success',
-          showModal: true, modalCardName: addedCards[0].game_card.display_name, modalCard: addedCards[0]});
+          this.setState({
+            statusMessage: msg, statusType: 'success',
+            modalCards: addedCards,
+            modalTopHtml: v.topHtml, modalBottomHtml: v.bottomHtml
+          });
+          console.log(`set top to ${v.topHtml}, bottom to ${v.bottomHtml}`);
+          this.setState({ showModal: true }); // wait until after other stuff set
+
           if (this.props.onPlayerDeckBEChange) {
             this.props.onPlayerDeckBEChange();
           }
@@ -214,9 +224,9 @@ class WorkshopPage extends React.Component {
             <button id="machine_do" disabled={!this.state.goodToGo} onClick={(e) => onTurnCrank()}>Use it</button>
           </div>
           <CardsModal title="A new card" open={this.state.showModal} onOk={handleOk} onCancel={handleOk}
-            cards={[this.state.modalCard]}
-            topHtml={<span>You have just added a {this.state.modalCardName} card to your deck</span>}
-            bottomHtml=""
+            cards={this.state.modalCards}
+            topHtml={this.state.modalTopHtml}
+            bottomHtml={this.state.modalBottomHtml}
             baseCards={this.props.baseCards}
           />
         </div>

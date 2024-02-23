@@ -10,7 +10,7 @@ export const CARD_TYPES = {
     WEAPON: 7,
     BATTLE_MODIFIER: 8, // dead
     INGREDIENT: 9,
-    TICKET: 10, // dead
+    LEARNING: 10,
     SCORE: 11,
     ARMOR: 12,
     MONSTER: 13,
@@ -110,9 +110,7 @@ export class BaseCard { // abstract base class
         return false;
     }
     IsLife() { return false; }
-    IsScore() {
-        return false;
-    }
+
     IsSellable() {
         return ('sellable' in this.db) ? this.db.sellable : true;
     }
@@ -177,6 +175,7 @@ export class BaseCard { // abstract base class
             case CARD_TYPES.WEAPON: return new CardTypeWeapon(db);
             case CARD_TYPES.ARMOR: return new CardTypeArmor(db);
             case CARD_TYPES.INGREDIENT: return new CardTypeIngredient(db);
+            case CARD_TYPES.LEARNING: return new CardTypeLearning(db);
             case CARD_TYPES.SCORE: return new CardTypeScore(db);
             case CARD_TYPES.MONSTER: return new CardTypeMonster(db);
             case CARD_TYPES.DECOR: return new CardTypeDecor(db);
@@ -458,7 +457,17 @@ class CardTypeScore extends BaseCard {
     }
     AltText() { return "Score" }
     IconURL() { return "pix/card_types/score.png"; }
-    IsScore() { return true; }
+}
+
+// a Score card
+class CardTypeLearning extends BaseCard {
+    constructor(db) {
+        super(CARD_TYPES.LEARNING, db);
+    }
+    AltText() { return "Learning" }
+    DescriptionBackgroundImageURL() {
+        return `pix/card_backgrounds/learning.png`;
+    }    
 }
 
 class CardTypeMonster extends BaseCard {
