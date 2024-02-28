@@ -496,6 +496,71 @@ ul.fight_room li {
   text-align: left;
 }
 
+ul.trophy_rows {
+  list-style-type: none;
+}
+ul.trophy_rooms li {
+  display: inline-block;
+  text-align: left;
+}
+ul.trophy_row {
+  list-style-type: none;
+  text-align: left;
+
+}
+ul.trophy_row li {
+  display: inline-block;
+  text-align: left;
+  vertical-align: top;
+}
+div.trophy_row_level span[level]{
+  font-size: x-large;
+}
+div.trophy_row_level[level="8"] {
+  background-color: white;
+}
+div.trophy_row_level[level="7"] {
+  background-color: lightgoldenrodyellow;
+}
+div.trophy_row_level[level="6"] {
+  background-color: gold;
+}
+div.trophy_row_level[level="5"] {
+  background-color: silver;
+}
+div.trophy_row_level[level="4"] {
+  background-color: lightgray;
+}
+div.trophy_row_level[level="3"] {
+  background-color: burlywood;
+}
+div.trophy_row_level[level="2"] {
+  background-color: burlywood;
+}
+div.trophy_row_level[level="1"] {
+  background-color: lightskyblue;
+}
+
+div.trophy {
+  border-radius: 6px;
+  border: 3px solid seagreen;
+  width: 100px;
+  height: 200px;
+  vertical-align: top;
+  background-image: url('../public/pix/general/blue_ribbon_no.png');
+  background-size:contain;
+}
+
+div.trophy span {
+  color: white;
+  text-transform: capitalize;
+}
+
+div.trophy[have] {
+  border: 3px solid royalblue;
+  background-image: url('../public/pix/general/blue_ribbon_yes.png');
+}
+
 span.map_biome_label {
   text-transform: capitalize;
   font-weight: bold;

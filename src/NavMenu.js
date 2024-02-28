@@ -9,6 +9,7 @@ export const GAME_ADMIN_PAGE='game admin';
 export const GAME_PAGE="game";
 export const HOME_PAGE='home';
 export const MERCHANT_PAGE = "merchant";
+export const TROPHY_PAGE = "trophy";
 export const LOOT_PAGE = "loot";
 export const CASHIER_PAGE = "cashier";
 export const WORKSHOP_PAGE = "workshop";

@@ -214,6 +214,26 @@ class BEGateway {
         }
     }
 
+    async getAwards(gameId, playerId) {
+        const url = this.beURI
+            + "games/" + gameId
+            + "/players/" + playerId
+            + "/awards";
+        const requestOptions = {
+            method: 'GET',
+        };
+        try {
+            const response = await fetch(url, requestOptions);
+            if (!response || !response.ok) {
+                return [];
+            } else {
+                return response.json();
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
     async getBaseCardsFor(gameId) {
         const url = this.beURI
             + "gamecards/" + gameId;
@@ -248,6 +268,20 @@ class BEGateway {
         const response = await fetch(url, requestOptions);
         if (!response || !response.ok) {
             return Promise.reject(`couldn't getTightMoneyOption for game {$gameId}`);
+        } else {
+            return response.json();
+        }
+    }
+
+    async getTrophies() {
+        const url = this.beURI
+            + "games/trophies";
+        const requestOptions = {
+            method: 'GET',
+        };
+        const response = await fetch(url, requestOptions);
+        if (!response || !response.ok) {
+            return [];
         } else {
             return response.json();
         }
@@ -337,7 +371,7 @@ class BEGateway {
         } catch (e) {
             return Promise.reject(e.name + ":" + e.message);
         }
-    }    
+    }
 
     // player (playerId) in game (gameId) wants to repair the cards with the given IDs
     async repair(gameId, playerId, cardIds) {
@@ -367,7 +401,7 @@ class BEGateway {
         } catch (e) {
             return Promise.reject(e.name + ":" + e.message);
         }
-    }        
+    }
 
     // in game (gameId), can player (playerId), use machine (machineId),
     // where (piles) is the piles of input cards?
@@ -384,7 +418,7 @@ class BEGateway {
         };
         const requestOptions = {
             method: 'PUT', // not POST because idempotent, not GET
-              // because have arrays of arrays in the parameters.
+            // because have arrays of arrays in the parameters.
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
         }
@@ -394,10 +428,10 @@ class BEGateway {
             // but sadly .text() returns a promise...
             let msg = await response.text();
             console.log(`msg = ${msg}`);
-            return new Response(msg, {status: response.status, statusText: msg});
+            return new Response(msg, { status: response.status, statusText: msg });
         } catch (e) {
             return Promise.reject(e.name + ":" + e.message);
-        }        
+        }
     }
 
     // similar to (canUse), but actually tries to turn the crank.
@@ -443,7 +477,7 @@ class BEGateway {
             + "rooms/fight";
         let body = {
             gameId, playerId, row, col
-        };    
+        };
         if (armorId) {
             body.armorId = armorId;
         }
@@ -454,7 +488,7 @@ class BEGateway {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
-        }    
+        }
         try {
             const response = await fetch(url, requestOptions);
             console.log(`fe.fight: fetch returns ${response}`);

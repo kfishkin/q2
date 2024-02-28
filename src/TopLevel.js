@@ -13,11 +13,13 @@ import GameChoicePage from './GameChoicePage';
 import LoginPage from './LoginPage';
 import MerchantPage from './MerchantPage';
 import Pile from './pile';
+import TrophyPage from './TrophyPage';
 import WorkshopPage from './WorkshopPage';
 import LootPage from './LootPage';
 import NavMenu, { CASHIER_PAGE, LOOT_PAGE, MERCHANT_PAGE, WORKSHOP_PAGE } from './NavMenu';
 import PageTemplate from './PageTemplate';
-import { CONFIG_PAGE, FIGHT_PAGE, GAME_PAGE, GAME_ADMIN_PAGE, HOME_PAGE, LOGIN_PAGE } from './NavMenu';
+import { CONFIG_PAGE, FIGHT_PAGE, GAME_PAGE, GAME_ADMIN_PAGE, 
+    HOME_PAGE, LOGIN_PAGE, TROPHY_PAGE } from './NavMenu';
 
 
 class TopLevel extends React.Component {
@@ -179,6 +181,7 @@ class TopLevel extends React.Component {
                 ans = <ConfigPage beGateway={this.state.beGateway}></ConfigPage>;
                 break;
             case FIGHT_PAGE:
+                {
                 let row = this.state.extra.row;
                 let col = this.state.extra.col;
                 let room = this.state.gameInfo.map.rooms[row][col];
@@ -192,6 +195,7 @@ class TopLevel extends React.Component {
                     onGameDeckBEChange={() => this.onGameDeckBEChange()}
                     showPageFunc={(which, extra) => this.handleShowPage(which, extra)}
                     />;
+                }
                 break;
             case GAME_ADMIN_PAGE:
                 ans = <GameChoicePage playerInfo={this.state.playerInfo} beGateway={this.state.beGateway}
@@ -207,9 +211,24 @@ class TopLevel extends React.Component {
                     onPlantFlag={(row, col) => this.onPlantFlag(row, col)} />
                 break;
             case MERCHANT_PAGE:
-                ans = <MerchantPage owner={this.state.extra.owner} beGateway={this.state.beGateway}
+                // the only owner at present is the shop owner at xy (0,0)
+                let owner;
+                if (this.state.extra && this.state.extra.owner) {
+                    owner = this.state.extra.owner;
+                } else {
+                    let map = this.state.gameInfo.map;
+                    let row = map.height >> 1;
+                    let col = map.width >> 1;
+                    owner = map.rooms[row][col].owner;
+                }
+                ans = <MerchantPage owner={owner} beGateway={this.state.beGateway}
                     gameInfo={this.state.gameInfo} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
                     playerInfo={this.state.playerInfo} />;
+                break;
+            case TROPHY_PAGE:
+                ans = <TrophyPage beGateway={this.state.beGateway}
+                gameId={this.state.gameInfo.gameId}
+                playerId={this.state.playerInfo.playerId} />
                 break;
             case WORKSHOP_PAGE:
                 ans = <WorkshopPage beGateway={this.state.beGateway}
@@ -245,7 +264,9 @@ class TopLevel extends React.Component {
             new PageTemplate(GAME_ADMIN_PAGE, "Game Admin", loggedIn && !fighting),
             new PageTemplate(GAME_PAGE, "Game", haveGame),
             new PageTemplate(WORKSHOP_PAGE, "Workshop", haveGame && haveDeck && !fighting),
+            new PageTemplate(MERCHANT_PAGE, "Mall", haveGame && haveDeck && !fighting),
             new PageTemplate(CASHIER_PAGE, "Cashier", haveGame && haveDeck && !fighting),
+            new PageTemplate(TROPHY_PAGE, "Trophies", loggedIn && haveGame && !fighting),
             new PageTemplate(CONFIG_PAGE, "Config", true)
         ]
 

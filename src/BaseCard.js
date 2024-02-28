@@ -403,8 +403,8 @@ class CardTypeRecipe extends BaseCard {
         }
         return <div className="recipe_description">The Recipe has <b>{numSteps}</b> steps:<ol>{stepDescrs}</ol></div>;
     }    
-
 }
+
 // a Weapon card
 class CardTypeWeapon extends BaseCard {
     constructor(db) {

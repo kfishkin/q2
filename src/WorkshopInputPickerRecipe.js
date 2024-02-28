@@ -34,11 +34,20 @@ class WorkshopInputPickerRecipe extends React.Component {
       if (haveThis) {
         pile = haves.slice(0, amount);
       } else {
+        // this happens if
+        // (a) I just don't have it, or
+        // (b) I'm a category, in which case want to wait until
+        // UI has selected.
+        let ingredBaseCard = this.props.baseCards[ingredBaseId];
         // this happens if a category, you don't "have" that in your deck.
         // so UI will pick, just put a placeholder:
-        pile = ['category_placeholder'];
+        if (ingredBaseCard.IsCategory()) {
+          pile = ['category_placeholder'];
+        }
       }
-      inputPiles.push(pile);
+      if (pile) {
+        inputPiles.push(pile);
+      }
     }
     let haveAll = (inputPiles.length >= recipeInfo.ingredients.length);
     this.setState({ piles: inputPiles, haveAll: haveAll });
@@ -66,7 +75,7 @@ class WorkshopInputPickerRecipe extends React.Component {
         let ingredName = this.props.baseCards[ingredBaseId].GetDisplayName();
         let candidates = baseCard.ContainedInDeck(this.props.deck);
         if (baseCard.IsCategory()) {
-          candidates = candidates.filter((c) => c.GetArmorWear() > 0);
+          candidates = baseCard.ContainedInDeck(candidates);
         }
 
         let have = candidates.length;
@@ -79,7 +88,7 @@ class WorkshopInputPickerRecipe extends React.Component {
         }
 
         const categoryUI = (baseCard, candidates) => {
-          let onArmorSpec = (val) => {
+          let onCategorySpec = (val) => {
             console.log(`you chose ${val}`);
             let card = this.props.deck.find((c) => c.GetId() === val);
             //console.log(`card = ${JSON.stringify(card)}`);
@@ -98,7 +107,7 @@ class WorkshopInputPickerRecipe extends React.Component {
           })
 
           // if this was a category card, need to have user pick which one.
-          return <Select style={{ width: 210 }} onChange={(val) => onArmorSpec(val)} options={selectOptions} />
+          return <Select style={{ width: 210 }} onChange={(val) => onCategorySpec(val)} options={selectOptions} />
         }
 
         steps.push(<li>
