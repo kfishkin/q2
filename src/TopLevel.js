@@ -94,20 +94,26 @@ class TopLevel extends React.Component {
             return;
 
         console.log(`BE change for player ${playerId} in game ${gameId}`);
-        this.state.beGateway.oldGetPlayerCardsForGame(gameId, playerId)
-            .then((v) => {
-                //console.log(`onSetCurrentGame: player deck has ${v.length} cards`);
-                let newPlayerData = { ...this.state.playerInfo };
-                newPlayerData.deck = v.map((card) => {
-                    let obj = card;
-                    return obj;
-                })
-                // newPlayerData.deck = [...v];
-                //console.log(`new deck = ${JSON.stringify(newPlayerData.deck)}`);
-                this.setState({ playerInfo: newPlayerData });
-            }).catch((e) => {
-                console.error(`onPlayerDeckBEChange: e=${e}`);
-            });
+        // get the awards, i don't care about them, but the BE gateway
+        // can use this to stamp the new deck of cards...
+        this.state.beGateway.getAwards(gameId, playerId).then((a) => {
+
+
+            this.state.beGateway.oldGetPlayerCardsForGame(gameId, playerId)
+                .then((v) => {
+                    //console.log(`onSetCurrentGame: player deck has ${v.length} cards`);
+                    let newPlayerData = { ...this.state.playerInfo };
+                    newPlayerData.deck = v.map((card) => {
+                        let obj = card;
+                        return obj;
+                    })
+                    // newPlayerData.deck = [...v];
+                    //console.log(`new deck = ${JSON.stringify(newPlayerData.deck)}`);
+                    this.setState({ playerInfo: newPlayerData });
+                }).catch((e) => {
+                    console.error(`onPlayerDeckBEChange: e=${e}`);
+                });
+        });
     }
 
     async onGameDeckBEChange() {

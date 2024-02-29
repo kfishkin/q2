@@ -16,6 +16,7 @@ class CardDetail extends React.Component {
     }
     let baseCard = card.GetBase();
     let parts = [];
+
     parts.push(<div className='card_face_title'>
       {baseCard.GetDisplayName()}
     </div>,
@@ -30,6 +31,16 @@ class CardDetail extends React.Component {
         ({baseCard.GetSellValue()})
       </div>);
     }
+    if (card.GetDb().awardedFor) {
+      console.log(`have something that was awarded`);
+      let awardName = `prize from the '${card.GetDb().awardedFor.message}' award`;
+      parts.push(
+        <div className='card_face_prize_image'>
+          <img src="pix/general/blue_ribbon_yes.png" width="64" title={awardName} alt={awardName} />
+        </div>);
+
+    }
+    
 
     if (baseCard.GetRawArmorValue() > 0) {
       parts.push(

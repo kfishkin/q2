@@ -89,6 +89,13 @@ ul.machine_select div.card_face_border:hover {
   border: 6px solid goldenrod;
 }
 
+div.card_face_prize_image {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  z-index: 0;
+}
+
 div.card_face_level_image {
   position: absolute;
   top: 0;

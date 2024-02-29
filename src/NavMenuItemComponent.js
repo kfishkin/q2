@@ -103,7 +103,6 @@ export class NavMenuItemTrophies extends NavMenuItemComponent {
 export class NavMenuItemNews extends NavMenuItemComponent {
   constructor(props) {
     super(props);
-    console.log(`newsItem: prop keys = ${Object.keys(this.props).join()}`);
     this.intervalId = 0;
     this.state = {
       newsCount: 0,
@@ -135,7 +134,7 @@ export class NavMenuItemNews extends NavMenuItemComponent {
   componentDidMount() {
     // need the bind so 'this' in newsPinger isn't the window...
     this.intervalId = window.setInterval(this.newsPinger.bind(this), 30000); // every 30 sec.
-    console.log(`news cdm: intervalid = ${this.intervalId}`);
+    //console.log(`news cdm: intervalid = ${this.intervalId}`);
   }
 
   componentWillUnmount() {

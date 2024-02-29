@@ -25,8 +25,7 @@ class NewsPage extends React.Component {
     };
   }
 
-  componentDidMount() {
-    // when I mount, ping for the news...
+  loadNews() {
     console.log(`news page: asking for the news...`);
     let gameId = this.props.gameId;
     let playerId = this.props.playerId;
@@ -44,6 +43,10 @@ class NewsPage extends React.Component {
         statusMessage: `Error ${e.name}:${e.message} ${e.stack}`
       });
     })
+  }
+
+  componentDidMount() {
+    this.loadNews();
   }
 
   showStory() {
@@ -123,6 +126,8 @@ class NewsPage extends React.Component {
         console.log(`FE: ack is acked`);
         this.setState({acking: false, statusMessage: 'story read.', statusType: 'info'});
         // doesn't re-ping the BE, don't know why.
+        // try this...
+        this.loadNews();
       }).catch((e) => {
         console.log(e.stack);
         this.setState({acking: false, statusMessage: `error: ${e.name}:${e.message}`, statusType: 'error'})

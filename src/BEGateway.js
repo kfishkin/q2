@@ -3,6 +3,11 @@ class BEGateway {
     constructor(beURI, pile) {
         this.beURI = beURI;
         this.pile = pile;
+        // keep around all the awards people have earned - this only
+        // goes up, so can miss 'em, but won't have false positives.
+        // THEN, when somebody loads cards, can stamp them as awards
+        // if need be.
+        this.awardsPerGamePerPlayer = {};
     }
 
     getURI() {
@@ -185,6 +190,43 @@ class BEGateway {
         }
     }
 
+    // side-effects into (cardDbs)
+    stampCardsThatAreRewards(gameId, playerId, cardDbs) {
+        if (!cardDbs) return;
+        // TODO: could do this not per-player, but overall,
+        // so the stuff the merchant has can still show as having
+        // been your prize.
+        let awards = this.localGetAwardsPerGamePerPlayer(gameId, playerId);
+        if (!awards) return;
+        // hash from the id of the card that was the prize to its award.
+        let awardsByPrizeId = {};
+        awards.forEach((award) => {
+            if (!award.cards) return;
+            award.cards.forEach((prize) => {
+                //console.log(`prize ${prize} awarded by award ${JSON.stringify(award)}`);
+                awardsByPrizeId[prize] = award;
+            });
+        });
+        cardDbs.forEach((card) => {
+            if (awardsByPrizeId[card._id]) {
+                console.log(`winner: card ${JSON.stringify(card)} was/is a prize`);
+                card.awardedFor = awardsByPrizeId[card._id];
+            }
+        })
+    }
+
+    localGetAwardsPerGamePerPlayer(gameId, playerId) {
+        // if somebody else loads awards, they can do me a solid...
+        let key = `${gameId}:${playerId}`;
+        return this.awardsPerGamePerPlayer[key]
+    }
+
+    localSetAwardsPerGamePerPlayer(gameId, playerId, awards) {
+        // if somebody else loads awards, they can do me a solid...
+        let key = `${gameId}:${playerId}`;
+        this.awardsPerGamePerPlayer[key] = awards;
+    }
+
     async setPlayerCurrentGame(playerId, gameId) {
         const url = this.beURI
             + "players/" + playerId
@@ -227,8 +269,9 @@ class BEGateway {
         if (!response || !response.ok) {
             return Promise.reject(`couldn't get cards for game {$gameId} player ${playerId}`);
         } else {
-            // map from an array of DB records to an array of class objects.
-            return response.json();
+            let cardDbs = await response.json();
+            this.stampCardsThatAreRewards(gameId, playerId, cardDbs);
+            return cardDbs;
         }
     }
 
@@ -244,7 +287,9 @@ class BEGateway {
         if (!response || !response.ok) {
             return Promise.reject(`couldn't get cards for game {$gameId} player ${playerId}`);
         } else {
-            return response.json();
+            let cardDbs = await response.json();
+            this.stampCardsThatAreRewards(gameId, playerId, cardDbs);
+            return cardDbs;
         }
     }
 
@@ -261,7 +306,9 @@ class BEGateway {
             if (!response || !response.ok) {
                 return [];
             } else {
-                return response.json();
+                let val = await response.json();
+                this.localSetAwardsPerGamePerPlayer(gameId, playerId, val);
+                return val;
             }
         } catch (e) {
             console.error(e);
