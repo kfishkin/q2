@@ -584,3 +584,7 @@ div.news_half {
   text-align: left;
   vertical-align: top;
 }
+
+button.disabled {
+  color: gray;
+}

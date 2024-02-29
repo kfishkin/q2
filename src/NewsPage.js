@@ -1,7 +1,7 @@
 import React from 'react';
 import StatusMessage from './StatusMessage';
 import dayjs from 'dayjs';
-import {StoryShowerAward, StoryShowerComponent} from './StoryShowerComponent';
+import { StoryShowerAward, StoryShowerComponent } from './StoryShowerComponent';
 
 var localizedFormat = require('dayjs/plugin/localizedFormat')
 dayjs.extend(localizedFormat);
@@ -20,7 +20,8 @@ class NewsPage extends React.Component {
       statusType: "info",
       loading: false,
       stories: [],
-      selectedStory: null
+      selectedStory: null,
+      acking: false
     };
   }
 
@@ -30,14 +31,18 @@ class NewsPage extends React.Component {
     let gameId = this.props.gameId;
     let playerId = this.props.playerId;
     if (!gameId || !playerId) return;
-    this.setState({loading: true, statusType: 'info', statusMessage: 'loading the news stories...'});
+    this.setState({ loading: true, statusType: 'info', statusMessage: 'loading the news stories...' });
     this.props.beGateway.getNews(gameId, playerId).then((v) => {
       //console.log(`v = ${JSON.stringify(v)}`);
-      this.setState({loading: false, statusType: 'success', statusMessage: 'loaded the news',
-        stories: v});
+      this.setState({
+        loading: false, statusType: 'success', statusMessage: 'loaded the news',
+        stories: v
+      });
     }).catch((e) => {
-      this.setState({loading: false, statusType: 'error',
-      statusMessage: `Error ${e.name}:${e.message} ${e.stack}`});
+      this.setState({
+        loading: false, statusType: 'error',
+        statusMessage: `Error ${e.name}:${e.message} ${e.stack}`
+      });
     })
   }
 
@@ -50,18 +55,20 @@ class NewsPage extends React.Component {
     };
     if (!this.state.selectedStory) return "";
 
-   let props = { story: this.state.selectedStory, beGateway: this.props.beGateway,
-    gameId: this.props.gameId, playerId: this.props.playerId,
-    baseCards: this.props.baseCards };
-   let type = this.state.selectedStory.type;
-   // if I was smarter I could call .Of() here, but I couldn't get that
-   // to quite work lifecycle-wise.
-   switch (type) {
-    case StoryTypes.AWARD:
-      return <div><StoryShowerAward {...props}/></div>;
-    default:
-      return <div><StoryShowerComponent {...props}/></div>;
-   }
+    let props = {
+      story: this.state.selectedStory, beGateway: this.props.beGateway,
+      gameId: this.props.gameId, playerId: this.props.playerId,
+      baseCards: this.props.baseCards
+    };
+    let type = this.state.selectedStory.type;
+    // if I was smarter I could call .Of() here, but I couldn't get that
+    // to quite work lifecycle-wise.
+    switch (type) {
+      case StoryTypes.AWARD:
+        return <div><StoryShowerAward {...props} /></div>;
+      default:
+        return <div><StoryShowerComponent {...props} /></div>;
+    }
   }
 
   storyButtonUI() {
@@ -87,25 +94,45 @@ class NewsPage extends React.Component {
     const onPickStory = (id) => {
       let story = stories.find((story) => story._id === id);
       if (story) {
-        this.setState({selectedStory: story});
+        this.setState({ selectedStory: story });
       } else {
         console.log(`couldn't find story w/id ${id}??`);
       }
     }
-    return <div style={{paddingBottom: '2em'}}>
+    return <div style={{ paddingBottom: '2em' }}>
       <span>{message}</span>
-      <br/>
+      <br />
       {
-      stories.map((story) => {
-        return <button className='news_button' onClick={(e) => onPickStory(story._id)}>
-          from: {story.asDayJs.format('LLL')} subject: {story.subject}
-        </button>
-      })
-    }
+        stories.map((story) => {
+          return <button className='news_button' onClick={(e) => onPickStory(story._id)}>
+            from: {story.asDayJs.format('LLL')} subject: {story.subject}
+          </button>
+        })
+      }
     </div>
   }
 
+  showDoneUI() {
+    let disabled = !this.state.selectedStory;
+    const onDoneWithStory = () => {
+      console.log(`onDoneWithStory: called`);
+      if (!this.state.selectedStory || this.state.acking) return;
+      // ask the BE to zap it.
+      this.setState({acking: true, statusMessage: 'marking story as read...', statusType: 'info'});
+      this.props.beGateway.ackStory(this.props.gameId, this.props.playerId, this.state.selectedStory._id).then((v) => {
+        console.log(`FE: ack is acked`);
+        this.setState({acking: false, statusMessage: 'story read.', statusType: 'info'});
+        // doesn't re-ping the BE, don't know why.
+      }).catch((e) => {
+        console.log(e.stack);
+        this.setState({acking: false, statusMessage: `error: ${e.name}:${e.message}`, statusType: 'error'})
+      })
+    };
 
+    return (<button onClick={(e) => onDoneWithStory()} disabled={disabled}>
+      Click here when you are done with the story.
+    </button>);
+  }
 
   render() {
     if (this.state.loading) {
@@ -117,17 +144,20 @@ class NewsPage extends React.Component {
 
     const preamble = () => {
       return <div><h2>Read all about it!</h2>
-      Click on the button describing the story you want to see.
-      The stories are listed <i>oldest</i> at the top.
-      Once you've read a story, hit 'ok' and then the story will go away.
-      It can't be viewed later - this ain't gmail.
+        Click on the button describing the story you want to see.
+        The stories are listed <i>oldest</i> at the top.
+        Once you've read a story, hit 'ok' and then the story will go away.
+        It can't be viewed later - this ain't gmail.
       </div>
     }
     return (<div><h1>Hello from the News page</h1>
-    {preamble}
-        {this.storyButtonUI()}
+      {preamble}
+      {this.storyButtonUI()}
       <div>
         {this.showStory()}
+      </div>
+      <div>
+        {this.showDoneUI()}
       </div>
       <StatusMessage message={this.state.statusMessage} type={this.state.statusType} />
     </div>

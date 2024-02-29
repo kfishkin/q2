@@ -117,7 +117,6 @@ export class NavMenuItemNews extends NavMenuItemComponent {
     } else {
       return (<span><span>News</span><span className='new_news'>({this.state.newsCount})</span></span>)
     }
-    return (<i>News etc.</i>)
   }
 
   newsPinger() {

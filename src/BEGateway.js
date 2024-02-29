@@ -13,6 +13,28 @@ class BEGateway {
         this.beURI = newURI;
     }
 
+    
+    async ackStory(gameId, playerId, storyId) {
+        const url = this.beURI
+            + "games/players/stories/ack";
+        let body = {
+            gameId: gameId,
+            playerId: playerId,
+           storyId: storyId
+        };        
+        const requestOptions = {
+            method: 'PUT', 
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }        
+        const response = await fetch(url, requestOptions);
+        if (!response || !response.ok) {
+            return Promise.reject(`couldn't ack story ${storyId}`);
+        } else {
+            return response.json();
+        }
+    }
+
     /**
      * Checks if a player exists with the given handle and password.
      * If true, resolves to { handle, name, gameId }
