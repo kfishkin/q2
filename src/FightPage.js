@@ -299,7 +299,7 @@ class FightPage extends React.Component {
     return (
       <div>
         <button disabled={this.state.fighting} onClick={(e) => handler()}>{this.state.buttonText}</button>
-        <CardsModal title="Spoils of war" open={this.state.showModal} onOk={gotoPage} onCancel={gotoPage}
+        <CardsModal title="Spoils of war" open={this.state.showModal} onOk={(e) => gotoPage(NAV_ITEM_PAGES.GAME_PAGE)} onCancel={(e) => gotoPage(NAV_ITEM_PAGES.GAME_PAGE)}
           cards={this.state.lootCards}
           topHtml={<span>You have just added spoils of war to your deck</span>}
           bottomHtml=""
