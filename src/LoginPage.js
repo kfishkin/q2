@@ -32,12 +32,12 @@ class LoginPage extends React.Component {
       this.setState({ statusMessage: "Creating...", statusType: "info" });
       this.props.beGateway.createPlayer(values.handle, values.name, values.email, values.password)
         .then((v) => {
-          console.log(`back from create player, v=${v})`);
+          console.log(`back from create player, v=${JSON.stringify(v)})`);
           if (v && v.handle && v.name) {
             this.setState({ statusMessage: `player ${v.name} created!`, statusType:"success" });
             this.props.onLogin(v._id, v.handle, v.name);
           } else {
-            this.setState({ statusMessage: `Sorry, failure '${v}' creating the player`, statusType:"error" });
+            this.setState({ statusMessage: `Sorry, failure '${JSON.stringify(v)}' creating the player`, statusType:"error" });
           }
         });
       }
