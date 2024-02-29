@@ -550,7 +550,7 @@ div.trophy_row_level[level="1"] {
 
 div.trophy {
   border-radius: 6px;
-  border: 3px solid seagreen;
+  border: 2px solid seagreen;
   width: 100px;
   height: 200px;
   vertical-align: top;
@@ -566,19 +566,27 @@ div.trophy span {
 
 div.trophy[have] {
   /* color: white; */
-  border: 3px solid royalblue;
+  border: 3px solid gold;
   background-image: url('../public/pix/general/blue_ribbon_yes.png');
 }
 
 div.trophy[have][which="9"] {
-  border: 3px solid gold;
   color: black;
   background-image: url('../public/pix/trophy_backgrounds/buying_yes.png');
 }
 div.trophy[have][which="10"] {
-  border: 3px solid gold;
   color: black;
   background-image: url('../public/pix/trophy_backgrounds/sale_yes.png');
+}
+
+div.trophy[have][which="23"] {
+  color: black;
+  background-image: url('../public/pix/trophy_backgrounds/died_7_yes.png');
+}
+
+div.trophy[have][which="11"] {
+  color: black;
+  background-image: url('../public/pix/trophy_backgrounds/discovery_yes.png');
 }
 
 span.map_biome_label {
