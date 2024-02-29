@@ -275,10 +275,21 @@ class TopLevel extends React.Component {
         let loggedIn = this.state.playerInfo && this.state.playerInfo.handle;
         let haveGame = this.state.gameInfo && this.state.gameInfo.gameId;
         let haveDeck = this.state.playerInfo && this.state.playerInfo.deck;
+        let isDead = false; // only true if we _know_ you're dead
+        if (this.state.playerInfo && this.state.playerInfo.deck) {
+            isDead = !this.state.playerInfo.deck.some((cdb) => {
+                return (cdb.game_card.lives > 0);
+            });
+        }
+        console.log(`isDead = ${isDead}`);
         let fighting = (NAV_ITEM_PAGES.FIGHT_PAGE === this.state.currentPage);
 
         //console.log(`current page = [${this.state.currentPage}]`);
         let headerText = loggedIn ? `Welcome, ${this.state.playerInfo.displayName}` : "Please log in to start";
+
+        let commonProps = {
+            loggedIn, haveGame, haveDeck, fighting, isDead
+        };
 
         return (
             <Layout>
@@ -288,25 +299,25 @@ class TopLevel extends React.Component {
                 <Layout>
                     <Sider><div className="sider">
                         <div><Menu theme="light" mode="inline">
-                            <NavMenuItemLogin loggedIn={loggedIn} haveGame={haveGame} haveDeck={haveDeck}
-                                fighting={fighting} showPageFunc={(which, extra) => this.handleShowPage(which, extra)} />
-                            <NavMenuItemGameAdmin loggedIn={loggedIn} haveGame={haveGame} haveDeck={haveDeck}
-                                fighting={fighting} showPageFunc={(which, extra) => this.handleShowPage(which, extra)} />
-                            <NavMenuItemGame loggedIn={loggedIn} haveGame={haveGame} haveDeck={haveDeck}
-                                fighting={fighting} showPageFunc={(which, extra) => this.handleShowPage(which, extra)} />
-                            <NavMenuItemMerchant loggedIn={loggedIn} haveGame={haveGame} haveDeck={haveDeck}
-                                fighting={fighting} showPageFunc={(which, extra) => this.handleShowPage(which, extra)} />
-                            <NavMenuItemCashier loggedIn={loggedIn} haveGame={haveGame} haveDeck={haveDeck}
-                                fighting={fighting} showPageFunc={(which, extra) => this.handleShowPage(which, extra)} />
-                            <NavMenuItemWorkshop loggedIn={loggedIn} haveGame={haveGame} haveDeck={haveDeck}
-                                fighting={fighting} showPageFunc={(which, extra) => this.handleShowPage(which, extra)} />
-                            <NavMenuItemNews loggedIn={loggedIn} haveGame={haveGame} haveDeck={haveDeck}
-                                fighting={fighting} showPageFunc={(which, extra) => this.handleShowPage(which, extra)}
+                            <NavMenuItemLogin {...commonProps}
+                                showPageFunc={(which, extra) => this.handleShowPage(which, extra)} />
+                            <NavMenuItemGameAdmin {...commonProps}
+                                showPageFunc={(which, extra) => this.handleShowPage(which, extra)} />
+                            <NavMenuItemGame {...commonProps}
+                                showPageFunc={(which, extra) => this.handleShowPage(which, extra)} />
+                            <NavMenuItemMerchant {...commonProps}
+                                showPageFunc={(which, extra) => this.handleShowPage(which, extra)} />
+                            <NavMenuItemCashier {...commonProps}
+                                showPageFunc={(which, extra) => this.handleShowPage(which, extra)} />
+                            <NavMenuItemWorkshop {...commonProps}
+                                showPageFunc={(which, extra) => this.handleShowPage(which, extra)} />
+                            <NavMenuItemNews {...commonProps}
+                                showPageFunc={(which, extra) => this.handleShowPage(which, extra)}
                                 beGateway={this.state.beGateway} playerId={this.state.playerInfo ? this.state.playerInfo.playerId : null}
                                 gameId={this.state.gameInfo ? this.state.gameInfo.gameId : null}
                             />
-                            <NavMenuItemTrophies loggedIn={loggedIn} haveGame={haveGame} haveDeck={haveDeck}
-                                fighting={fighting} showPageFunc={(which, extra) => this.handleShowPage(which, extra)} />
+                            <NavMenuItemTrophies {...commonProps}
+                                showPageFunc={(which, extra) => this.handleShowPage(which, extra)} />
                         </Menu></div>
                     </div>
                     </Sider>

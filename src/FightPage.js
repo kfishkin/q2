@@ -221,7 +221,7 @@ class FightPage extends React.Component {
         let reloadDeck = false;
         let reloadGame = false; // whenever map OR what's in a room change
         let showLoot = false;
-        let toGamePage = false;
+        let nextPage = null;
         let fightOn = false;
 
         switch (v.status) {
@@ -234,10 +234,11 @@ class FightPage extends React.Component {
             reloadDeck = (v.armorDegraded || v.weaponDegraded || v.lifeLost);
             break;
           case 'DEAD':
-            msg = "You've died!";
+            msg = "You've died! Let's go see your trophies...";
             // TODO: lots of stuff
             statusType = 'error';
             reloadDeck = reloadGame = true;
+            nextPage = NAV_ITEM_PAGES.TROPHY_PAGE;
             break;
           case 'WIN':
             msg = 'You won!';
@@ -248,7 +249,7 @@ class FightPage extends React.Component {
               showLoot = true;
             } else {
               msg += "No loot found.";
-              toGamePage = true;
+              nextPage = NAV_ITEM_PAGES.GAME_PAGE;
             }
             reloadDeck = (v.armorDegraded || v.weaponDegraded || v.lifeLost ||
               (v.loot && v.loot.length > 0));
@@ -271,8 +272,8 @@ class FightPage extends React.Component {
         window.alert(msg);
         if (showLoot) {
           onShowLoot();
-        } else if (toGamePage) {
-          gotoGamePage();
+        } else if (nextPage) {
+          gotoPage(nextPage);
         } else if (fightOn) {
           onStartFight();
         }
@@ -290,15 +291,15 @@ class FightPage extends React.Component {
     }
 
     let handler = (this.state.lootCards && this.state.lootCards.length > 0) ? onShowLoot : onStartFight;
-    const gotoGamePage = () => {
+    const gotoPage = (page) => {
       this.setState({ showModal: false });
-      this.props.showPageFunc(NAV_ITEM_PAGES.GAME_PAGE, {});
+      this.props.showPageFunc(page, {});
     }
 
     return (
       <div>
         <button disabled={this.state.fighting} onClick={(e) => handler()}>{this.state.buttonText}</button>
-        <CardsModal title="Spoils of war" open={this.state.showModal} onOk={gotoGamePage} onCancel={gotoGamePage}
+        <CardsModal title="Spoils of war" open={this.state.showModal} onOk={gotoPage} onCancel={gotoPage}
           cards={this.state.lootCards}
           topHtml={<span>You have just added spoils of war to your deck</span>}
           bottomHtml=""

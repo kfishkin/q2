@@ -8,6 +8,7 @@ export const NAV_ITEM_PAGES = {
   LOGIN_PAGE: "Login",
   GAME_ADMIN_PAGE: "Game Admin",
   GAME_PAGE: "Game",
+  LOOT_PAGE: "loot",
   WORKSHOP_PAGE: "Workshop",
   MERCHANT_PAGE: "Mall",
   CASHIER_PAGE: "Cashier",

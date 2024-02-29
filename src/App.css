@@ -556,16 +556,29 @@ div.trophy {
   vertical-align: top;
   background-image: url('../public/pix/general/blue_ribbon_no.png');
   background-size:contain;
+  background-repeat: no-repeat;
+  background-position: bottom;
 }
 
 div.trophy span {
-  color: white;
   text-transform: capitalize;
 }
 
 div.trophy[have] {
+  /* color: white; */
   border: 3px solid royalblue;
   background-image: url('../public/pix/general/blue_ribbon_yes.png');
+}
+
+div.trophy[have][which="9"] {
+  border: 3px solid gold;
+  color: black;
+  background-image: url('../public/pix/trophy_backgrounds/buying_yes.png');
+}
+div.trophy[have][which="10"] {
+  border: 3px solid gold;
+  color: black;
+  background-image: url('../public/pix/trophy_backgrounds/sale_yes.png');
 }
 
 span.map_biome_label {

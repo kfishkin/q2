@@ -35,7 +35,7 @@ class TrophyPage extends React.Component {
     let attrs = {};
     let description = trophy.description;
     if (awardsByWhich[trophy.which]) {
-      attrs = {'have': 'yes'};
+      attrs = {'have': 'yes', 'which' : trophy.which };
       let award = awardsByWhich[trophy.which];
       let when = dayjs(award.when_granted).format("L"); // date, short
       description = `Awarded ${when} for ${award.message}`;
