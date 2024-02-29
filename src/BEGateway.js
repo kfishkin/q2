@@ -148,7 +148,7 @@ class BEGateway {
             return {};
         });
 
-        return response.ok ? response.json() : {};
+        return response.ok ? response.json() : response.text();
     }
 
     async getCard(cardId) {
