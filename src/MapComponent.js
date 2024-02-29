@@ -1,5 +1,5 @@
 import React from 'react';
-import { FIGHT_PAGE,  LOOT_PAGE, MERCHANT_PAGE } from './NavMenu';
+import {NAV_ITEM_PAGES} from './NavMenuItemComponent';
 
 
 // props
@@ -84,15 +84,15 @@ class MapComponent extends React.Component {
                 window.confirm("You may have found some treasure!");
                 owner = v[1]; // the pseudo-player who owns the loot.
                 this.props.onPlantFlag(row, col);
-                showPageFunc(LOOT_PAGE, { owner: owner });
+                showPageFunc(NAV_ITEM_PAGES.LOOT_PAGE, { owner: owner });
                 break;
               case 'MERCHANT':
                 owner = v[1];
-                showPageFunc(MERCHANT_PAGE, { owner: owner });
+                showPageFunc(NAV_ITEM_PAGES.MERCHANT_PAGE, { owner: owner });
                 break;
               case 'MONSTER':
                 window.confirm('there is a monster here!');
-                showPageFunc(FIGHT_PAGE, { row, col});
+                showPageFunc(NAV_ITEM_PAGES.FIGHT_PAGE, { row, col});
                 break;
               case 'UNREACHABLE':
                 window.alert('you can\'t reach that room?');
@@ -139,11 +139,11 @@ class MapComponent extends React.Component {
     let fireDict = {'backgroundImage': 'url(\'./pix/biomes/fire.png\')'};
     return <div className='map_display'>
       <div className='map_rooms_display'>
-        <span className='map_biome_label' style={{'background-image': "url('./pix/biomes/earth_50transparent.png')"}}>{'earth'.concat('_'.repeat(30))}</span>
+        <span className='map_biome_label' style={{'backgroundImage': "url('./pix/biomes/earth_50transparent.png')"}}>{'earth'.concat('_'.repeat(30))}</span>
         <span className='map_biome_label' style={fireDict}>{'_'.repeat(30).concat('Fire')}</span>
         <ul className='map_room_rows'>{rows}</ul>
-        <span className='map_biome_label' style={{'background-image': "url('./pix/biomes/ice.png')"}}>{'ice'.concat('_'.repeat(30))}</span>
-        <span className='map_biome_label' style={{'background-image': "url('./pix/biomes/air.png')"}}>{'_'.repeat(30).concat('Air')}</span>
+        <span className='map_biome_label' style={{'backgroundImage': "url('./pix/biomes/ice.png')"}}>{'ice'.concat('_'.repeat(30))}</span>
+        <span className='map_biome_label' style={{'backgroundImage': "url('./pix/biomes/air.png')"}}>{'_'.repeat(30).concat('Air')}</span>
       </div>
 <br/>
 <br/>

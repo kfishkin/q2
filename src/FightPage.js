@@ -3,7 +3,7 @@ import Card from './Card';
 import CardDetail from './CardDetail';
 import CardsModal from './CardsModal';
 import StatusMessage from './StatusMessage';
-import { GAME_PAGE } from './NavMenu';
+import { NAV_ITEM_PAGES } from './NavMenuItemComponent';
 
 // TODO: sync this with BE
 const AffinityNames = {
@@ -292,7 +292,7 @@ class FightPage extends React.Component {
     let handler = (this.state.lootCards && this.state.lootCards.length > 0) ? onShowLoot : onStartFight;
     const gotoGamePage = () => {
       this.setState({ showModal: false });
-      this.props.showPageFunc(GAME_PAGE, {});
+      this.props.showPageFunc(NAV_ITEM_PAGES.GAME_PAGE, {});
     }
 
     return (

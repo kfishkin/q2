@@ -124,6 +124,18 @@ class BEGateway {
         return response.ok ? response.json() : {};
     }
 
+    async getCard(cardId) {
+        const url = this.beURI
+            + "cards/" + cardId;
+        const response = await fetch(url);
+        if (!response || !response.ok) {
+            console.warn(`couldn't get card ${cardId}`);
+            return {};
+        } else {
+            return response.json();
+        }
+
+    }
     async getGameInfo(gameId) {
         const url = this.beURI
             + "games/" + gameId;
@@ -255,6 +267,34 @@ class BEGateway {
             }
             return baseCards;
         }
+    }
+
+    async getNews(gameId, playerId) {
+        const url = this.beURI + "games/" + gameId
+            + "/players/" + playerId + "/unreadnews";
+        const requestOptions = {
+            method: 'GET',
+        };
+        const response = await fetch(url, requestOptions);
+        //console.log(`getNewsCount: response = ${response}`);
+        if (!response || !response.ok) {
+            return [];
+        }
+        return response.json();
+    }    
+
+    async getNewsCount(gameId, playerId) {
+        const url = this.beURI + "games/" + gameId
+            + "/players/" + playerId + "/unreadnewscount";
+        const requestOptions = {
+            method: 'GET',
+        };
+        const response = await fetch(url, requestOptions);
+        //console.log(`getNewsCount: response = ${response}`);
+        if (!response || !response.ok) {
+            return 0;
+        }
+        return response.text();
     }
 
     async getTightMoneyOption(gameId, amount) {

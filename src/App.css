@@ -572,3 +572,15 @@ span.map_biome_label {
 div.seer_component {
   position: relative;
 }
+
+span.new_news {
+  color: red;
+  font-weight: bold;
+  background-color: white;
+}
+
+div.news_half {
+  display: inline-block;
+  text-align: left;
+  vertical-align: top;
+}

@@ -1,25 +1,26 @@
 import React from 'react';
 import 'antd/dist/reset.css';
 import { VERSION } from './AboutPage';
-import { Layout } from 'antd';
+import { Layout, Menu } from 'antd';
 import { BaseCard } from './BaseCard';
 import BEGateway from './BEGateway';
 import Card from './Card';
 import CashierPage from './CashierPage';
-import ConfigPage from './ConfigPage';
 import FightPage from './FightPage';
 import GamePage from './GamePage';
 import GameChoicePage from './GameChoicePage';
 import LoginPage from './LoginPage';
 import MerchantPage from './MerchantPage';
+import NewsPage from './NewsPage';
 import Pile from './pile';
 import TrophyPage from './TrophyPage';
 import WorkshopPage from './WorkshopPage';
 import LootPage from './LootPage';
-import NavMenu, { CASHIER_PAGE, LOOT_PAGE, MERCHANT_PAGE, WORKSHOP_PAGE } from './NavMenu';
-import PageTemplate from './PageTemplate';
-import { CONFIG_PAGE, FIGHT_PAGE, GAME_PAGE, GAME_ADMIN_PAGE, 
-    HOME_PAGE, LOGIN_PAGE, TROPHY_PAGE } from './NavMenu';
+import {
+    NAV_ITEM_PAGES,
+    NavMenuItemCashier, NavMenuItemGame, NavMenuItemGameAdmin, NavMenuItemLogin,
+    NavMenuItemMerchant, NavMenuItemNews, NavMenuItemTrophies, NavMenuItemWorkshop
+} from './NavMenuItemComponent';
 
 
 class TopLevel extends React.Component {
@@ -29,7 +30,7 @@ class TopLevel extends React.Component {
         console.log(`baseURI=${beURI}`);
         let pile = new Pile();
         this.state = {
-            currentPage: HOME_PAGE,
+            currentPage: NAV_ITEM_PAGES.HOME_PAGE,
             spoilers: false,
             beURI: beURI,
             beGateway: new BEGateway(beURI, pile),
@@ -37,13 +38,22 @@ class TopLevel extends React.Component {
             // playerInfo: { handle, id, playerId, displayName, deck}
             // gameInfo: { gameId, name, baseCards:dict of BaseCard }
         }
+        this.intervalId = null;
     }
     handleShowPage(which, extra) {
         console.log(`show page ${which}, extra=${extra}`);
         this.setState({ currentPage: which, extra: extra });
     }
-    async componentDidMount() {
+
+    componentDidMount() {
+        console.log(`topLevel cdm: called`);
+
+
     };
+
+    componentWillUnmount() {
+
+    }
 
 
     onLogin(id, handle, name) {
@@ -55,7 +65,7 @@ class TopLevel extends React.Component {
                 playerId: id,
                 displayName: name
             },
-            currentPage: GAME_ADMIN_PAGE
+            currentPage: NAV_ITEM_PAGES.GAME_ADMIN_PAGE
         })
     }
 
@@ -70,7 +80,7 @@ class TopLevel extends React.Component {
         console.log('logging out');
         this.setState({
             playerInfo: null,
-            currentPage: LOGIN_PAGE
+            currentPage: NAV_ITEM_PAGES.LOGIN_PAGE
         })
     }
 
@@ -104,10 +114,10 @@ class TopLevel extends React.Component {
         console.log(`onGameDeckBEChange: called)`);
         let gameId = this.state.gameInfo.gameId;
         let v = await this.state.beGateway.getGameInfo(gameId)
-                let gameInfo = this.state.gameInfo;
-                gameInfo.map = v.map;
-                //console.log(`getGameInfo: v = ${v}, ${JSON.stringify(v)}`);
-                this.setState({ gameInfo: gameInfo });
+        let gameInfo = this.state.gameInfo;
+        gameInfo.map = v.map;
+        //console.log(`getGameInfo: v = ${v}, ${JSON.stringify(v)}`);
+        this.setState({ gameInfo: gameInfo });
     }
 
     // mark the given room as traversable
@@ -165,52 +175,49 @@ class TopLevel extends React.Component {
     renderContent() {
         var ans = "";
         // temp until we make all the cards be Cards...
-        let deckObjs = (this.state.playerInfo && this.state.playerInfo.deck) ? this.state.playerInfo.deck.map((db) => Card.Of(db)): [];
+        let deckObjs = (this.state.playerInfo && this.state.playerInfo.deck) ? this.state.playerInfo.deck.map((db) => Card.Of(db)) : [];
         switch (this.state.currentPage) {
-            case CASHIER_PAGE:
+            case NAV_ITEM_PAGES.CASHIER_PAGE:
                 ans = <CashierPage beGateway={this.state.beGateway}
                     deck={this.state.playerInfo.deck} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
                     baseCards={this.state.gameInfo.baseCards} />
                 break;
-            case LOGIN_PAGE:
+            case NAV_ITEM_PAGES.LOGIN_PAGE:
                 ans = <LoginPage beGateway={this.state.beGateway} onLogin={(id, handle, name) => this.onLogin(id, handle, name)}
                     onLogout={() => this.onLogout()}
                     playerInfo={this.state.playerInfo}></LoginPage>;
                 break;
-            case CONFIG_PAGE:
-                ans = <ConfigPage beGateway={this.state.beGateway}></ConfigPage>;
-                break;
-            case FIGHT_PAGE:
+            case NAV_ITEM_PAGES.FIGHT_PAGE:
                 {
-                let row = this.state.extra.row;
-                let col = this.state.extra.col;
-                let room = this.state.gameInfo.map.rooms[row][col];
-                ans = <FightPage room={room} deck={deckObjs}
-                    baseCards={this.state.gameInfo.baseCards}
-                    beGateway={this.state.beGateway} 
-                    row={row} col={col}
-                    gameId={this.state.gameInfo.gameId}
-                    playerId={this.state.playerInfo.playerId}
-                    onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
-                    onGameDeckBEChange={() => this.onGameDeckBEChange()}
-                    showPageFunc={(which, extra) => this.handleShowPage(which, extra)}
+                    let row = this.state.extra.row;
+                    let col = this.state.extra.col;
+                    let room = this.state.gameInfo.map.rooms[row][col];
+                    ans = <FightPage room={room} deck={deckObjs}
+                        baseCards={this.state.gameInfo.baseCards}
+                        beGateway={this.state.beGateway}
+                        row={row} col={col}
+                        gameId={this.state.gameInfo.gameId}
+                        playerId={this.state.playerInfo.playerId}
+                        onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
+                        onGameDeckBEChange={() => this.onGameDeckBEChange()}
+                        showPageFunc={(which, extra) => this.handleShowPage(which, extra)}
                     />;
                 }
                 break;
-            case GAME_ADMIN_PAGE:
+            case NAV_ITEM_PAGES.GAME_ADMIN_PAGE:
                 ans = <GameChoicePage playerInfo={this.state.playerInfo} beGateway={this.state.beGateway}
                     gameInfo={this.state.gameInfo}
                     onSetCurrentGame={(gameId, gameName) => this.onSetCurrentGame(gameId, gameName)}
                     onUnloadCurrentGame={() => this.onUnloadCurrentGame()}>
                 </GameChoicePage>
                 break;
-            case GAME_PAGE:
+            case NAV_ITEM_PAGES.GAME_PAGE:
                 ans = <GamePage playerInfo={this.state.playerInfo} gameInfo={this.state.gameInfo} beGateway={this.state.beGateway}
                     showPageFunc={(which, extra) => this.handleShowPage(which, extra)}
                     onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
                     onPlantFlag={(row, col) => this.onPlantFlag(row, col)} />
                 break;
-            case MERCHANT_PAGE:
+            case NAV_ITEM_PAGES.MERCHANT_PAGE:
                 // the only owner at present is the shop owner at xy (0,0)
                 let owner;
                 if (this.state.extra && this.state.extra.owner) {
@@ -225,23 +232,27 @@ class TopLevel extends React.Component {
                     gameInfo={this.state.gameInfo} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
                     playerInfo={this.state.playerInfo} />;
                 break;
-            case TROPHY_PAGE:
+            case NAV_ITEM_PAGES.TROPHY_PAGE:
                 ans = <TrophyPage beGateway={this.state.beGateway}
-                gameId={this.state.gameInfo.gameId}
-                playerId={this.state.playerInfo.playerId} />
+                    gameId={this.state.gameInfo.gameId}
+                    playerId={this.state.playerInfo.playerId} />
                 break;
-            case WORKSHOP_PAGE:
+            case NAV_ITEM_PAGES.WORKSHOP_PAGE:
                 ans = <WorkshopPage beGateway={this.state.beGateway}
                     gameInfo={this.state.gameInfo} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
                     baseCards={this.state.gameInfo.baseCards}
                     playerInfo={this.state.playerInfo} />;
                 break;
-            case LOOT_PAGE:
+            case NAV_ITEM_PAGES.LOOT_PAGE:
                 ans = <LootPage owner={this.state.extra.owner} beGateway={this.state.beGateway}
                     gameInfo={this.state.gameInfo} playerId={this.state.playerInfo.playerId} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()} />;
                 break;
-            case HOME_PAGE:
+            case NAV_ITEM_PAGES.HOME_PAGE:
                 ans = <div>Welcome! Pick an option on the left...</div>;
+                break;
+            case NAV_ITEM_PAGES.NEWS_PAGE:
+                ans = <NewsPage beGateway={this.state.beGateway}
+                    gameId={this.state.gameInfo.gameId} baseCards={this.state.gameInfo.baseCards} playerId={this.state.playerInfo.playerId} />;
                 break;
             default:
                 ans = <div>unknown current page '{this.state.currentPage}'</div>;
@@ -258,17 +269,7 @@ class TopLevel extends React.Component {
         let loggedIn = this.state.playerInfo && this.state.playerInfo.handle;
         let haveGame = this.state.gameInfo && this.state.gameInfo.gameId;
         let haveDeck = this.state.playerInfo && this.state.playerInfo.deck;
-        let fighting = (FIGHT_PAGE === this.state.currentPage);
-        let pageTemplates = [
-            new PageTemplate(LOGIN_PAGE, loggedIn ? "Logout" : "Login", !fighting),
-            new PageTemplate(GAME_ADMIN_PAGE, "Game Admin", loggedIn && !fighting),
-            new PageTemplate(GAME_PAGE, "Game", haveGame),
-            new PageTemplate(WORKSHOP_PAGE, "Workshop", haveGame && haveDeck && !fighting),
-            new PageTemplate(MERCHANT_PAGE, "Mall", haveGame && haveDeck && !fighting),
-            new PageTemplate(CASHIER_PAGE, "Cashier", haveGame && haveDeck && !fighting),
-            new PageTemplate(TROPHY_PAGE, "Trophies", loggedIn && haveGame && !fighting),
-            new PageTemplate(CONFIG_PAGE, "Config", true)
-        ]
+        let fighting = (NAV_ITEM_PAGES.FIGHT_PAGE === this.state.currentPage);
 
         //console.log(`current page = [${this.state.currentPage}]`);
         let headerText = loggedIn ? `Welcome, ${this.state.playerInfo.displayName}` : "Please log in to start";
@@ -279,8 +280,29 @@ class TopLevel extends React.Component {
                     <div className="header_detail"><p>{headerText}</p></div>
                 </Header>
                 <Layout>
-                    <Sider><div className="sider"><NavMenu
-                        pageTemplates={pageTemplates} showPageFunc={(which, extra) => this.handleShowPage(which, extra)} /></div>
+                    <Sider><div className="sider">
+                        <div><Menu theme="light" mode="inline">
+                            <NavMenuItemLogin loggedIn={loggedIn} haveGame={haveGame} haveDeck={haveDeck}
+                                fighting={fighting} showPageFunc={(which, extra) => this.handleShowPage(which, extra)} />
+                            <NavMenuItemGameAdmin loggedIn={loggedIn} haveGame={haveGame} haveDeck={haveDeck}
+                                fighting={fighting} showPageFunc={(which, extra) => this.handleShowPage(which, extra)} />
+                            <NavMenuItemGame loggedIn={loggedIn} haveGame={haveGame} haveDeck={haveDeck}
+                                fighting={fighting} showPageFunc={(which, extra) => this.handleShowPage(which, extra)} />
+                            <NavMenuItemMerchant loggedIn={loggedIn} haveGame={haveGame} haveDeck={haveDeck}
+                                fighting={fighting} showPageFunc={(which, extra) => this.handleShowPage(which, extra)} />
+                            <NavMenuItemCashier loggedIn={loggedIn} haveGame={haveGame} haveDeck={haveDeck}
+                                fighting={fighting} showPageFunc={(which, extra) => this.handleShowPage(which, extra)} />
+                            <NavMenuItemWorkshop loggedIn={loggedIn} haveGame={haveGame} haveDeck={haveDeck}
+                                fighting={fighting} showPageFunc={(which, extra) => this.handleShowPage(which, extra)} />
+                            <NavMenuItemNews loggedIn={loggedIn} haveGame={haveGame} haveDeck={haveDeck}
+                                fighting={fighting} showPageFunc={(which, extra) => this.handleShowPage(which, extra)}
+                                beGateway={this.state.beGateway} playerId={this.state.playerInfo ? this.state.playerInfo.playerId : null}
+                                gameId={this.state.gameInfo ? this.state.gameInfo.gameId : null}
+                            />
+                            <NavMenuItemTrophies loggedIn={loggedIn} haveGame={haveGame} haveDeck={haveDeck}
+                                fighting={fighting} showPageFunc={(which, extra) => this.handleShowPage(which, extra)} />
+                        </Menu></div>
+                    </div>
                     </Sider>
                     <Content>{this.renderContent()}</Content>
                 </Layout>

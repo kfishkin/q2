@@ -24,12 +24,10 @@ class CardsModal extends React.Component {
   }
 
   componentDidMount() {
-    console.log(`modal did mount: topHtml = [${this.props.topHtml}]`);
   }
 
   render() {
     let card = this.props.cards[this.state.cardIndex];
-    console.log(`modal render: topHtml = [${this.props.topHtml}]`);
 
     const renderNavigation = () => {
       if (!this.props.cards || this.props.cards.length < 2) return "";
