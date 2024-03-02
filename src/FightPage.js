@@ -226,6 +226,7 @@ class FightPage extends React.Component {
         let fightOn = false;
 
         if (!v.ok) {
+          msg = v.statusMessage;
           this.setState({ statusMessage: `backend error: ${v.statusMessage}`, statusType: 'error' });
           fightOn = true;
         } else {
