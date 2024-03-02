@@ -55,7 +55,7 @@ class FightPage extends React.Component {
         }
       });
       if (bestArmor !== null) {
-        this.setState({selectedArmor: bestArmor});
+        this.setState({ selectedArmor: bestArmor });
       }
     }
     if (weaponCards.length > 0) {
@@ -68,24 +68,24 @@ class FightPage extends React.Component {
         }
       });
       if (bestWeapon !== null) {
-        this.setState({selectedWeapon: bestWeapon});
+        this.setState({ selectedWeapon: bestWeapon });
       }
-    }    
-    
+    }
+
 
   }
 
   // if there's no monster/weapon/armor card, first choice is to use a base
   // card image with the given handle, second choice is to use the given card.
   makeFallback(firstOptionHandle, secondOptionCard) {
-      let firstCard = Object.values(this.props.baseCards)
-        .find((bc) => bc.GetHandle() === firstOptionHandle);
-      if (firstCard) {
-        let fake2 = { game_card: firstCard.db };
-        return Card.Of(fake2);
-      }
-      return secondOptionCard;
-    }    
+    let firstCard = Object.values(this.props.baseCards)
+      .find((bc) => bc.GetHandle() === firstOptionHandle);
+    if (firstCard) {
+      let fake2 = { game_card: firstCard.db };
+      return Card.Of(fake2);
+    }
+    return secondOptionCard;
+  }
 
   monsterUI(monsterCard) {
     if (monsterCard.GetBase().IsNothing()) {
@@ -118,7 +118,7 @@ class FightPage extends React.Component {
         }
       }
     }
-    let weaponOptions = [{ label: 'Bare-handed', value: NONE, selected: !this.state.selectedWeapon}];
+    let weaponOptions = [{ label: 'Bare-handed', value: NONE, selected: !this.state.selectedWeapon }];
 
     if (weaponCards && weaponCards.length > 0) {
       weaponCards.forEach((card) => {
@@ -138,14 +138,14 @@ class FightPage extends React.Component {
 
     let weaponCard = this.state.selectedWeapon ? this.state.selectedWeapon
       : this.makeFallback('decor_fist', nothingCard);
-    let selectedValue = this.state.selectedWeapon ? this.state.selectedWeapon.GetId() : 0;      
-    console.log(`weapon: weapon = ${weaponCard.GetBase().GetHandle()}, value = ${selectedValue}`);    
+    let selectedValue = this.state.selectedWeapon ? this.state.selectedWeapon.GetId() : 0;
+    console.log(`weapon: weapon = ${weaponCard.GetBase().GetHandle()}, value = ${selectedValue}`);
 
     return (
       <li>
         choose your weapon: <select style={{ width: 200 }} onChange={(val) => onWeaponChoice(val)}>
           {htmlOpts}
-          </select>
+        </select>
         <br />
         <CardDetail card={weaponCard} baseCards={this.props.baseCards} />
       </li>)
@@ -167,22 +167,23 @@ class FightPage extends React.Component {
     }
     let selectedValue = this.state.selectedArmor ? this.state.selectedArmor.GetId() : 0;
     let armorOptions = [{ label: 'None', value: NONE, selected: !this.state.selectedArmor }];
-      armorOptions = armorOptions.concat(armorCards.map((c) => { 
-        return { label: c.TerselyDescribe(), value: c.GetId(), selected: c === this.state.selectedArmor } }));
+    armorOptions = armorOptions.concat(armorCards.map((c) => {
+      return { label: c.TerselyDescribe(), value: c.GetId(), selected: c === this.state.selectedArmor }
+    }));
     let htmlOpts = armorOptions.map((dict) => {
       return (<option value={dict.value} selected={dict.selected}>{dict.label}</option>)
     });
     let armorCard = this.state.selectedArmor ? this.state.selectedArmor
-    : this.makeFallback('decor_no_armor', nothingCard);
+      : this.makeFallback('decor_no_armor', nothingCard);
 
     console.log(`armorUI: armorCard = ${armorCard.GetBase().GetHandle()}, value = ${selectedValue}`);
 
     return (
       <li>
-        choose your armor: <select style={{ width: 200 }} value={selectedValue} 
+        choose your armor: <select style={{ width: 200 }} value={selectedValue}
           onChange={(val) => onArmorChoice(val)} >
-{htmlOpts}
-            </select>
+          {htmlOpts}
+        </select>
         <br />
         <CardDetail card={armorCard} baseCards={this.props.baseCards} />
       </li>)
@@ -224,43 +225,49 @@ class FightPage extends React.Component {
         let nextPage = null;
         let fightOn = false;
 
-        switch (v.status) {
-          case 'CONTINUE':
-            msg = 'The fighting will continue.';
-            playByPlay(v);
-            msg += ` Press the 'ok' button again for the next round`;
-            statusType = 'info';
-            fightOn = true;
-            reloadDeck = (v.armorDegraded || v.weaponDegraded || v.lifeLost);
-            break;
-          case 'DEAD':
-            msg = "You've died! Let's go see your trophies...";
-            // TODO: lots of stuff
-            statusType = 'error';
-            reloadDeck = reloadGame = true;
-            nextPage = NAV_ITEM_PAGES.TROPHY_PAGE;
-            break;
-          case 'WIN':
-            msg = 'You won!';
-            playByPlay(v);
-            if (v.loot && v.loot.length > 0) {
-              msg += " You got some loot! Press the 'ok' button to see it";
-              this.setState({ lootCards: v.loot, buttonText: 'see loot' });
-              showLoot = true;
-            } else {
-              msg += "No loot found.";
-              nextPage = NAV_ITEM_PAGES.GAME_PAGE;
-            }
-            reloadDeck = (v.armorDegraded || v.weaponDegraded || v.lifeLost ||
-              (v.loot && v.loot.length > 0));
-            reloadGame = true;
-            statusType = 'success';
+        if (!v.ok) {
+          this.setState({ statusMessage: `backend error: ${v.statusMessage}`, statusType: 'error' });
+          fightOn = true;
+        } else {
 
-            break;
+          switch (v.status) {
+            case 'CONTINUE':
+              msg = 'The fighting will continue.';
+              playByPlay(v);
+              msg += ` Press the 'ok' button again for the next round`;
+              statusType = 'info';
+              fightOn = true;
+              reloadDeck = (v.armorDegraded || v.weaponDegraded || v.lifeLost);
+              break;
+            case 'DEAD':
+              msg = "You've died! Let's go see your trophies...";
+              // TODO: lots of stuff
+              statusType = 'error';
+              reloadDeck = reloadGame = true;
+              nextPage = NAV_ITEM_PAGES.TROPHY_PAGE;
+              break;
+            case 'WIN':
+              msg = 'You won!';
+              playByPlay(v);
+              if (v.loot && v.loot.length > 0) {
+                msg += " You got some loot! Press the 'ok' button to see it";
+                this.setState({ lootCards: v.loot, buttonText: 'see loot' });
+                showLoot = true;
+              } else {
+                msg += "No loot found.";
+                nextPage = NAV_ITEM_PAGES.GAME_PAGE;
+              }
+              reloadDeck = (v.armorDegraded || v.weaponDegraded || v.lifeLost ||
+                (v.loot && v.loot.length > 0));
+              reloadGame = true;
+              statusType = 'success';
+
+              break;
             default:
               console.warn(`unknown fight status: ${v.status}`);
               msg += `unknown fight status: ${v.status}`;
               statusType = 'error';
+          }
         }
         if (reloadDeck) {
           this.props.onPlayerDeckBEChange();

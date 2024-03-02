@@ -47,9 +47,7 @@ class TopLevel extends React.Component {
     }
 
     componentDidMount() {
-        console.log(`topLevel cdm: called`);
-
-
+        //console.log(`topLevel cdm: called`);
     };
 
     componentWillUnmount() {
@@ -282,7 +280,7 @@ class TopLevel extends React.Component {
                 return (cdb.game_card.lives > 0);
             });
         }
-        console.log(`isDead = ${isDead}`);
+        //console.log(`isDead = ${isDead}`);
         let fighting = (NAV_ITEM_PAGES.FIGHT_PAGE === this.state.currentPage);
 
         console.log(`current page = [${this.state.currentPage}]`);

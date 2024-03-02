@@ -101,7 +101,7 @@ class WorkshopInputPickerJudge extends React.Component {
       let outlineBase = this.state.outline.GetBase();
       let outlineInfo = outlineBase.GetRecipeOutline();
 
-      let preamble = <span>The recipe has <b>{outlineInfo.num_steps}</b> steps.
+      let preamble = <span>The <b>{outlineBase.GetDisplayName()}</b> recipe has <b>{outlineInfo.num_steps}</b> steps.
       For each one, specify the ingredient to use, and in what amount.
       Ingredients that you don't have are shown <span className="dont_have">like this</span>.
       Steps with <img src='pix/icons/consumed64.png' className='consumed_icon' alt='consumed'></img>
@@ -120,7 +120,7 @@ class WorkshopInputPickerJudge extends React.Component {
       // find previous scores against this outline, and let the use see them if they want.
       const showHistory= () => {
         let scoreCards = this.props.deck.filter((c) => c.isLearningFor(outlineBase.GetId()));
-        console.log(`scoreCards2 = ${JSON.stringify(scoreCards)}`);
+        //console.log(`scoreCards2 = ${JSON.stringify(scoreCards)}`);
 
         const showScoreCards = (scoreCards) => {
           this.setState({ showModal: true, cardsForModal: scoreCards});

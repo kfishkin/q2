@@ -604,6 +604,7 @@ class BEGateway {
             if (response.ok) {
                 console.log(`beG.fight: 200 response, converting body to json`);
                 let dict = await response.json();
+                dict.ok = true;
                 // if they got loot, convert it to card db objs so can display.
                 if (dict.loot && dict.loot.length > 0) {
                     console.log(`beG.fight: converting loot ids ${JSON.stringify(dict.loot)} to cards`);
@@ -621,7 +622,6 @@ class BEGateway {
                     ok: false,
                     statusText: msg
                 }
-                //return new Error(msg);
             }
         } catch (e) {
             return Promise.reject(e.name + ":" + e.message);

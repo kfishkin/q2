@@ -175,7 +175,8 @@ class WorkshopPage extends React.Component {
           let addedCards = v.add;
           console.log(`added cards = ${JSON.stringify(addedCards)}`);
           if (addedCards) {
-            addedCardNames = addedCards.map((c) => c.game_card.display_name);
+            addedCardNames = addedCards.map((c) => 
+              (c && c.game_card && c.game_card.display_name) ? c.game_card.display_name : "???");
           }
           let msg = "Success!";
           if (numDeleted === 1) {

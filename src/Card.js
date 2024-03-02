@@ -226,9 +226,9 @@ class CardScore extends Card {
             {fillInSteps(this.db.score_info, baseCards)}
             <hr/>
             <span>Legend:</span>
-            <br/><span class="score_2">1</span> -- right!
-            <br/><span class="score_1">1</span> -- right value, wrong position
-            <br/><span class="score_0">1</span> -- value not in the recipe.
+            <br/><span class="score_2">X</span> -- right!
+            <br/><span class="score_1">X</span> -- right value, wrong position
+            <br/><span class="score_0">X</span> -- value not in the recipe.
         </div>);
 
     }
