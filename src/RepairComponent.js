@@ -46,7 +46,7 @@ class RepairComponent extends React.Component {
       return <div>You have nothing repairable.</div>;
     }
     const repairCost = (card) => {
-      let level = card.GetBase().GetLevel();
+      let level = card.GetBase().getLevel();
       let wear = card.GetArmorWear();
       let cost = 50;
       if (wear > 0) {
@@ -60,7 +60,7 @@ class RepairComponent extends React.Component {
     }
 
     const wantsToBuy = (card) => {
-      console.log(`wantstoRepair: ${card.GetBase().GetDisplayName()}`);
+      console.log(`wantstoRepair: ${card.GetBase().getDisplayName()}`);
       if (this.props.onTransact) {
         this.props.onTransact([card]);
       }
@@ -68,7 +68,7 @@ class RepairComponent extends React.Component {
 
     let ui = candidates.map((card) => {
       return <li onClick={(e) => wantsToBuy(card)}>
-        {card.GetBase().GetDisplayName()} ... ${repairCost(card)}</li>;
+        {card.GetBase().getDisplayName()} ... ${repairCost(card)}</li>;
     });
     return <div><span>Which one do you wish to repair?</span>
       <ul className='repair_list'>{ui}</ul></div>

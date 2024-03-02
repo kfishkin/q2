@@ -34,111 +34,115 @@ export class BaseCard { // abstract base class
     ContainedInDeck(cards) {
         if (!cards) return [];
         return cards.filter((card) => {
-            return card.GetBase().GetId() === this.GetId()
+            return card.GetBase().getId() === this.getId()
         });
     }
 
-    GetType() {
+    getType() {
         return this.type;
     }
 
-    GetRawArmorValue() {
+    getRawArmorValue() {
         return 'armor_value' in this.db ? this.db.armor_value : 0;
     }
 
-    GetRawWeaponValue() {
+    getRawWeaponValue() {
         return 'weapon_value' in this.db ? this.db.weapon_value : 0;
     }
+
+    getDb() {
+        return this.db;
+    }
     
-    GetHandle() {
+    getHandle() {
         return this.db.handle;
     }
     
-    GetId() {
+    getId() {
         return this.db._id;
     }
 
-    GetInputPickerComponentName() {
+    getInputPickerComponentName() {
         return "none";
     }
 
-    GetLevel() {
+    getLevel() {
         return this.db.level;
     }
 
-    GetGameId() {
+    getGameId() {
         return this.db.game_id;
     }
 
-    GetSellValue() {
+    getSellValue() {
         return this.db.sell_value;
     }
 
     // all the below can/should be over-ridden by subclasses..
     // the alt text for a type of card
-    AltText() {
+    altText() {
         return "";
     }
-    OpaqueBeforeBuying() {
+    opaqueBeforeBuying() {
         return false;
     }
 
-    GetDescription() {
+    getDescription() {
         return this.db.description;
     }
 
-    GetDisplayName() {
+    getDisplayName() {
         return this.db.display_name;
     }
-    OpaqueDisplayName() {
+    opaqueDisplayName() {
         return this.db.display_name;
     }
     // the URL of the small icon for this type of card
-    IconURL() {
+    iconURL() {
         return "pix/card_types/none.png";
     }
-    IsBuyable() {
+    isBuyable() {
         return ('buyable' in this.db) ? this.db.buyable : true;
     }
-    IsCategory() {
+    isCategory() {
         return false;
     }
-    IsMoney() {
+    isMoney() {
         return false;
     }
-    IsJudgeable() {
+    isJudgeable() {
         return false;
     }
-    IsLife() { return false; }
+    isLife() { return false; }
 
-    IsSellable() {
+    isSellable() {
         return ('sellable' in this.db) ? this.db.sellable : true;
     }
 
-    IsNothing() {
+    isNothing() {
         return false;
     }
 
-    DescriptionBackgroundImageURL() {
+    descriptionBackgroundImageURL() {
         return "";
     }
-    CanMakeCards() {
+    canMakeCards() {
         return false;
     }
 
     // fully describe the semantics of this card, which is of this type
-    FullyDescribe(baseCards) {
+    fullyDescribe(baseCards) {
         return <div><hr /><b>{this.db.display_name}</b> card: {this.db.description}</div>;
     }
 
-    GetNumInputs() {
+    getNumInputs() {
         return 0;
     }
-    GetRecipeOutline() {
+    getRecipeOutline() {
         return null;
     }
 
-    GetRecipeInfo() {
+    getRecipeInfo() {
         return this.db.recipe;
     }
 
@@ -204,16 +208,16 @@ class CardTypeNothing extends BaseCard {
     constructor(db) {
         super(CARD_TYPES.NONE, db);
     }
-    AltText() { return "None" }
-    IsNothing() { return true; }
+    altText() { return "None" }
+    isNothing() { return true; }
 }
 
 class CardTypeNumber extends BaseCard {
     constructor(db) {
         super(CARD_TYPES.NUMBER, db);
     }
-    AltText() { return "None" }
-    IsNothing() { return true; }
+    altText() { return "None" }
+    isNothing() { return true; }
 }
 
 // a Money card
@@ -221,13 +225,13 @@ class CardTypeMoney extends BaseCard {
     constructor(db) {
         super(CARD_TYPES.MONEY, db);
     }
-    AltText() { return "$" }
-    IconURL() { return "pix/card_types/money.png"; }
-    IsMoney() {
+    altText() { return "$" }
+    iconURL() { return "pix/card_types/money.png"; }
+    isMoney() {
         return true;
     }
 
-    DescriptionBackgroundImageURL() {
+    descriptionBackgroundImageURL() {
         return `pix/card_backgrounds/money_${this.db.sell_value}.png`;
     }
 }
@@ -237,10 +241,10 @@ class CardTypeDecor extends BaseCard {
         super(CARD_TYPES.DECOR, db);
     }
 
-    AltText() { return "" }
-    IsNothing() { return true; }
-    DescriptionBackgroundImageURL() {
-        return `pix/card_backgrounds/${this.GetHandle()}.png`;
+    altText() { return "" }
+    isNothing() { return true; }
+    descriptionBackgroundImageURL() {
+        return `pix/card_backgrounds/${this.getHandle()}.png`;
     }
 }
 
@@ -249,12 +253,12 @@ class CardTypeLife extends BaseCard {
     constructor(db) {
         super(CARD_TYPES.LIVES, db);
     }
-    AltText() { return "Life" }
-    IconURL() { return "pix/card_types/life.png"; }
-    DescriptionBackgroundImageURL() {
+    altText() { return "Life" }
+    iconURL() { return "pix/card_types/life.png"; }
+    descriptionBackgroundImageURL() {
         return `pix/card_backgrounds/life2.png`;
     }
-    IsLife() { return true; }
+    isLife() { return true; }
 }
 
 // a Clue card
@@ -262,9 +266,9 @@ class CardTypeClue extends BaseCard {
     constructor(db) {
         super(CARD_TYPES.CLUE, db);
     }
-    AltText() { return "Clue" }
-    IconURL() { return "pix/card_types/clue.png"; }
-    DescriptionBackgroundImageURL() {
+    altText() { return "Clue" }
+    iconURL() { return "pix/card_types/clue.png"; }
+    descriptionBackgroundImageURL() {
         return `pix/card_backgrounds/clue.png`;
     }
 }
@@ -274,19 +278,19 @@ class CardTypeMachine extends BaseCard {
     constructor(db) {
         super(CARD_TYPES.MACHINE, db);
     }
-    AltText() { return "Machine" }
-    IconURL() { return "pix/card_types/machine.png"; }
-    CanMakeCards() {
+    altText() { return "Machine" }
+    iconURL() { return "pix/card_types/machine.png"; }
+    canMakeCards() {
         return true;
     }
-    GetNumInputs() {
+    getNumInputs() {
         return this.db.machine.num_inputs;
     }    
 }
 
 // a Machine card
 class CardTypeMachineHornOfPlenty extends CardTypeMachine {
-    DescriptionBackgroundImageURL() {
+    descriptionBackgroundImageURL() {
                 return "pix/general/horn_of_plenty_big.jpg";
     }
 }
@@ -294,10 +298,10 @@ class CardTypeMachineHornOfPlenty extends CardTypeMachine {
 // a Machine card
 class CardTypeMachineJudge extends CardTypeMachine {
 
-    DescriptionBackgroundImageURL() {
+    descriptionBackgroundImageURL() {
         return "pix/card_backgrounds/judge2.png";
     }
-    GetInputPickerComponentName() {
+    getInputPickerComponentName() {
         return "WorkshopInputPickerJudge";
 
     }
@@ -308,29 +312,29 @@ class CardTypeRecipeOutline extends BaseCard {
     constructor(db) {
         super(CARD_TYPES.RECIPE_OUTLINE, db);
     }
-    AltText() { return "Recipe Outline" }
-    IconURL() { return "pix/card_types/recipe_outline.png"; }
-    DescriptionBackgroundImageURL() {
+    altText() { return "Recipe Outline" }
+    iconURL() { return "pix/card_types/recipe_outline.png"; }
+    descriptionBackgroundImageURL() {
         return `pix/card_backgrounds/recipe_outline.png`;
     }
-    IsJudgeable() {
+    isJudgeable() {
         return true;
     }
-    GetRecipeOutline() {
+    getRecipeOutline() {
         return this.db.recipe_outline;
     }    
-    OpaqueBeforeBuying() {
+    opaqueBeforeBuying() {
         return true;
     }
-    OpaqueDisplayName() {
+    opaqueDisplayName() {
         return "Recipe Outline"; // don't tell 'em what it's an outline for.
     }    
-    FullyDescribe(baseCards) {
+    fullyDescribe(baseCards) {
         let outline = this.db.recipe_outline;
         //console.log(`recipe outline fully describe of${JSON.stringify(outline)}`);
-        if (!outline) return super.FullyDescribe(baseCards);
+        if (!outline) return super.fullyDescribe(baseCards);
 
-        let preamble = this.GetDescription();
+        let preamble = this.getDescription();
         if (outline.num_steps === 0) {
             return <div>{preamble}, which has <i>no</i> inputs</div>
         }
@@ -344,7 +348,7 @@ class CardTypeRecipeOutline extends BaseCard {
         let ingredientString = (ingredArray) => {
             let ingredName = (ingredId, index) => {
                 if (!ingredId) return "null";
-                return baseCards[ingredId].GetDisplayName();
+                return baseCards[ingredId].getDisplayName();
             };
 
             
@@ -370,35 +374,35 @@ class CardTypeRecipe extends BaseCard {
     constructor(db) {
         super(CARD_TYPES.RECIPE, db);
     }
-    AltText() { return "Recipe" }
-    IconURL() { return "pix/card_types/recipe.png" }
-    DescriptionBackgroundImageURL() {
+    altText() { return "Recipe" }
+    iconURL() { return "pix/card_types/recipe.png" }
+    descriptionBackgroundImageURL() {
         return `pix/card_backgrounds/recipe.png`;
     }
-    OpaqueBeforeBuying() {
+    opaqueBeforeBuying() {
         return true;
     }
-    CanMakeCards() {
+    canMakeCards() {
         return true;
     }
-    GetInputPickerComponentName() {
+    getInputPickerComponentName() {
         return "WorkshopInputPickerRecipe";
 
     }
-    GetNumInputs() {
+    getNumInputs() {
         return this.db.recipe.ingredients.length;
     }    
-    FullyDescribe(baseCards) {
+    fullyDescribe(baseCards) {
         let recipe = this.db.recipe;
         //console.log(`recipe outline fully describe of${JSON.stringify(outline)}`);
-        if (!recipe) return super.FullyDescribe(baseCards);
+        if (!recipe) return super.fullyDescribe(baseCards);
 
         let numSteps = recipe.amounts.length;
 
         let stepDescrs = [];
         for (let step = 0; step < numSteps; step++) {
             let amount = recipe.amounts[step];
-            let ingredient = baseCards[recipe.ingredients[step]].GetDisplayName();
+            let ingredient = baseCards[recipe.ingredients[step]].getDisplayName();
             stepDescrs.push(<li key={`ingred_${step}`}><span>{amount} of {ingredient}</span></li>);
         }
         return <div className="recipe_description">The Recipe has <b>{numSteps}</b> steps:<ol className="step_list">{stepDescrs}</ol></div>;
@@ -410,15 +414,15 @@ class CardTypeWeapon extends BaseCard {
     constructor(db) {
         super(CARD_TYPES.WEAPON, db);
     }
-    AltText() { return "Weapon" }
-    IconURL() { return "pix/card_types/weapon.png"; }
+    altText() { return "Weapon" }
+    iconURL() { return "pix/card_types/weapon.png"; }
 
-    DescriptionBackgroundImageURL() {
+    descriptionBackgroundImageURL() {
         return `pix/card_backgrounds/${this.db.handle}.png`;
     }       
-    FullyDescribe(baseCards) {
+    fullyDescribe(baseCards) {
         // TODO: incorporate wear
-        return super.FullyDescribe(baseCards);
+        return super.fullyDescribe(baseCards);
     }
 }
 
@@ -427,16 +431,16 @@ class CardTypeArmor extends BaseCard {
     constructor(db) {
         super(CARD_TYPES.ARMOR, db);
     }
-    AltText() { return "Armor" }
-    IconURL() { return "pix/card_types/armor.png"; }
+    altText() { return "Armor" }
+    iconURL() { return "pix/card_types/armor.png"; }
 
 
-    DescriptionBackgroundImageURL() {
+    descriptionBackgroundImageURL() {
         return `pix/card_backgrounds/${this.db.handle}.png`;
     }    
-    FullyDescribe(baseCards) {
+    fullyDescribe(baseCards) {
         // TODO: incorporate wear
-        return super.FullyDescribe(baseCards);
+        return super.fullyDescribe(baseCards);
     }
 }
 
@@ -446,8 +450,8 @@ class CardTypeIngredient extends BaseCard {
     constructor(db) {
         super(CARD_TYPES.INGREDIENT, db);
     }
-    AltText() { return "Ingredient" }
-    IconURL() { return "pix/card_types/ingredient.png"; }
+    altText() { return "Ingredient" }
+    iconURL() { return "pix/card_types/ingredient.png"; }
 }
 
 // a Score card
@@ -455,8 +459,8 @@ class CardTypeScore extends BaseCard {
     constructor(db) {
         super(CARD_TYPES.SCORE, db);
     }
-    AltText() { return "Score" }
-    IconURL() { return "pix/card_types/score.png"; }
+    altText() { return "Score" }
+    iconURL() { return "pix/card_types/score.png"; }
 }
 
 // a Score card
@@ -464,8 +468,8 @@ class CardTypeLearning extends BaseCard {
     constructor(db) {
         super(CARD_TYPES.LEARNING, db);
     }
-    AltText() { return "Learning" }
-    DescriptionBackgroundImageURL() {
+    altText() { return "Learning" }
+    descriptionBackgroundImageURL() {
         return `pix/card_backgrounds/learning.png`;
     }    
 }
@@ -476,12 +480,12 @@ class CardTypeMonster extends BaseCard {
 
 
     }
-    AltText() { return "Monster"}
-    GetSellValue() {
+    altText() { return "Monster"}
+    getSellValue() {
         return 0
     }
-    DescriptionBackgroundImageURL() {
-        return `pix/monsters/${this.GetHandle()}.png`;
+    descriptionBackgroundImageURL() {
+        return `pix/monsters/${this.getHandle()}.png`;
     }    
 }
 
@@ -490,39 +494,39 @@ class CardTypeCategory extends BaseCard {
         super(CARD_TYPES.CATEGORY, db);
     }
 
-    IsCategory() { return true; }
-    IsNothing() { return true; }
+    isCategory() { return true; }
+    isNothing() { return true; }
 
     cardsOfType(deck, type) {
         if (!deck) return [];
-        return deck.filter((c) => c.GetBase().GetType() === type);
+        return deck.filter((c) => c.GetBase().getType() === type);
     }
 }
 
 class CardTypeCategoryArmor extends CardTypeCategory {
 
-    GetDisplayName() { return 'an Armor card with wear' };
+    getDisplayName() { return 'an Armor card with wear' };
     ContainedInDeck(cards) {
         return super.cardsOfType(cards, CARD_TYPES.ARMOR);
     }
 }
 
 class CardTypeCategoryClue extends CardTypeCategory {
-    GetDisplayName() { return 'a Clue card' };
+    getDisplayName() { return 'a Clue card' };
     ContainedInDeck(cards) {
         return super.cardsOfType(cards, CARD_TYPES.CLUE);
     }    
 }
 
 class CardTypeCategoryOutline extends CardTypeCategory {
-    GetDisplayName() { return 'a Recipe Outline card' };
+    getDisplayName() { return 'a Recipe Outline card' };
     ContainedInDeck(cards) {
         return super.cardsOfType(cards, CARD_TYPES.RECIPE_OUTLINE);
     }    
 }
 
 class CardTypeCategoryWeapon extends CardTypeCategory {
-    GetDisplayName() { return 'a Weapon card' };
+    getDisplayName() { return 'a Weapon card' };
     ContainedInDeck(cards) {
         return super.cardsOfType(cards, CARD_TYPES.WEAPON);
     }
@@ -530,8 +534,8 @@ class CardTypeCategoryWeapon extends CardTypeCategory {
 
 
 class CardTypeCategoryNumber extends CardTypeCategory {
-    GetDisplayName() { return 'a Number card' };
+    getDisplayName() { return 'a Number card' };
     ContainedInDeck(cards) {
-        return cards.filter((c) => c.GetBase().GetHandle().startsWith('number_'));
+        return cards.filter((c) => c.GetBase().getHandle().startsWith('number_'));
     }
 }

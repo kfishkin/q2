@@ -34,19 +34,19 @@ class WorkshopPage extends React.Component {
     // TODO: playerInfo.deck is Card objects.
     let asObjects = this.props.playerInfo.deck.map((c) => Card.Of(c));
     let machineCards = asObjects.filter((card) => {
-      return card.GetBase().CanMakeCards()
+      return card.GetBase().canMakeCards()
     });
     this.setState({ machineCards: machineCards });
   }
 
   onMachineSelect(card) {
-    let canTryNow = (card.GetBase().GetNumInputs() === 0);
+    let canTryNow = (card.GetBase().getNumInputs() === 0);
     let statusMessage = `Workshop for the ${card.game_card.display_name}`;
     // fire off a request to see if it's immediately usable...
     if (canTryNow) {
-      let gameId = card.GetBase().GetGameId();
+      let gameId = card.GetBase().getGameId();
       let playerId = card.GetPlayerId();
-      let machineId = card.GetId();
+      let machineId = card.getId();
       statusMessage = '..checking to see if the card is usable right now';
 
       this.props.beGateway.canUse(gameId, playerId, machineId, []).then((v) => {
@@ -103,7 +103,7 @@ class WorkshopPage extends React.Component {
 
     let makeInputAreaUI = () => {
       let base = this.state.machineCard.GetBase();
-      if (base.GetNumInputs() === 0) {
+      if (base.getNumInputs() === 0) {
         return "";
       }
       // at least for the judge, the first input drives all the others.
@@ -117,7 +117,7 @@ class WorkshopPage extends React.Component {
       // I can't quite see how to have classes return components, like
       //         <{this.state.machineCard.GetBase().GetInputUI()} life="42"/>
       // so instead for once hard-wire things, sorry...
-      let pickerName = base.GetInputPickerComponentName();
+      let pickerName = base.getInputPickerComponentName();
       // onPilesChange - f(newPiles) -
       // complete means that there's something in each required input,
       // needs to take deck as input so can show candidates
@@ -146,16 +146,16 @@ class WorkshopPage extends React.Component {
     let onTurnCrank = () => {
       console.log(`fire in the hole!`);
       let card = this.state.machineCard;
-      let gameId = card.GetBase().GetGameId();
+      let gameId = card.GetBase().getGameId();
       let playerId = card.GetPlayerId();
-      let machineId = card.GetId();
+      let machineId = card.getId();
       let statusMessage = `..trying to use the ${card.game_card.display_name}`;
       this.setState({statusMessage: statusMessage, statusType: 'info'});
 
       // the input piles for the BE are cards
       let pilesOfIds = [];
       for (let step = 0; step < this.state.inputPiles.length; step++) {
-        let pileOfIds = this.state.inputPiles[step].map((card) => card.GetId());
+        let pileOfIds = this.state.inputPiles[step].map((card) => card.getId());
         pilesOfIds.push(pileOfIds);
       }
       this.props.beGateway.use(gameId, playerId, machineId, pilesOfIds).then((v) => {

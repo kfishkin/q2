@@ -10,7 +10,7 @@ class CardDetail extends React.Component {
       return;
     }
     let card = this.props.card;
-    if (!(card.GetType)) {
+    if (!(card.getType)) {
       //console.warn(`non-card passed to CardDetail`);
       card = Card.Of(card);
     }
@@ -18,17 +18,17 @@ class CardDetail extends React.Component {
     let parts = [];
 
     parts.push(<div className='card_face_title'>
-      {baseCard.GetDisplayName()}
+      {baseCard.getDisplayName()}
     </div>,
       <div className='card_face_level_image'>
         <img src="pix/general/yellow_star.jpg" width="32" alt="level" />
       </div>,
       <div className='card_face_level_value'>
-        {baseCard.GetLevel()}
+        {baseCard.getLevel()}
       </div>);
-    if (baseCard.IsSellable()) {
+    if (baseCard.isSellable()) {
       parts.push(<div className='card_face_value'>
-        ({baseCard.GetSellValue()})
+        ({baseCard.getSellValue()})
       </div>);
     }
     if (card.GetDb().awardedFor) {
@@ -42,7 +42,7 @@ class CardDetail extends React.Component {
     }
     
 
-    if (baseCard.GetRawArmorValue() > 0) {
+    if (baseCard.getRawArmorValue() > 0) {
       parts.push(
         <div className='card_face_armor_image'>
           <img src="pix/icons/armor.png" width="32" alt="armor" />
@@ -52,7 +52,7 @@ class CardDetail extends React.Component {
         </div>)
     };
 
-    if (baseCard.GetRawWeaponValue() > 0) {
+    if (baseCard.getRawWeaponValue() > 0) {
       parts.push(
         <div className='card_face_weapon_image'>
           <img src="pix/general/sword_icon.png" width="32" alt="weapon" />
@@ -63,9 +63,9 @@ class CardDetail extends React.Component {
     };
 
     parts.push(<div className='card_face_description'>
-      {card.FullyDescribe(this.props.baseCards)}
+      {card.fullyDescribe(this.props.baseCards)}
     </div>);
-    let imgUrl = baseCard.DescriptionBackgroundImageURL();
+    let imgUrl = baseCard.descriptionBackgroundImageURL();
     if (imgUrl) {
       parts.push(
         <div className="card_face_description_bg">

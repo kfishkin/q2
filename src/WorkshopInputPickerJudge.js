@@ -34,9 +34,9 @@ class WorkshopInputPickerJudge extends React.Component {
       // find (amount) cards for this ingredient...
       let thisPile = [];
       for (let i = 0; i < amount; i++) {
-        let candidates = deckByBaseCardId[ingredient.GetId()];
+        let candidates = deckByBaseCardId[ingredient.getId()];
         thisPile.push(candidates.shift());
-        deckByBaseCardId[ingredient.GetId()] = candidates; // one less.
+        deckByBaseCardId[ingredient.getId()] = candidates; // one less.
       }
       piles.push(thisPile);
     }
@@ -49,20 +49,20 @@ class WorkshopInputPickerJudge extends React.Component {
 
     let pickOutlineUI = () => {
       let machine = this.props.machine;
-      let level = machine.GetBase().GetLevel();
+      let level = machine.GetBase().getLevel();
       // find the candidates:
       let candidates = this.props.deck.filter((card) => {
         let base = card.GetBase();
         // level must be <= the judges...
-        if (base.GetLevel() > level) return false;
+        if (base.getLevel() > level) return false;
         // and it must be a recipe outline...
-        if (!base.IsJudgeable()) return false;
+        if (!base.isJudgeable()) return false;
         return true;
       });
       if (!candidates || candidates.length === 0) {
         return (
           <div>
-            This level <b>{level}</b> {machine.GetBase().GetDisplayName()}
+            This level <b>{level}</b> {machine.GetBase().getDisplayName()}
             requires a Recipe Outline card of this or less level, and you have
             none at present. Come back later!
           </div>
@@ -70,16 +70,16 @@ class WorkshopInputPickerJudge extends React.Component {
       }
       let selectOptions = candidates.map((candidate) => {
         return {
-          label: candidate.GetBase().GetDisplayName(),
-          value: candidate.GetId()
+          label: candidate.GetBase().getDisplayName(),
+          value: candidate.getId()
         }
       });
       let onChange = (val) => {
         //console.log(`val = ${JSON.stringify(val)}`);
-        let winner = candidates.find((candidate) => val === candidate.GetId());
+        let winner = candidates.find((candidate) => val === candidate.getId());
         //console.log(`winner = ${JSON.stringify(winner)}`);
         // not part of state, because changes don't cause re-render.
-        let outline = winner.GetBase().GetRecipeOutline();
+        let outline = winner.GetBase().getRecipeOutline();
         this.currentAmounts = Array(outline.num_steps).fill(NOT_PICKED);
         this.currentIngreds = Array(outline.num_steps).fill(NOT_PICKED);
         this.setState({ outline: winner });
@@ -100,9 +100,9 @@ class WorkshopInputPickerJudge extends React.Component {
       // the other stuff.
       // This could/should be a lot nicer looking....
       let outlineBase = this.state.outline.GetBase();
-      let outlineInfo = outlineBase.GetRecipeOutline();
+      let outlineInfo = outlineBase.getRecipeOutline();
 
-      let preamble = <span>The <b>{outlineBase.GetDisplayName()}</b> recipe has <b>{outlineInfo.num_steps}</b> steps.
+      let preamble = <span>The <b>{outlineBase.getDisplayName()}</b> recipe has <b>{outlineInfo.num_steps}</b> steps.
       For each one, specify the ingredient to use, and in what amount.
       Ingredients that you don't have are shown <span className="dont_have">like this</span>.
       Steps with <img src='pix/icons/consumed64.png' className='consumed_icon' alt='consumed'></img>
@@ -111,7 +111,7 @@ class WorkshopInputPickerJudge extends React.Component {
       // need to figure out, for each ingredient, the cards they have for that ingredient:
       let deckByBaseCardId = {}; // from id to array of Cards.
       this.props.deck.forEach((card) => {
-        let baseId = card.GetBase().GetId();
+        let baseId = card.GetBase().getId();
         let prev = (baseId in deckByBaseCardId) ? deckByBaseCardId[baseId] : [];
         prev.push(card);
         deckByBaseCardId[baseId] = prev;
@@ -120,7 +120,7 @@ class WorkshopInputPickerJudge extends React.Component {
 
       // find previous scores against this outline, and let the use see them if they want.
       const showHistory= () => {
-        let scoreCards = this.props.deck.filter((c) => c.isLearningFor(outlineBase.GetId()));
+        let scoreCards = this.props.deck.filter((c) => c.isLearningFor(outlineBase.getId()));
         //console.log(`scoreCards2 = ${JSON.stringify(scoreCards)}`);
 
         const showScoreCards = (scoreCards) => {
@@ -151,15 +151,15 @@ class WorkshopInputPickerJudge extends React.Component {
             continue;
           }
           let have = ingred.ContainedInDeck(this.props.deck);
-          //let have = (ingred.GetId() in deckByBaseCardId) ? deckByBaseCardId[ingred.GetId()].length : 0;
-          if (ingred.GetId() in used) {
-            have -= used[ingred.GetId()];
+          //let have = (ingred.getId() in deckByBaseCardId) ? deckByBaseCardId[ingred.getId()].length : 0;
+          if (ingred.getId() in used) {
+            have -= used[ingred.getId()];
           }
           if (amt > have) {
             allOk = false;
-            errors.push(`on step ${thisStep+1}, picked ${amt} of ${ingred.GetDisplayName()}, but only ${have} available`);
+            errors.push(`on step ${thisStep+1}, picked ${amt} of ${ingred.getDisplayName()}, but only ${have} available`);
           } else {
-            used[ingred.GetId()] = amt;
+            used[ingred.getId()] = amt;
           }
         }
         if (allOk) {
@@ -189,13 +189,13 @@ class WorkshopInputPickerJudge extends React.Component {
         let selectBaseCards = [];
         ingredIds.forEach((ingredId) => {
           let baseCard = this.props.baseCards[ingredId];
-          if (baseCard.IsCategory()) {
+          if (baseCard.isCategory()) {
           // however, if this was a category, need to collapse them from
           // cards back to base cards.            
             // annoying...
             let cardsOf = baseCard.ContainedInDeck(this.props.deck);
             let baseCards = {};
-            cardsOf.forEach((c) => baseCards[c.GetBase().GetId()] = c.GetBase());
+            cardsOf.forEach((c) => baseCards[c.GetBase().getId()] = c.GetBase());
             selectBaseCards.push(...Object.values(baseCards));
           } else {
             selectBaseCards.push(baseCard);
@@ -204,8 +204,8 @@ class WorkshopInputPickerJudge extends React.Component {
         let selectOptions = selectBaseCards.map((baseCard) => {
           let amount = baseCard.ContainedInDeck(this.props.deck).length;
           return {
-            label: `${baseCard.GetDisplayName()} (${amount})`,
-            value: baseCard.GetId(),
+            label: `${baseCard.getDisplayName()} (${amount})`,
+            value: baseCard.getId(),
             dont_have: (amount === 0)
           }
         })

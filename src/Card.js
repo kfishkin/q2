@@ -47,19 +47,19 @@ export class Card { // abstract base class
         }
     }
 
-    FullyDescribe(baseCards) {
-        return this.baseCard.FullyDescribe(baseCards);
+    fullyDescribe(baseCards) {
+        return this.baseCard.fullyDescribe(baseCards);
     }
 
     GetPlayerId() {
         return this.playerId;
     }
 
-    GetGameId() {
+    getGameId() {
         return this.baseCard.db._id;
     }
 
-    GetId() {
+    getId() {
         return this.cardId;
     }
 
@@ -88,12 +88,12 @@ export class Card { // abstract base class
     }
 
     GetNetArmorValue() {
-        let val = this.GetBase().GetRawArmorValue();
+        let val = this.GetBase().getRawArmorValue();
         return Math.max(0, val - this.GetArmorWear());
     }
 
     GetNetWeaponValue() {
-        let val = this.GetBase().GetRawWeaponValue();
+        let val = this.GetBase().getRawWeaponValue();
         return Math.max(0, val - this.GetWeaponWear());
     }  
     
@@ -102,12 +102,12 @@ export class Card { // abstract base class
     }
     
     TerselyDescribe() {
-        return this.GetBase().GetDisplayName();
+        return this.GetBase().getDisplayName();
     }    
 }
 
 class CardMachine extends Card {
-    FullyDescribe(baseCards) {
+    fullyDescribe(baseCards) {
         let machineInfo = this.db.machine;
         let message = 'has never been used.'
         if (machineInfo && machineInfo.last_used) {
@@ -126,7 +126,7 @@ class CardMachine extends Card {
         }
         let base = this.GetBase();
 
-        return (<div><hr/><b>{base.GetDisplayName()}</b> card: {base.GetDescription()}.<hr/>It {message}</div>);
+        return (<div><hr/><b>{base.getDisplayName()}</b> card: {base.getDescription()}.<hr/>It {message}</div>);
     }
 }
 
@@ -135,19 +135,19 @@ class CardArmor extends Card {
         if (this.GetArmorWear() === 0) {
             return super.TerselyDescribe();
         } else {
-            return `${this.GetBase().GetDisplayName()} - wear ${this.GetArmorWear()}`;
+            return `${this.GetBase().getDisplayName()} - wear ${this.GetArmorWear()}`;
         }
     }
-    FullyDescribe(baseCards) {
+    fullyDescribe(baseCards) {
         if (this.GetArmorWear() === 0) {
-            return super.FullyDescribe(baseCards);
+            return super.fullyDescribe(baseCards);
         }
         let base = this.GetBase();
         return (<div>
             <hr/>
-            <span><b>{base.GetDisplayName()}</b> card: {base.GetDescription()}.</span>
+            <span><b>{base.getDisplayName()}</b> card: {base.getDescription()}.</span>
             <hr/>
-            <span>worth {base.GetRawArmorValue()}, but has wear damage of </span><span class="wear_damage">{this.GetArmorWear()}</span>
+            <span>worth {base.getRawArmorValue()}, but has wear damage of </span><span class="wear_damage">{this.GetArmorWear()}</span>
         </div>);
     }
 }
@@ -158,29 +158,29 @@ class CardWeapon extends Card {
         if (this.GetWeaponWear() === 0) {
             return super.TerselyDescribe();
         } else {
-            return `${this.GetBase().GetDisplayName()} - wear ${this.GetWeaponWear()}`;
+            return `${this.GetBase().getDisplayName()} - wear ${this.GetWeaponWear()}`;
         }
     }    
-    FullyDescribe(baseCards) {
+    fullyDescribe(baseCards) {
         if (this.GetWeaponWear() === 0) {
-            return super.FullyDescribe(baseCards);
+            return super.fullyDescribe(baseCards);
         }
         let base = this.GetBase();
         return (<div>
             <hr/>
-            <span><b>{base.GetDisplayName()}</b> card: {base.GetDescription()}.</span>
+            <span><b>{base.getDisplayName()}</b> card: {base.getDescription()}.</span>
             <hr/>
-            <span>worth {base.GetRawWeaponValue()}, but has wear damage of </span><span class="wear_damage">{this.GetWeaponWear()}</span>
+            <span>worth {base.getRawWeaponValue()}, but has wear damage of </span><span class="wear_damage">{this.GetWeaponWear()}</span>
         </div>);
     }
 }
 
 
 class CardScore extends Card {
-    FullyDescribe(baseCards) {
+    fullyDescribe(baseCards) {
         let score = this.db.score_info;
         if (!score) {
-            return super.FullyDescribe(baseCards);
+            return super.fullyDescribe(baseCards);
         }
         // oof, a lot to say here.
         // could compute this once and store it in the BE, but I don't
@@ -190,13 +190,13 @@ class CardScore extends Card {
         let outlineBase = baseCards[outlineBaseId];
         if (!outlineBase) {
             console.warn(`can't find outline ${outlineBaseId}`);
-            return super.FullyDescribe(baseCards);
+            return super.fullyDescribe(baseCards);
         }
         let recipeBaseId = this.db.score_info.recipe_id;
         let recipeBase = baseCards[recipeBaseId];
         if (!recipeBase) {
             console.warn(`can't find recipe ${recipeBaseId}`);
-            return super.FullyDescribe(baseCards);
+            return super.fullyDescribe(baseCards);
         }
         let when = dayjs(this.db.score_info.when);
         let whenStr = when.format('D MMM');
@@ -213,7 +213,7 @@ class CardScore extends Card {
                     <StepDisplay step={step}/>
                     <span className={`score_${amountScore}`}>{amount}</span>
                     &nbsp;of&nbsp;
-                    <span className={`score_${ingredientScore}`}>{ingredient.GetDisplayName()}</span>
+                    <span className={`score_${ingredientScore}`}>{ingredient.getDisplayName()}</span>
                 </div>
                 stepDescrs.push(stepDescr);
             }
@@ -221,7 +221,7 @@ class CardScore extends Card {
         }
 
         return (<div>
-            <span>{whenStr} score for a try at the <i>{recipeBase.GetDisplayName()}</i> recipe,
+            <span>{whenStr} score for a try at the <i>{recipeBase.getDisplayName()}</i> recipe,
             with {numSteps} steps.</span>
             <hr/>
             {fillInSteps(this.db.score_info, baseCards)}

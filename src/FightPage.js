@@ -43,8 +43,8 @@ class FightPage extends React.Component {
 
   componentDidMount() {
     // selected armor and weapon default to the best available.
-    let armorCards = this.props.deck.filter((c) => c.GetBase().GetRawArmorValue() > 0);
-    let weaponCards = this.props.deck.filter((c) => c.GetBase().GetRawWeaponValue() > 0);
+    let armorCards = this.props.deck.filter((c) => c.GetBase().getRawArmorValue() > 0);
+    let weaponCards = this.props.deck.filter((c) => c.GetBase().getRawWeaponValue() > 0);
     if (armorCards.length > 0) {
       let bestArmor = null;
       let bestValue = 0;
@@ -79,7 +79,7 @@ class FightPage extends React.Component {
   // card image with the given handle, second choice is to use the given card.
   makeFallback(firstOptionHandle, secondOptionCard) {
     let firstCard = Object.values(this.props.baseCards)
-      .find((bc) => bc.GetHandle() === firstOptionHandle);
+      .find((bc) => bc.getHandle() === firstOptionHandle);
     if (firstCard) {
       let fake2 = { game_card: firstCard.db };
       return Card.Of(fake2);
@@ -88,7 +88,7 @@ class FightPage extends React.Component {
   }
 
   monsterUI(monsterCard) {
-    if (monsterCard.GetBase().IsNothing()) {
+    if (monsterCard.GetBase().isNothing()) {
       return (<li>
         The Monster is dead!
         <br />
@@ -97,7 +97,7 @@ class FightPage extends React.Component {
 
     } else {
       return (<li>
-        The Monster is a level {monsterCard.GetBase().GetLevel()} <b>{monsterCard.GetBase().GetDisplayName()}</b>
+        The Monster is a level {monsterCard.GetBase().getLevel()} <b>{monsterCard.GetBase().getDisplayName()}</b>
         <br />
         <CardDetail card={monsterCard} baseCards={this.props.baseCards} />
       </li>);
@@ -112,7 +112,7 @@ class FightPage extends React.Component {
       if (val === NONE) {
         this.setState({ selectedWeapon: null });
       } else {
-        let weaponCard = weaponCards.find((c) => c.GetId() === val);
+        let weaponCard = weaponCards.find((c) => c.getId() === val);
         if (weaponCard) {
           this.setState({ selectedWeapon: weaponCard });
         }
@@ -124,7 +124,7 @@ class FightPage extends React.Component {
       weaponCards.forEach((card) => {
         let optDict = {
           label: card.TerselyDescribe(),
-          value: card.GetId(),
+          value: card.getId(),
           selected: card === this.state.selectedWeapon
         }
         weaponOptions.push(optDict);
@@ -138,8 +138,8 @@ class FightPage extends React.Component {
 
     let weaponCard = this.state.selectedWeapon ? this.state.selectedWeapon
       : this.makeFallback('decor_fist', nothingCard);
-    let selectedValue = this.state.selectedWeapon ? this.state.selectedWeapon.GetId() : 0;
-    console.log(`weapon: weapon = ${weaponCard.GetBase().GetHandle()}, value = ${selectedValue}`);
+    let selectedValue = this.state.selectedWeapon ? this.state.selectedWeapon.getId() : 0;
+    console.log(`weapon: weapon = ${weaponCard.GetBase().getHandle()}, value = ${selectedValue}`);
 
     return (
       <li>
@@ -159,16 +159,16 @@ class FightPage extends React.Component {
       if (val === NONE) {
         this.setState({ selectedArmor: null });
       } else {
-        let armorCard = armorCards.find((c) => c.GetId() === val);
+        let armorCard = armorCards.find((c) => c.getId() === val);
         if (armorCard) {
           this.setState({ selectedArmor: armorCard });
         }
       }
     }
-    let selectedValue = this.state.selectedArmor ? this.state.selectedArmor.GetId() : 0;
+    let selectedValue = this.state.selectedArmor ? this.state.selectedArmor.getId() : 0;
     let armorOptions = [{ label: 'None', value: NONE, selected: !this.state.selectedArmor }];
     armorOptions = armorOptions.concat(armorCards.map((c) => {
-      return { label: c.TerselyDescribe(), value: c.GetId(), selected: c === this.state.selectedArmor }
+      return { label: c.TerselyDescribe(), value: c.getId(), selected: c === this.state.selectedArmor }
     }));
     let htmlOpts = armorOptions.map((dict) => {
       return (<option value={dict.value} selected={dict.selected}>{dict.label}</option>)
@@ -176,7 +176,7 @@ class FightPage extends React.Component {
     let armorCard = this.state.selectedArmor ? this.state.selectedArmor
       : this.makeFallback('decor_no_armor', nothingCard);
 
-    console.log(`armorUI: armorCard = ${armorCard.GetBase().GetHandle()}, value = ${selectedValue}`);
+    console.log(`armorUI: armorCard = ${armorCard.GetBase().getHandle()}, value = ${selectedValue}`);
 
     return (
       <li>
@@ -195,8 +195,8 @@ class FightPage extends React.Component {
       this.setState({ statusMessage: 'fighting...', statusType: 'info', fighting: true });
       let p = this.props.beGateway.fight(this.props.gameId, this.props.playerId,
         this.props.row, this.props.col,
-        this.state.selectedArmor ? this.state.selectedArmor.GetId() : null,
-        this.state.selectedWeapon ? this.state.selectedWeapon.GetId() : null);
+        this.state.selectedArmor ? this.state.selectedArmor.getId() : null,
+        this.state.selectedWeapon ? this.state.selectedWeapon.getId() : null);
       let msg;
       let statusType = 'info';
       const playByPlay = (v) => {
@@ -323,7 +323,7 @@ class FightPage extends React.Component {
     // find the base card for the monster. Might have gone if rendering after a win...
 
     let nothingBaseCard = Object.values(this.props.baseCards)
-      .find((bc) => bc.IsNothing());
+      .find((bc) => bc.isNothing());
     // make a fake id card-card so can use CardDetail
     let fakeDb = { game_card: nothingBaseCard.db }
     // make a fake 'nothing' card for display
@@ -333,7 +333,7 @@ class FightPage extends React.Component {
     if (this.props.room && this.props.room.owner && this.props.room.owner.handle) {
       let monsterHandle = this.props.room.owner.handle;
       baseCard = Object.values(this.props.baseCards)
-        .find((bc) => bc.GetHandle() === monsterHandle);
+        .find((bc) => bc.getHandle() === monsterHandle);
       if (baseCard) {
         let fake2 = { game_card: baseCard.db };
         monsterCard = Card.Of(fake2);
@@ -344,9 +344,9 @@ class FightPage extends React.Component {
     }
 
     // find the weapon and armor cards....
-    let armorCards = this.props.deck.filter((c) => c.GetBase().GetRawArmorValue() > 0);
-    let weaponCards = this.props.deck.filter((c) => c.GetBase().GetRawWeaponValue() > 0);
-    let lifeCards = this.props.deck.filter((c) => c.GetBase().IsLife());
+    let armorCards = this.props.deck.filter((c) => c.GetBase().getRawArmorValue() > 0);
+    let weaponCards = this.props.deck.filter((c) => c.GetBase().getRawWeaponValue() > 0);
+    let lifeCards = this.props.deck.filter((c) => c.GetBase().isLife());
     let numLives = lifeCards.length;
     let lifeMsg;
     switch (numLives) {

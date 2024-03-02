@@ -134,9 +134,9 @@ export class DeckComponent extends React.Component {
       {
         title: 'type', dataIndex: 'typeObj',
         render: (val) =>
-          <img width="16" src={val.IconURL()} title={val.AltText()} alt={val.AltText()} />
+          <img width="16" src={val.iconURL()} title={val.altText()} alt={val.altText()} />
         ,
-        sorter: (row1, row2) => row1.typeObj.GetType() - row2.typeObj.GetType()
+        sorter: (row1, row2) => row1.typeObj.getType() - row2.typeObj.getType()
       },
       {
         title: 'level', dataIndex: 'level',
@@ -241,15 +241,15 @@ export class DeckComponentMerchant extends DeckComponent {
   }
 
   displayNameMaker(card) {
-    if (card.GetBase().OpaqueBeforeBuying()) {
-      return card.GetBase().OpaqueDisplayName();
+    if (card.GetBase().opaqueBeforeBuying()) {
+      return card.GetBase().opaqueDisplayName();
     } else {
       return super.displayNameMaker(card);
     }
   }
 
   descriptionMaker(card) {
-    if (card.GetBase().OpaqueBeforeBuying()) {
+    if (card.GetBase().opaqueBeforeBuying()) {
       return "...buy to see details";
     } else {
         return super.descriptionMaker(card);
@@ -258,7 +258,7 @@ export class DeckComponentMerchant extends DeckComponent {
 
   onRowClick(row) {
     let card = row.cardObj;
-    if (card.GetBase().OpaqueBeforeBuying()) {
+    if (card.GetBase().opaqueBeforeBuying()) {
       window.alert("You can't see the details until after you buy, sorry");
     } else {
       super.onRowClick(row);

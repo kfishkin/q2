@@ -23,12 +23,12 @@ class WorkshopInputPickerRecipe extends React.Component {
 
   makePilesAndSignal() {
     let recipeCard = this.props.machine;
-    let recipeInfo = recipeCard.GetBase().GetRecipeInfo();
+    let recipeInfo = recipeCard.GetBase().getRecipeInfo();
     let inputPiles = [];
     for (const i in recipeInfo.ingredients) {
       let amount = recipeInfo.amounts[i];
       let ingredBaseId = recipeInfo.ingredients[i];
-      let haves = this.props.deck.filter((c) => c.GetBase().GetId() === ingredBaseId);
+      let haves = this.props.deck.filter((c) => c.GetBase().getId() === ingredBaseId);
       let haveThis = (haves.length >= amount);
       let pile;
       if (haveThis) {
@@ -41,7 +41,7 @@ class WorkshopInputPickerRecipe extends React.Component {
         let ingredBaseCard = this.props.baseCards[ingredBaseId];
         // this happens if a category, you don't "have" that in your deck.
         // so UI will pick, just put a placeholder:
-        if (ingredBaseCard.IsCategory()) {
+        if (ingredBaseCard.isCategory()) {
           pile = ['category_placeholder'];
         }
       }
@@ -59,11 +59,11 @@ class WorkshopInputPickerRecipe extends React.Component {
 
   render() {
     let recipeCard = this.props.machine;
-    let recipeInfo = recipeCard.GetBase().GetRecipeInfo();
+    let recipeInfo = recipeCard.GetBase().getRecipeInfo();
     let numSteps = recipeInfo.ingredients.length;
 
     const preamble = () => {
-      return <span>The {recipeCard.GetBase().GetDisplayName()} recipe has <b>{numSteps}</b> steps:</span>;
+      return <span>The {recipeCard.GetBase().getDisplayName()} recipe has <b>{numSteps}</b> steps:</span>;
     }
 
     const stepsUI = () => {
@@ -72,9 +72,9 @@ class WorkshopInputPickerRecipe extends React.Component {
         let amount = recipeInfo.amounts[i];
         let ingredBaseId = recipeInfo.ingredients[i];
         let baseCard = this.props.baseCards[ingredBaseId];
-        let ingredName = this.props.baseCards[ingredBaseId].GetDisplayName();
+        let ingredName = this.props.baseCards[ingredBaseId].getDisplayName();
         let candidates = baseCard.ContainedInDeck(this.props.deck);
-        if (baseCard.IsCategory()) {
+        if (baseCard.isCategory()) {
           candidates = baseCard.ContainedInDeck(candidates);
         }
 
@@ -90,7 +90,7 @@ class WorkshopInputPickerRecipe extends React.Component {
         const categoryUI = (baseCard, candidates) => {
           let onCategorySpec = (val) => {
             console.log(`you chose ${val}`);
-            let card = this.props.deck.find((c) => c.GetId() === val);
+            let card = this.props.deck.find((c) => c.getId() === val);
             //console.log(`card = ${JSON.stringify(card)}`);
             if (card) {
               let newPiles = this.state.piles;
@@ -102,7 +102,7 @@ class WorkshopInputPickerRecipe extends React.Component {
           let selectOptions = candidates.map((card) => {
             return {
               label: card.TerselyDescribe(),
-              value: card.GetId(),
+              value: card.getId(),
             }
           })
 
@@ -111,7 +111,7 @@ class WorkshopInputPickerRecipe extends React.Component {
         }
 
         steps.push(<li>
-          <span><b>{amount}</b> of <b>{ingredName}</b> {(baseCard.IsCategory() && candidates.length > 0) ? categoryUI(baseCard, candidates) : ""}(have {have})</span>
+          <span><b>{amount}</b> of <b>{ingredName}</b> {(baseCard.isCategory() && candidates.length > 0) ? categoryUI(baseCard, candidates) : ""}(have {have})</span>
           <img src={`pix/icons/${icon}`} className='thumb_icon' alt={alt} />
         </li>)
       }

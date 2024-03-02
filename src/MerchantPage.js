@@ -39,8 +39,8 @@ class MerchantPage extends React.Component {
     this.props.playerInfo.deck.forEach((card) => {
       // TODO: (deck) argument is array of Cards.
       let cardObj = Card.Of(card);
-      if (cardObj.GetBase().IsMoney()) {
-        bankroll += cardObj.GetBase().GetSellValue();
+      if (cardObj.GetBase().isMoney()) {
+        bankroll += cardObj.GetBase().getSellValue();
       }
     });
     this.setState({bankroll});
@@ -59,11 +59,11 @@ class MerchantPage extends React.Component {
           let deck = v.map((dbObj) => Card.Of(dbObj));
           console.log(`raw merchant deck has length ${deck.length}`);
           deck.forEach((c) =>{
-            if (!c.GetBase().IsBuyable()) {
-              console.log(`card ${c.GetBase().GetHandle()} is not IsBuyable`);
+            if (!c.GetBase().isBuyable()) {
+              console.log(`card ${c.GetBase().getHandle()} is not IsBuyable`);
             }
           })
-          deck = deck.filter((c) => c.GetBase().IsBuyable());
+          deck = deck.filter((c) => c.GetBase().isBuyable());
           console.log(`filtered merchant deck has length ${deck.length}`);
           this.setState({ statusMessage: `loaded ${v.length}-card inventory...`, statusType: 'success', merchantDeck: deck });
         }).catch((e) => {
@@ -166,8 +166,8 @@ class MerchantPage extends React.Component {
       this.props.playerInfo.deck.forEach((card) => {
         // TODO: (deck) argument is array of Cards.
         let cardObj = Card.Of(card);
-        if (cardObj.GetBase().IsMoney()) {
-          bankroll += cardObj.GetBase().GetSellValue();
+        if (cardObj.GetBase().isMoney()) {
+          bankroll += cardObj.GetBase().getSellValue();
         }
       });
 
@@ -186,7 +186,7 @@ class MerchantPage extends React.Component {
     let seeing = this.state.action === Action.SEER;
     // TODO: remove once playerInfo.deck is real cards.
     let deckObjs = this.props.playerInfo.deck.map((dbObj) => Card.Of(dbObj));
-    deckObjs = deckObjs.filter((c) => c.GetBase().IsSellable());
+    deckObjs = deckObjs.filter((c) => c.GetBase().isSellable());
     return <div>Hello from the merchant page for merchant {this.props.owner.name}'s store.
       <br />{showModalUI()}
       <DeckComponentMerchant deck={this.state.merchantDeck} baseCards={this.props.gameInfo.baseCards} current={buying ? "yes" : "no"}

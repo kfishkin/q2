@@ -28,7 +28,7 @@ class CashierPage extends React.Component {
     let baseMoneyCards = [];
     if (this.props.baseCards) {
       // it's a dict, not an array. keys are ids, don't care about those..
-      baseMoneyCards = Object.values(this.props.baseCards).filter((bc) => bc.IsMoney());
+      baseMoneyCards = Object.values(this.props.baseCards).filter((bc) => bc.isMoney());
       baseMoneyCards.sort((a,b) => b.sell_value - a.sell_value);
       //console.log(`baseMoneyCards = ${baseMoneyCards}`);
     }
@@ -42,7 +42,7 @@ class CashierPage extends React.Component {
     this.props.deck.forEach((card) => {
       // TODO: (deck) argument is array of Cards.
       let cardObj = Card.Of(card);
-      if (cardObj.GetBase().IsMoney()) {
+      if (cardObj.GetBase().isMoney()) {
         moneyCards.push(card);
         moneyTotal += parseInt(card.game_card.sell_value);
         gameId = card.game_card.game_id;

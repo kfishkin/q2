@@ -386,6 +386,11 @@ background-color: greenyellow;
 height: 40px;
 }
 
+#seer_do {
+background-color: greenyellow;
+height: 40px;
+}
+
 img.nav_arrow {
   margin-left: 1em;
   margin-right: 1em;
@@ -479,6 +484,10 @@ img[quadrant='se'] {
 }
 
 ul.map_room_rows {
+  list-style-type: none;
+}
+
+ul.seer_input_list {
   list-style-type: none;
 }
 
