@@ -1,7 +1,7 @@
 import React from 'react';
 import StatusMessage from './StatusMessage';
 import dayjs from 'dayjs';
-import { StoryShowerAward, StoryShowerComponent } from './StoryShowerComponent';
+import { StoryShowerAward, StoryShowerBroadcast, StoryShowerComponent } from './StoryShowerComponent';
 
 var localizedFormat = require('dayjs/plugin/localizedFormat')
 dayjs.extend(localizedFormat);
@@ -54,7 +54,8 @@ class NewsPage extends React.Component {
     const StoryTypes = {
       NONE: 0,
       DEBUG: 1,
-      AWARD: 2
+      AWARD: 2,
+      BROADCAST: 3
     };
     if (!this.state.selectedStory) return "";
 
@@ -69,6 +70,8 @@ class NewsPage extends React.Component {
     switch (type) {
       case StoryTypes.AWARD:
         return <div><StoryShowerAward {...props} /></div>;
+        case StoryTypes.BROADCAST:
+          return <div><StoryShowerBroadcast {...props}/></div>
       default:
         return <div><StoryShowerComponent {...props} /></div>;
     }

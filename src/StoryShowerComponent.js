@@ -1,5 +1,6 @@
 import React from 'react';
 import CardDetail from './CardDetail';
+import parse from 'html-react-parser';
 
 // shows a single story.
 
@@ -11,6 +12,13 @@ const StoryTypes = {
   DEBUG: 1,
   AWARD: 2
 };
+const StoryParts = {
+  WHY: 'why',
+  DEBUG: 'test',
+  MERCHANDISE: 'merch',
+  WHICH: 'which',
+  BROADCAST_HTML: 'bhtml'
+}
 
 // props:
 // story - what to show.
@@ -30,6 +38,19 @@ export class StoryShowerComponent extends React.Component {
   render() {
     if (!this.props.story) return "";
     return <span>{JSON.stringify(this.props.story)}</span>
+  }
+}
+
+export class StoryShowerBroadcast extends StoryShowerComponent {
+  render() {
+    let story = this.props.story;
+    if (!story) return <span>? no story ?</span>;
+    // story.subject - subject.
+    // story.textparts.bhtml - the html to show.
+    let p = parse(story.textParts[StoryParts.BROADCAST_HTML]);
+    return <div>{p}</div>;
+    // return <div dangerouslySetInnerHTML={{ __html: story.textParts.html }} />
+    //return <div dangerouslySetInnerHTML={{ __html: "<h1>Hi there!</h1>" }} />
   }
 }
 
