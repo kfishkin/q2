@@ -271,6 +271,14 @@ div.picker_step span.leadin {
   font-weight: bold;
 }
 
+span.step {
+  font-weight: bold;
+}
+
+.step_list {
+  list-style-type: upper-alpha;
+}
+
 .dont_have {
   font-size: smaller;
   font-family: 'Courier New', Courier, monospace;

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Select, Space } from 'antd';
 import CardsModal from './CardsModal';
+import StepDisplay from './StepDisplay';
 
 
 
@@ -230,7 +231,7 @@ class WorkshopInputPickerJudge extends React.Component {
         let consumedImg = consumed?(<img className='consumed_icon' alt='consumed' src='pix/icons/consumed64.png'/>):'';
         stepsUI.push(
           <div className='picker_step'>
-            <span className='leadin'>Step #{step + 1} {consumedImg}: &nbsp;</span>
+            <span className='leadin'><StepDisplay step={step}/><span> {consumedImg}: &nbsp;</span></span>
             <span>{renderAmountSelect(step, amts)}</span>
             <span> of  {renderIngredSelect(step, ingredIds)}</span>
             </div>

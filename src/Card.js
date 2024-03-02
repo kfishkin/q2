@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import StepDisplay from './StepDisplay';
 const BaseCard = require('./BaseCard');
 
 
@@ -209,7 +210,7 @@ class CardScore extends Card {
                 let amountScore = scoreInfo.amount_scores[step];
                 let ingredientScore = scoreInfo.ingredient_scores[step];
                 let stepDescr = <div>
-                    <span>Step <b>{step + 1}:</b></span>
+                    <StepDisplay step={step}/>
                     <span className={`score_${amountScore}`}>{amount}</span>
                     &nbsp;of&nbsp;
                     <span className={`score_${ingredientScore}`}>{ingredient.GetDisplayName()}</span>

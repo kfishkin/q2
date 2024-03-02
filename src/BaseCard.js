@@ -362,7 +362,7 @@ class CardTypeRecipeOutline extends BaseCard {
             let ingredDescr = ingredientString(outline.possible_ingredients[step]);
             stepDescrs.push(<li><span>{amtDescr} of {ingredDescr}</span></li>);
         }
-        return <div>The Recipe has <b>{outline.num_steps}</b> {stepWord}:<ol>{stepDescrs}</ol></div>;
+        return <div>The Recipe has <b>{outline.num_steps}</b> {stepWord}:<ol className="step_list">{stepDescrs}</ol></div>;
     }
 }
 // a Recipe card
@@ -401,7 +401,7 @@ class CardTypeRecipe extends BaseCard {
             let ingredient = baseCards[recipe.ingredients[step]].GetDisplayName();
             stepDescrs.push(<li key={`ingred_${step}`}><span>{amount} of {ingredient}</span></li>);
         }
-        return <div className="recipe_description">The Recipe has <b>{numSteps}</b> steps:<ol>{stepDescrs}</ol></div>;
+        return <div className="recipe_description">The Recipe has <b>{numSteps}</b> steps:<ol className="step_list">{stepDescrs}</ol></div>;
     }    
 }
 
