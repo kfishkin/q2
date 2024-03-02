@@ -306,7 +306,7 @@ class FightPage extends React.Component {
 
     return (
       <div>
-        <button disabled={this.state.fighting} onClick={(e) => handler()}>{this.state.buttonText}</button>
+        <button className='fight_button' disabled={this.state.fighting} onClick={(e) => handler()}>{this.state.buttonText}</button>
         <CardsModal title="Spoils of war" open={this.state.showModal} onOk={(e) => gotoPage(NAV_ITEM_PAGES.GAME_PAGE)} onCancel={(e) => gotoPage(NAV_ITEM_PAGES.GAME_PAGE)}
           cards={this.state.lootCards}
           topHtml={<span>You have just added spoils of war to your deck</span>}
@@ -364,15 +364,19 @@ class FightPage extends React.Component {
       </div>
 
       <div className='fight_outer' >
-        <ul className='fight_room'>
-          {this.monsterUI(monsterCard)}
-          {this.weaponUI(weaponCards, nothingCard)}
-          {this.armorUI(armorCards, nothingCard)}
-        </ul>
-        {this.lowerPart()}
-        <StatusMessage message={this.state.statusMessage} type={this.state.statusType} />
-
+        <div className='news_half'>
+          <ul className='fight_room'>
+            {this.monsterUI(monsterCard)}
+            {this.weaponUI(weaponCards, nothingCard)}
+            {this.armorUI(armorCards, nothingCard)}
+          </ul>
+        </div>
+        <div className='news_half'>
+          {this.lowerPart()}
+        </div>
       </div>
+      <StatusMessage message={this.state.statusMessage} type={this.state.statusType} />
+
     </div>
     )
   }

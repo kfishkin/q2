@@ -160,7 +160,7 @@ class LoginPage extends React.Component {
         const component = this;
         this.state.beGateway.playerExists(handle, password)
           .then((v) => {
-            console.log('onFinish, v=', JSON.stringify(v));
+            //console.log('onFinish, v=', JSON.stringify(v));
             // a failed login comes back as an empty object.
             if (!v.handle) {
               component.setState({

@@ -186,6 +186,17 @@ img.fight_image {
   width: 200px;
 }
 
+button.fight_button {
+  font-size: larger;
+  margin-top: 90px;
+
+}
+
+button.fight_button:hover {
+  background-color: salmon;
+
+}
+
 
 
 div.deck {
@@ -473,7 +484,6 @@ button.map_room_button {
 }
 
 div.fight_outer {
-  position: relative;
   width: 600px;
   height: 600px;
 }
