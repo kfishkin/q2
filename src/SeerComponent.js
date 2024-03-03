@@ -1,6 +1,5 @@
 import React from 'react';
 import { CARD_TYPES } from './BaseCard';
-import Card from './Card';
 import CardDetail from './CardDetail';
 import StepDisplay from './StepDisplay';
 
@@ -82,14 +81,18 @@ class SeerComponent extends React.Component {
     if (!outlineCards || outlineCards.length === 0) {
       return (<span>No recipe outline cards.</span>);
     }
+    /*
     if (outlineCards.length === 1) {
       return (<span>Outline to analyze: {outlineCards[0].TerselyDescribe()}</span>) 
     }
+    */
     // do the UI thing.
     let selectedId = this.state.selectedOutlineCard ? this.state.selectedOutlineCard.getId() : 0;
+
     let htmlOpts = outlineCards.map((card) => {
       return (<option key={card.getId()} value={card.getId()} selected={card.getId() === selectedId}>{card.TerselyDescribe()}</option>)
     });
+    htmlOpts = [<option key='nothing' value='0'>-------</option>].concat(htmlOpts);
     return (<span><span>Outline to analyze:</span>
       <select defaultValue={selectedId} style={{width:200}} onChange={(e) => onOutlineChoice(e)}>
         {htmlOpts}
@@ -112,9 +115,11 @@ class SeerComponent extends React.Component {
     if (!clueCards || clueCards.length === 0) {
       return (<span>No clue cards.</span>);
     }
+    /*
     if (clueCards.length === 1) {
       return (<span><img className='consumed_icon' alt='consumed' title='consumed' src='pix/icons/consumed64.png'/> Clue to use: {clueCards[0].TerselyDescribe()}</span>) 
     }
+    */
     // do the UI thing.
     let selectedId = this.state.selectedClueCard ? this.state.selectedClueCard.getId() : 0;
     let htmlOpts = clueCards.map((card) => {
@@ -134,11 +139,8 @@ class SeerComponent extends React.Component {
         this.setState({selectedStep: val});
     }
     // do the UI thing.
-    if (!this.state.selectedOutlineCard) {
-      return "";
-    }
     let selectedStep = this.state.selectedStep ? this.state.selectedStep : 0;
-    let numSteps = this.state.selectedOutlineCard.GetBase().getRecipeOutline().num_steps;
+    let numSteps = this.state.selectedOutlineCard ? this.state.selectedOutlineCard.GetBase().getRecipeOutline().num_steps : 6;
     let vals = Array(numSteps).fill(0); // without the .fill, .map doesn't work...
     vals = vals.map((v, i) => i+1);
     let htmlOpts = vals.map((val) => {
@@ -193,16 +195,13 @@ class SeerComponent extends React.Component {
 
     const onSee = () => {
       let stepBaseCard = this.state.stepCards[this.state.selectedStep];
-      const FAKE_ID = 'BAD'.repeat(8);
-      let fakeObj = { game_card: stepBaseCard.getDb(), _id: FAKE_ID, player_id: this.state.selectedClueCard.GetPlayerId() }
-      let fakeCard = Card.Of(fakeObj);
-      console.log(`onSee: selectedOutline = ${this.state.selectedOutlineCard.getId()}, clue=${this.state.selectedClueCard.getId()}, stepCard = ${fakeCard.getId()}`);
-      let piles = [
-        [this.state.selectedOutlineCard], // first pile: the outline. ronly
-        [fakeCard], // the step #. ronly
-        [this.state.selectedClueCard] // the clue. consumed.
+      console.log(`onSee: selectedOutline = ${this.state.selectedOutlineCard.getId()}, clue=${this.state.selectedClueCard.getId()}`);
+      let cards = [
+        this.state.selectedOutlineCard, // first pile: the outline. ronly
+        stepBaseCard, // the step # BASE card. ronly.
+        this.state.selectedClueCard // the clue. consumed.
       ]
-      this.props.onTransact(piles);
+      this.props.onTransact(cards);
     }
 
     return <div>

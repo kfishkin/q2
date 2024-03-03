@@ -1,5 +1,6 @@
 import React from 'react';
 import Card from './Card';
+import CardsModal from './CardsModal';
 import StatusMessage from './StatusMessage';
 import { DeckComponent, DeckComponentMerchant } from './DeckComponent';
 import RepairComponent from './RepairComponent';
@@ -26,7 +27,10 @@ class MerchantPage extends React.Component {
       merchantDeck: null,
       statusMessage: "",
       statusType: "info",
-      action: Action.BUYING
+      action: Action.BUYING,
+      showDialog: false,
+      dialogCards: [],
+      dialogTop: ""
     };
     this.loadingMerchant = false;
   }
@@ -43,7 +47,7 @@ class MerchantPage extends React.Component {
         bankroll += cardObj.GetBase().getSellValue();
       }
     });
-    this.setState({bankroll});
+    this.setState({ bankroll });
   }
 
   loadMerchantDeck() {
@@ -58,7 +62,7 @@ class MerchantPage extends React.Component {
           this.loadingMerchant = false;
           let deck = v.map((dbObj) => Card.Of(dbObj));
           console.log(`raw merchant deck has length ${deck.length}`);
-          deck.forEach((c) =>{
+          deck.forEach((c) => {
             if (!c.GetBase().isBuyable()) {
               console.log(`card ${c.GetBase().getHandle()} is not IsBuyable`);
             }
@@ -128,7 +132,7 @@ class MerchantPage extends React.Component {
     if (!cards) return;
     let cardIds = cards.map((card) => card._id);
     this.setState({ statusMessage: `repairing...`, statusType: 'info' });
-    this.props.beGateway.repair(this.props.gameInfo.gameId, this.props.playerInfo.playerId,cardIds)
+    this.props.beGateway.repair(this.props.gameInfo.gameId, this.props.playerInfo.playerId, cardIds)
       .then((v) => {
         console.log(`onStartRepair: v = ${JSON.stringify(v)}`);
         if (v.ok) {
@@ -141,21 +145,63 @@ class MerchantPage extends React.Component {
 
       }).catch((e) => {
         this.setState({ statusMessage: JSON.stringify(e), statusType: 'error' });
-      });    
+      });
   }
 
   onStartCluing(cards) {
     console.log(`wants to clue in on cards ${JSON.stringify(cards)}`);
-  }  
+    this.props.beGateway.seer(this.props.gameInfo.gameId, this.props.playerInfo.playerId,
+      cards[0].getId(), cards[1].getId(), cards[2].getId()).then((v) => {
+        console.log(`fe: beGateway.seer.ok = ${v.ok}, v = ${JSON.stringify(v)}`);
+        if (!v.ok) {
+          this.setState({ statusMessage: v.errorText, statusType: 'error' });
+        } else {
+          // v is a dict.
+          // delete - ids of cards deleted.
+          // add - cardDbs of cards added
+          // change - cardDbs of adds changed
+          // topHtml, bottomHtml - for modal
+          let deletedIds = v.delete;
+          console.log(`deleted ids = ${JSON.stringify(deletedIds)}`);
+          let numDeleted = deletedIds ? deletedIds.length : 0;
+          let addedCardNames = [];
+          let addedCards = v.add;
+          console.log(`added cards = ${JSON.stringify(addedCards)}`);
+          if (addedCards) {
+            addedCardNames = addedCards.map((c) =>
+              (c && c.game_card && c.game_card.display_name) ? c.game_card.display_name : "???");
+          }
+          let msg = "Success!";
+          if (numDeleted === 1) {
+            msg += " 1 card consumed";
+          } else {
+            msg += ` ${numDeleted} cards consumed`;
+          }
+          msg += ` Added: ${addedCardNames.join()}`;
+          this.setState({
+            statusMessage: msg, statusType: 'success',
+            dialogCards: addedCards,
+            dialogTop: v.topHtml
+          });
+          this.setState({ showDialog: true }); // wait until after other stuff set
+
+          if (this.props.onPlayerDeckBEChange) {
+            this.props.onPlayerDeckBEChange();
+          }
+        }
+      })
+  }
 
   render() {
     if (!this.props.owner) {
       return <div>Oops, merchant page, but no merchant supplied</div>
     }
+    // modal as in 'what mode are they in in the mall', not modal as in 'a dialog box'.
     let showModalUI = () => {
-      let setAction = (val) => { 
+      let setAction = (val) => {
         this.setState({ action: val }
-          ) };
+        )
+      };
 
       let buying = this.state.action === Action.BUYING;
       let selling = this.state.action === Action.SELLING;
@@ -187,6 +233,11 @@ class MerchantPage extends React.Component {
     // TODO: remove once playerInfo.deck is real cards.
     let deckObjs = this.props.playerInfo.deck.map((dbObj) => Card.Of(dbObj));
     deckObjs = deckObjs.filter((c) => c.GetBase().isSellable());
+
+    const closeDialog = () => {
+      this.setState({showDialog: false});
+    }
+    
     return <div>Hello from the merchant page for merchant {this.props.owner.name}'s store.
       <br />{showModalUI()}
       <DeckComponentMerchant deck={this.state.merchantDeck} baseCards={this.props.gameInfo.baseCards} current={buying ? "yes" : "no"}
@@ -203,6 +254,12 @@ class MerchantPage extends React.Component {
         baseCards={this.props.gameInfo.baseCards}
         bankroll={this.state.bankroll}
         onTransact={(cards) => this.onStartCluing(cards)} />
+        <CardsModal title="Clue results" open={this.state.showDialog} onOk={closeDialog} onCancel={closeDialog}
+          cards={this.state.dialogCards}
+          topHtml={this.state.dialogTop}
+          bottomHtml=""
+          baseCards={this.props.gameInfo.baseCards}
+        />
       <StatusMessage message={this.state.statusMessage} type={this.state.statusType}
       />
     </div>;

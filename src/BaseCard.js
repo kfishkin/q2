@@ -463,7 +463,7 @@ class CardTypeScore extends BaseCard {
     iconURL() { return "pix/card_types/score.png"; }
 }
 
-// a Score card
+// a Learning card
 class CardTypeLearning extends BaseCard {
     constructor(db) {
         super(CARD_TYPES.LEARNING, db);

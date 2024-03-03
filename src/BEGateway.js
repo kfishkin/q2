@@ -512,6 +512,39 @@ class BEGateway {
         }
     }
 
+    async seer(gameId, playerId, outlineCardId, stepBaseCardId, clueCardId) {
+        const url = this.beURI
+            + "cards/seer";
+        let body = {
+            gameId: gameId,
+            playerId: playerId,
+            outlineCardId: outlineCardId,
+            stepBaseCardId: stepBaseCardId,
+            clueCardId: clueCardId
+        };
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }        
+        try {
+            const response = await fetch(url, requestOptions);
+            if (response.ok) {
+                return response.json();
+            } else {
+                let msg = await response.text();
+                // it's an object which isn't 'ok', with a status text
+                return {
+                    ok: false,
+                    errorText: msg
+                }
+            }
+        } catch (e) {
+            console.log(`seer e: ${e.name}:${e.message} ${e.stack}`);
+            return Promise.reject(e.name + ":" + e.message);
+        }
+    }
+
     // in game (gameId), can player (playerId), use machine (machineId),
     // where (piles) is the piles of input cards?
     // note the answer may change between when this is computed and when

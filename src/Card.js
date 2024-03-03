@@ -1,6 +1,10 @@
-import dayjs from 'dayjs';
+
+
 import StepDisplay from './StepDisplay';
+import dayjs from 'dayjs';
 const BaseCard = require('./BaseCard');
+var localizedFormat = require('dayjs/plugin/localizedFormat')
+dayjs.extend(localizedFormat);
 
 
 /**
@@ -42,6 +46,8 @@ export class Card { // abstract base class
                 return new CardScore(db);
             case BaseCard.CARD_TYPES.WEAPON:
                 return new CardWeapon(db);
+                case BaseCard.CARD_TYPES.LEARNING:
+                    return new CardLearning(db);
             default:
                 return new Card(db);
         }
@@ -104,6 +110,65 @@ export class Card { // abstract base class
     TerselyDescribe() {
         return this.GetBase().getDisplayName();
     }    
+}
+
+class CardLearning extends Card {
+    fullyDescribe(baseCards) {
+        // learning_info has
+        //    outline_id
+        //    recipe_id
+        //    when
+        //    step
+        //    amount? if revealed
+        //    ingredient_id? if revealed.
+        let learningInfo = this.GetDb().learning_info;
+        if (!learningInfo) {
+            console.warn('learning card w/o learning info');
+            return this.GetBase().fullyDescribe(baseCards);
+        }
+        let baseOutlineId = learningInfo.outline_id;
+        let printed = false;
+        let baseOutlineCard = Object.values(baseCards).find((bc) => {
+            if (!printed) {
+                printed = true;
+                console.log(`bc = ${JSON.stringify(bc)}`);
+            }
+            return bc.getId() === baseOutlineId;
+        });
+        let baseRecipeId = learningInfo.recipe_id;
+        let baseRecipeCard = Object.values(baseCards).find((bc) => {
+            return bc.getId() === baseRecipeId;
+        });
+        let stepNumber = learningInfo.step;
+        let when = dayjs(learningInfo.when);
+
+        const whatLearned = () => {
+            let frags = [];
+            if (learningInfo.amount) {
+                frags.push(<span>the <i>amount</i> is <b>{learningInfo.amount}</b></span>);
+            }
+            if (learningInfo.ingredient_id) {
+                if (frags.length > 0) {
+                    frags.push(<span>, and that </span>);
+                }
+                let baseIngredientId = learningInfo.ingredient_id;
+                let baseIngredientCard = Object.values(baseCards).find((bc) => {
+                    return bc.getId() === baseIngredientId;
+                });
+                frags.push(<span>the <i>ingredient</i> is <b>{baseIngredientCard.getDisplayName()}</b></span>);
+            }
+            return frags;
+        };
+
+        return (<span>On {when.format('ll')} you learned about step <b><StepDisplay step={stepNumber} terse={true}/></b>
+          &nbsp;of your outline card for the level {baseRecipeCard.getLevel()} '{baseRecipeCard.getDisplayName()}' recipe:
+          {whatLearned()}</span>);
+    }
+
+    isLearningFor(baseCardId) {
+        let info = this.GetDb().learning_info;
+        return (info && info.outline_id === baseCardId);
+  }      
 }
 
 class CardMachine extends Card {
