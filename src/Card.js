@@ -26,7 +26,7 @@ export class Card { // abstract base class
         this._id = db._id;
         this.cardId = this._id; // allow either for now
         this.db = db;
-        this.game_card = { ...db.game_card};
+        this.game_card = { ...db.game_card };
         this.game_card.type = db.game_card.type;
         // deprecate game_card, move to this.
         this.baseCard = BaseCard.BaseCard.make(db.game_card.type, db.game_card);
@@ -46,8 +46,8 @@ export class Card { // abstract base class
                 return new CardScore(db);
             case BaseCard.CARD_TYPES.WEAPON:
                 return new CardWeapon(db);
-                case BaseCard.CARD_TYPES.LEARNING:
-                    return new CardLearning(db);
+            case BaseCard.CARD_TYPES.LEARNING:
+                return new CardLearning(db);
             default:
                 return new Card(db);
         }
@@ -57,7 +57,7 @@ export class Card { // abstract base class
         return this.baseCard.fullyDescribe(baseCards);
     }
 
-    GetPlayerId() {
+    getPlayerId() {
         return this.playerId;
     }
 
@@ -70,46 +70,46 @@ export class Card { // abstract base class
     }
 
     // deprecated: for backwards compat
-    GetDb() {
+    getDb() {
         return this.db;
     }
 
 
-    GetBase() {
+    getBase() {
         return this.baseCard;
     }
 
-    GetScoreInfo() {
+    getScoreInfo() {
         return this.db.score_info;
     }
 
-    GetArmorWear() {
+    getArmorWear() {
         return (this.db && this.db.armor_info && ('wear' in this.db.armor_info))
             ? this.db.armor_info.wear : 0;
     }
 
-    GetWeaponWear() {
+    getWeaponWear() {
         return (this.db && this.db.weapon_info && ('wear' in this.db.weapon_info))
             ? this.db.weapon_info.wear : 0;
     }
 
-    GetNetArmorValue() {
-        let val = this.GetBase().getRawArmorValue();
-        return Math.max(0, val - this.GetArmorWear());
+    getNetArmorValue() {
+        let val = this.getBase().getRawArmorValue();
+        return Math.max(0, val - this.getArmorWear());
     }
 
-    GetNetWeaponValue() {
-        let val = this.GetBase().getRawWeaponValue();
-        return Math.max(0, val - this.GetWeaponWear());
-    }  
-    
+    getNetWeaponValue() {
+        let val = this.getBase().getRawWeaponValue();
+        return Math.max(0, val - this.getWeaponWear());
+    }
+
     isLearningFor(baseCardId) {
         return false;
     }
-    
-    TerselyDescribe() {
-        return this.GetBase().getDisplayName();
-    }    
+
+    terselyDescribe() {
+        return this.getBase().getDisplayName();
+    }
 }
 
 class CardLearning extends Card {
@@ -121,20 +121,23 @@ class CardLearning extends Card {
         //    step
         //    amount? if revealed
         //    ingredient_id? if revealed.
-        let learningInfo = this.GetDb().learning_info;
+        let learningInfo = this.getDb().learning_info;
         if (!learningInfo) {
             console.warn('learning card w/o learning info');
-            return this.GetBase().fullyDescribe(baseCards);
+            return this.getBase().fullyDescribe(baseCards);
         }
-        let baseOutlineId = learningInfo.outline_id;
-        let printed = false;
-        let baseOutlineCard = Object.values(baseCards).find((bc) => {
-            if (!printed) {
-                printed = true;
-                console.log(`bc = ${JSON.stringify(bc)}`);
-            }
-            return bc.getId() === baseOutlineId;
-        });
+        /* not needed.
+let baseOutlineId = learningInfo.outline_id;
+let printed = false;
+
+let baseOutlineCard = Object.values(baseCards).find((bc) => {
+    if (!printed) {
+        printed = true;
+        console.log(`bc = ${JSON.stringify(bc)}`);
+    }
+    return bc.getId() === baseOutlineId;
+});
+*/
         let baseRecipeId = learningInfo.recipe_id;
         let baseRecipeCard = Object.values(baseCards).find((bc) => {
             return bc.getId() === baseRecipeId;
@@ -160,15 +163,15 @@ class CardLearning extends Card {
             return frags;
         };
 
-        return (<span>On {when.format('ll')} you learned about step <b><StepDisplay step={stepNumber} terse={true}/></b>
-          &nbsp;of your outline card for the level {baseRecipeCard.getLevel()} '{baseRecipeCard.getDisplayName()}' recipe:
-          {whatLearned()}</span>);
+        return (<span>On {when.format('ll')} you learned about step <b><StepDisplay step={stepNumber} terse={true} /></b>
+            &nbsp;of your outline card for the level {baseRecipeCard.getLevel()} '{baseRecipeCard.getDisplayName()}' recipe:
+            {whatLearned()}</span>);
     }
 
     isLearningFor(baseCardId) {
-        let info = this.GetDb().learning_info;
+        let info = this.getDb().learning_info;
         return (info && info.outline_id === baseCardId);
-  }      
+    }
 }
 
 class CardMachine extends Card {
@@ -189,53 +192,53 @@ class CardMachine extends Card {
                 message = `was last used less than ${diffDays + 1} days ago`;
             }
         }
-        let base = this.GetBase();
+        let base = this.getBase();
 
-        return (<div><hr/><b>{base.getDisplayName()}</b> card: {base.getDescription()}.<hr/>It {message}</div>);
+        return (<div><hr /><b>{base.getDisplayName()}</b> card: {base.getDescription()}.<hr />It {message}</div>);
     }
 }
 
 class CardArmor extends Card {
-    TerselyDescribe() {
-        if (this.GetArmorWear() === 0) {
-            return super.TerselyDescribe();
+    terselyDescribe() {
+        if (this.getArmorWear() === 0) {
+            return super.terselyDescribe();
         } else {
-            return `${this.GetBase().getDisplayName()} - wear ${this.GetArmorWear()}`;
+            return `${this.getBase().getDisplayName()} - wear ${this.getArmorWear()}`;
         }
     }
     fullyDescribe(baseCards) {
-        if (this.GetArmorWear() === 0) {
+        if (this.getArmorWear() === 0) {
             return super.fullyDescribe(baseCards);
         }
-        let base = this.GetBase();
+        let base = this.getBase();
         return (<div>
-            <hr/>
+            <hr />
             <span><b>{base.getDisplayName()}</b> card: {base.getDescription()}.</span>
-            <hr/>
-            <span>worth {base.getRawArmorValue()}, but has wear damage of </span><span class="wear_damage">{this.GetArmorWear()}</span>
+            <hr />
+            <span>worth {base.getRawArmorValue()}, but has wear damage of </span><span class="wear_damage">{this.getArmorWear()}</span>
         </div>);
     }
 }
 
 
 class CardWeapon extends Card {
-    TerselyDescribe() {
-        if (this.GetWeaponWear() === 0) {
-            return super.TerselyDescribe();
+    terselyDescribe() {
+        if (this.getWeaponWear() === 0) {
+            return super.terselyDescribe();
         } else {
-            return `${this.GetBase().getDisplayName()} - wear ${this.GetWeaponWear()}`;
+            return `${this.getBase().getDisplayName()} - wear ${this.getWeaponWear()}`;
         }
-    }    
+    }
     fullyDescribe(baseCards) {
-        if (this.GetWeaponWear() === 0) {
+        if (this.getWeaponWear() === 0) {
             return super.fullyDescribe(baseCards);
         }
-        let base = this.GetBase();
+        let base = this.getBase();
         return (<div>
-            <hr/>
+            <hr />
             <span><b>{base.getDisplayName()}</b> card: {base.getDescription()}.</span>
-            <hr/>
-            <span>worth {base.getRawWeaponValue()}, but has wear damage of </span><span class="wear_damage">{this.GetWeaponWear()}</span>
+            <hr />
+            <span>worth {base.getRawWeaponValue()}, but has wear damage of </span><span class="wear_damage">{this.getWeaponWear()}</span>
         </div>);
     }
 }
@@ -275,7 +278,7 @@ class CardScore extends Card {
                 let amountScore = scoreInfo.amount_scores[step];
                 let ingredientScore = scoreInfo.ingredient_scores[step];
                 let stepDescr = <div>
-                    <StepDisplay step={step}/>
+                    <StepDisplay step={step} />
                     <span className={`score_${amountScore}`}>{amount}</span>
                     &nbsp;of&nbsp;
                     <span className={`score_${ingredientScore}`}>{ingredient.getDisplayName()}</span>
@@ -287,21 +290,21 @@ class CardScore extends Card {
 
         return (<div>
             <span>{whenStr} score for a try at the <i>{recipeBase.getDisplayName()}</i> recipe,
-            with {numSteps} steps.</span>
-            <hr/>
+                with {numSteps} steps.</span>
+            <hr />
             {fillInSteps(this.db.score_info, baseCards)}
-            <hr/>
+            <hr />
             <span>Legend:</span>
-            <br/><span class="score_2">X</span> -- right!
-            <br/><span class="score_1">X</span> -- right value, wrong position
-            <br/><span class="score_0">X</span> -- value not in the recipe.
+            <br /><span class="score_2">X</span> -- right!
+            <br /><span class="score_1">X</span> -- right value, wrong position
+            <br /><span class="score_0">X</span> -- value not in the recipe.
         </div>);
 
     }
     isLearningFor(baseCardId) {
-          let info = this.GetScoreInfo();
-          return (info && info.outline_id === baseCardId);
-    }    
+        let info = this.getScoreInfo();
+        return (info && info.outline_id === baseCardId);
+    }
 
 }
 

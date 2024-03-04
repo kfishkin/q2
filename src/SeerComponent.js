@@ -40,11 +40,11 @@ class SeerComponent extends React.Component {
       });
     // do they have any outline cards?
     let outlineCards = this.props.deck.filter((card) => {
-      return card.GetBase().getRecipeOutline() != null;
+      return card.getBase().getRecipeOutline() != null;
     });    
     // do they have any clue cards?
     let clueCards = this.props.deck.filter((card) => {
-      return card.GetBase().getType() === CARD_TYPES.CLUE;
+      return card.getBase().getType() === CARD_TYPES.CLUE;
     });
     //let selectedOutlineCard =  (outlineCards.length === 1) ? outlineCards[0] : null;
     //let selectedClueCard = (clueCards.length === 1) ? clueCards[0] : null;
@@ -83,14 +83,14 @@ class SeerComponent extends React.Component {
     }
     /*
     if (outlineCards.length === 1) {
-      return (<span>Outline to analyze: {outlineCards[0].TerselyDescribe()}</span>) 
+      return (<span>Outline to analyze: {outlineCards[0].terselyDescribe()}</span>) 
     }
     */
     // do the UI thing.
     let selectedId = this.state.selectedOutlineCard ? this.state.selectedOutlineCard.getId() : 0;
 
     let htmlOpts = outlineCards.map((card) => {
-      return (<option key={card.getId()} value={card.getId()} selected={card.getId() === selectedId}>{card.TerselyDescribe()}</option>)
+      return (<option key={card.getId()} value={card.getId()} selected={card.getId() === selectedId}>{card.terselyDescribe()}</option>)
     });
     htmlOpts = [<option key='nothing' value='0'>-------</option>].concat(htmlOpts);
     return (<span><span>Outline to analyze:</span>
@@ -117,14 +117,15 @@ class SeerComponent extends React.Component {
     }
     /*
     if (clueCards.length === 1) {
-      return (<span><img className='consumed_icon' alt='consumed' title='consumed' src='pix/icons/consumed64.png'/> Clue to use: {clueCards[0].TerselyDescribe()}</span>) 
+      return (<span><img className='consumed_icon' alt='consumed' title='consumed' src='pix/icons/consumed64.png'/> Clue to use: {clueCards[0].terselyDescribe()}</span>) 
     }
     */
     // do the UI thing.
     let selectedId = this.state.selectedClueCard ? this.state.selectedClueCard.getId() : 0;
     let htmlOpts = clueCards.map((card) => {
-      return (<option key={card.getId()} value={card.getId()} selected={card.getId() === selectedId}>{card.TerselyDescribe()}</option>)
+      return (<option key={card.getId()} value={card.getId()} selected={card.getId() === selectedId}>{card.terselyDescribe()}</option>)
     });
+    htmlOpts = [<option key='nothing' value='0'>-------</option>].concat(htmlOpts);
     return (<span><img className='consumed_icon' alt='consumed' title='consumed' src='pix/icons/consumed64.png'/><span>Clue to use:</span>
       <select defaultValue={selectedId} style={{width:200}} onChange={(e) => onClueChoice(e)}>
         {htmlOpts}
@@ -140,12 +141,13 @@ class SeerComponent extends React.Component {
     }
     // do the UI thing.
     let selectedStep = this.state.selectedStep ? this.state.selectedStep : 0;
-    let numSteps = this.state.selectedOutlineCard ? this.state.selectedOutlineCard.GetBase().getRecipeOutline().num_steps : 6;
+    let numSteps = this.state.selectedOutlineCard ? this.state.selectedOutlineCard.getBase().getRecipeOutline().num_steps : 6;
     let vals = Array(numSteps).fill(0); // without the .fill, .map doesn't work...
     vals = vals.map((v, i) => i+1);
     let htmlOpts = vals.map((val) => {
       return (<option key={`step_${val}`} value={val} selected={val === selectedStep}><StepDisplay step={val-1} terse={true}/></option>)
     });
+    htmlOpts = [<option key='nothing' value='0'>-------</option>].concat(htmlOpts);
     return (<span><span>Step to analyze:</span>
       <select defaultValue={selectedStep} style={{width:200}} onChange={(e) => onStepChoice(e)}>
         {htmlOpts}
@@ -159,8 +161,8 @@ class SeerComponent extends React.Component {
     }
     // the seer can do it all, price is F(max(input card level)).
     let level = Math.max(
-      this.state.selectedOutlineCard.GetBase().getLevel(),
-      this.state.selectedClueCard.GetBase().getLevel(),
+      this.state.selectedOutlineCard.getBase().getLevel(),
+      this.state.selectedClueCard.getBase().getLevel(),
     )
     const PRICE_KEY = 'crystal_ball';
     let price = this.state.prices[PRICE_KEY][level - 1];
@@ -181,8 +183,8 @@ class SeerComponent extends React.Component {
       return "";
     }
     let level = Math.max(
-      this.state.selectedOutlineCard.GetBase().getLevel(),
-      this.state.selectedClueCard.GetBase().getLevel(),
+      this.state.selectedOutlineCard.getBase().getLevel(),
+      this.state.selectedClueCard.getBase().getLevel(),
     )
     const PRICE_KEY = 'crystal_ball';
     let price = this.state.prices[PRICE_KEY][level - 1];    
@@ -194,7 +196,7 @@ class SeerComponent extends React.Component {
     }
 
     const onSee = () => {
-      let stepBaseCard = this.state.stepCards[this.state.selectedStep];
+      let stepBaseCard = this.state.stepCards[this.state.selectedStep - 1]; // from 1-based to 0-based
       console.log(`onSee: selectedOutline = ${this.state.selectedOutlineCard.getId()}, clue=${this.state.selectedClueCard.getId()}`);
       let cards = [
         this.state.selectedOutlineCard, // first pile: the outline. ronly

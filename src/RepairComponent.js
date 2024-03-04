@@ -39,20 +39,20 @@ class RepairComponent extends React.Component {
     if (this.props.deck) {
       candidates = this.props.deck.filter((card) => {
         //return true;
-        return (card.GetArmorWear() > 0 || card.GetWeaponWear() > 0);
+        return (card.getArmorWear() > 0 || card.getWeaponWear() > 0);
       });
     }
     if (candidates.length < 1) {
       return <div>You have nothing repairable.</div>;
     }
     const repairCost = (card) => {
-      let level = card.GetBase().getLevel();
-      let wear = card.GetArmorWear();
+      let level = card.getBase().getLevel();
+      let wear = card.getArmorWear();
       let cost = 50;
       if (wear > 0) {
         cost = this.state.prices.anvil[level - 1];
       } else {
-        wear = card.GetWeaponWear();
+        wear = card.getWeaponWear();
         cost = this.state.prices.whetstone[level - 1];
       }
       // TODO: should cost be a function of how worn it is?
@@ -60,7 +60,7 @@ class RepairComponent extends React.Component {
     }
 
     const wantsToBuy = (card) => {
-      console.log(`wantstoRepair: ${card.GetBase().getDisplayName()}`);
+      console.log(`wantstoRepair: ${card.getBase().getDisplayName()}`);
       if (this.props.onTransact) {
         this.props.onTransact([card]);
       }
@@ -68,7 +68,7 @@ class RepairComponent extends React.Component {
 
     let ui = candidates.map((card) => {
       return <li onClick={(e) => wantsToBuy(card)}>
-        {card.GetBase().getDisplayName()} ... ${repairCost(card)}</li>;
+        {card.getBase().getDisplayName()} ... ${repairCost(card)}</li>;
     });
     return <div><span>Which one do you wish to repair?</span>
       <ul className='repair_list'>{ui}</ul></div>

@@ -49,10 +49,10 @@ class WorkshopInputPickerJudge extends React.Component {
 
     let pickOutlineUI = () => {
       let machine = this.props.machine;
-      let level = machine.GetBase().getLevel();
+      let level = machine.getBase().getLevel();
       // find the candidates:
       let candidates = this.props.deck.filter((card) => {
-        let base = card.GetBase();
+        let base = card.getBase();
         // level must be <= the judges...
         if (base.getLevel() > level) return false;
         // and it must be a recipe outline...
@@ -62,15 +62,15 @@ class WorkshopInputPickerJudge extends React.Component {
       if (!candidates || candidates.length === 0) {
         return (
           <div>
-            This level <b>{level}</b> {machine.GetBase().getDisplayName()}
-            requires a Recipe Outline card of this or less level, and you have
+            This level <b>{level}</b> {machine.getBase().getDisplayName()}
+            requires a Recipe Outline card of level {level} or less, and you have
             none at present. Come back later!
           </div>
         )
       }
       let selectOptions = candidates.map((candidate) => {
         return {
-          label: candidate.GetBase().getDisplayName(),
+          label: candidate.getBase().getDisplayName() + ' (level ' + candidate.getBase().getLevel() + ')',
           value: candidate.getId()
         }
       });
@@ -79,7 +79,7 @@ class WorkshopInputPickerJudge extends React.Component {
         let winner = candidates.find((candidate) => val === candidate.getId());
         //console.log(`winner = ${JSON.stringify(winner)}`);
         // not part of state, because changes don't cause re-render.
-        let outline = winner.GetBase().getRecipeOutline();
+        let outline = winner.getBase().getRecipeOutline();
         this.currentAmounts = Array(outline.num_steps).fill(NOT_PICKED);
         this.currentIngreds = Array(outline.num_steps).fill(NOT_PICKED);
         this.setState({ outline: winner });
@@ -99,7 +99,7 @@ class WorkshopInputPickerJudge extends React.Component {
       // if any of these are the empty set, let them know and don't waste their time on
       // the other stuff.
       // This could/should be a lot nicer looking....
-      let outlineBase = this.state.outline.GetBase();
+      let outlineBase = this.state.outline.getBase();
       let outlineInfo = outlineBase.getRecipeOutline();
 
       let preamble = <span>The <b>{outlineBase.getDisplayName()}</b> recipe has <b>{outlineInfo.num_steps}</b> steps.
@@ -111,7 +111,7 @@ class WorkshopInputPickerJudge extends React.Component {
       // need to figure out, for each ingredient, the cards they have for that ingredient:
       let deckByBaseCardId = {}; // from id to array of Cards.
       this.props.deck.forEach((card) => {
-        let baseId = card.GetBase().getId();
+        let baseId = card.getBase().getId();
         let prev = (baseId in deckByBaseCardId) ? deckByBaseCardId[baseId] : [];
         prev.push(card);
         deckByBaseCardId[baseId] = prev;
@@ -195,7 +195,7 @@ class WorkshopInputPickerJudge extends React.Component {
             // annoying...
             let cardsOf = baseCard.ContainedInDeck(this.props.deck);
             let baseCards = {};
-            cardsOf.forEach((c) => baseCards[c.GetBase().getId()] = c.GetBase());
+            cardsOf.forEach((c) => baseCards[c.getBase().getId()] = c.getBase());
             selectBaseCards.push(...Object.values(baseCards));
           } else {
             selectBaseCards.push(baseCard);

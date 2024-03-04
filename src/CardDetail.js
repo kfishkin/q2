@@ -14,7 +14,7 @@ class CardDetail extends React.Component {
       //console.warn(`non-card passed to CardDetail`);
       card = Card.Of(card);
     }
-    let baseCard = card.GetBase();
+    let baseCard = card.getBase();
     let parts = [];
 
     parts.push(<div className='card_face_title'>
@@ -31,9 +31,9 @@ class CardDetail extends React.Component {
         ({baseCard.getSellValue()})
       </div>);
     }
-    if (card.GetDb().awardedFor) {
+    if (card.getDb().awardedFor) {
       console.log(`have something that was awarded`);
-      let awardName = `prize from the '${card.GetDb().awardedFor.message}' award`;
+      let awardName = `prize from the '${card.getDb().awardedFor.message}' award`;
       parts.push(
         <div className='card_face_prize_image'>
           <img src="pix/general/blue_ribbon_yes.png" width="64" title={awardName} alt={awardName} />
@@ -48,7 +48,7 @@ class CardDetail extends React.Component {
           <img src="pix/icons/armor.png" width="32" alt="armor" />
         </div>,
         <div className='card_face_armor_value'>
-          {card.GetNetArmorValue()}
+          {card.getNetArmorValue()}
         </div>)
     };
 
@@ -58,7 +58,7 @@ class CardDetail extends React.Component {
           <img src="pix/general/sword_icon.png" width="32" alt="weapon" />
         </div>,
         <div className='card_face_weapon_value'>
-          {card.GetNetWeaponValue()}
+          {card.getNetWeaponValue()}
         </div>)
     };
 

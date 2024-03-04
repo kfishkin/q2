@@ -34,18 +34,18 @@ class WorkshopPage extends React.Component {
     // TODO: playerInfo.deck is Card objects.
     let asObjects = this.props.playerInfo.deck.map((c) => Card.Of(c));
     let machineCards = asObjects.filter((card) => {
-      return card.GetBase().canMakeCards()
+      return card.getBase().canMakeCards()
     });
     this.setState({ machineCards: machineCards });
   }
 
   onMachineSelect(card) {
-    let canTryNow = (card.GetBase().getNumInputs() === 0);
+    let canTryNow = (card.getBase().getNumInputs() === 0);
     let statusMessage = `Workshop for the ${card.game_card.display_name}`;
     // fire off a request to see if it's immediately usable...
     if (canTryNow) {
-      let gameId = card.GetBase().getGameId();
-      let playerId = card.GetPlayerId();
+      let gameId = card.getBase().getGameId();
+      let playerId = card.getPlayerId();
       let machineId = card.getId();
       statusMessage = '..checking to see if the card is usable right now';
 
@@ -71,7 +71,7 @@ class WorkshopPage extends React.Component {
 
   chooseMachineCard() {
     let cardBoxes = this.state.machineCards.map((card) => {
-      return (<li style={{ "display": "inline-block" }} onClick={(e) => this.onMachineSelect(card)}><CardDetail card={card.GetDb()} baseCards={this.props.gameInfo.baseCards} deck={this.props.gameInfo.deck} /></li>)
+      return (<li style={{ "display": "inline-block" }} onClick={(e) => this.onMachineSelect(card)}><CardDetail card={card.getDb()} baseCards={this.props.gameInfo.baseCards} deck={this.props.gameInfo.deck} /></li>)
     })
     return (<div>
       Click on the card you would like to use:
@@ -102,7 +102,7 @@ class WorkshopPage extends React.Component {
     }
 
     let makeInputAreaUI = () => {
-      let base = this.state.machineCard.GetBase();
+      let base = this.state.machineCard.getBase();
       if (base.getNumInputs() === 0) {
         return "";
       }
@@ -115,7 +115,7 @@ class WorkshopPage extends React.Component {
       // to the particular machine, which just tell me when the piles change,
       // and when all are specified.
       // I can't quite see how to have classes return components, like
-      //         <{this.state.machineCard.GetBase().GetInputUI()} life="42"/>
+      //         <{this.state.machineCard.getBase().GetInputUI()} life="42"/>
       // so instead for once hard-wire things, sorry...
       let pickerName = base.getInputPickerComponentName();
       // onPilesChange - f(newPiles) -
@@ -146,8 +146,8 @@ class WorkshopPage extends React.Component {
     let onTurnCrank = () => {
       console.log(`fire in the hole!`);
       let card = this.state.machineCard;
-      let gameId = card.GetBase().getGameId();
-      let playerId = card.GetPlayerId();
+      let gameId = card.getBase().getGameId();
+      let playerId = card.getPlayerId();
       let machineId = card.getId();
       let statusMessage = `..trying to use the ${card.game_card.display_name}`;
       this.setState({statusMessage: statusMessage, statusType: 'info'});

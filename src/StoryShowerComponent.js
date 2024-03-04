@@ -107,7 +107,7 @@ export class StoryShowerAward extends StoryShowerComponent {
         line2 = <span>It came with a reward card! Check your inventory...</span>
       } else {
         let prizeCard = Card.Of(this.state.prizeCard);
-        line2 = <div><span>It came with a reward card, a <i>{prizeCard.TerselyDescribe()}</i> card.</span>
+        line2 = <div><span>It came with a reward card, a <i>{prizeCard.terselyDescribe()}</i> card.</span>
           <CardDetail card={prizeCard} baseCards={this.props.baseCards} />
         </div>
       }

@@ -643,3 +643,29 @@ div.news_half {
 button.disabled {
   color: gray;
 }
+
+div.player_status {
+  background-color: lightgray;
+  color: black;
+  text-align: left;
+}
+
+#fight_dialog {
+  z-index: 5;
+}
+
+button.run_away_button {
+  background-color: yellow;
+  color: black;
+  font-size: smaller;
+  text-align: left;
+  border: 2px dashed lightblue;
+}
+
+button.fight_on_button {
+  background-color: palegreen;
+  color: black;
+  font-size: larger;
+  text-align: right;
+  border: 4px solid goldenrod;
+}

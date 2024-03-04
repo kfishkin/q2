@@ -14,6 +14,7 @@ import LoginPage from './LoginPage';
 import MerchantPage from './MerchantPage';
 import NewsPage from './NewsPage';
 import Pile from './pile';
+import PlayerStatus from './PlayerStatus';
 import TrophyPage from './TrophyPage';
 import WorkshopPage from './WorkshopPage';
 import LootPage from './LootPage';
@@ -290,6 +291,7 @@ class TopLevel extends React.Component {
             loggedIn, haveGame, haveDeck, fighting, isDead
         };
         commonProps.showPageFunc = (which, extra) => this.handleShowPage(which, extra);
+        let deckObjs = haveDeck ? this.state.playerInfo.deck.map((cdb) => Card.Of(cdb)) : null;
 
         return (
             <Layout>
@@ -299,6 +301,8 @@ class TopLevel extends React.Component {
                 <Layout>
                     <ErrorBoundary which="sider">
                     <Sider><div className="sider">
+                        <PlayerStatus playerId={this.state.playerInfo ? this.state.playerInfo.playerId : null}
+                          deck={haveDeck ? deckObjs : null} />
                         <div><Menu theme="light" mode="inline">
                             <NavMenuItemLogin {...commonProps}/>
                             <NavMenuItemGameAdmin {...commonProps}/>
@@ -312,6 +316,8 @@ class TopLevel extends React.Component {
                             />
                             <NavMenuItemTrophies {...commonProps} />
                         </Menu></div>
+                    </div>
+                    <div style={{backgroundColor: 'white'}}>
                     </div>
                     </Sider>
                     </ErrorBoundary>

@@ -34,7 +34,7 @@ export class BaseCard { // abstract base class
     ContainedInDeck(cards) {
         if (!cards) return [];
         return cards.filter((card) => {
-            return card.GetBase().getId() === this.getId()
+            return card.getBase().getId() === this.getId()
         });
     }
 
@@ -499,7 +499,7 @@ class CardTypeCategory extends BaseCard {
 
     cardsOfType(deck, type) {
         if (!deck) return [];
-        return deck.filter((c) => c.GetBase().getType() === type);
+        return deck.filter((c) => c.getBase().getType() === type);
     }
 }
 
@@ -536,6 +536,6 @@ class CardTypeCategoryWeapon extends CardTypeCategory {
 class CardTypeCategoryNumber extends CardTypeCategory {
     getDisplayName() { return 'a Number card' };
     ContainedInDeck(cards) {
-        return cards.filter((c) => c.GetBase().getHandle().startsWith('number_'));
+        return cards.filter((c) => c.getBase().getHandle().startsWith('number_'));
     }
 }

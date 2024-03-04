@@ -42,7 +42,7 @@ class CashierPage extends React.Component {
     this.props.deck.forEach((card) => {
       // TODO: (deck) argument is array of Cards.
       let cardObj = Card.Of(card);
-      if (cardObj.GetBase().isMoney()) {
+      if (cardObj.getBase().isMoney()) {
         moneyCards.push(card);
         moneyTotal += parseInt(card.game_card.sell_value);
         gameId = card.game_card.game_id;

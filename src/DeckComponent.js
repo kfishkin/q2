@@ -68,7 +68,7 @@ export class DeckComponent extends React.Component {
   }
   // and for description
   descriptionMaker(card) {
-    return card.TerselyDescribe();
+    return card.terselyDescribe();
   }
   // and for clicking on a row in the table
   onRowClick(row) {
@@ -167,7 +167,7 @@ export class DeckComponent extends React.Component {
       let row = {
         key: 'tr_' + i,
         type: gc.type,
-        typeObj: cardObj.GetBase(),
+        typeObj: cardObj.getBase(),
         display_name: this.displayNameMaker(cardObj),
         handle: gc.handle,
         level: gc.level,
@@ -241,15 +241,15 @@ export class DeckComponentMerchant extends DeckComponent {
   }
 
   displayNameMaker(card) {
-    if (card.GetBase().opaqueBeforeBuying()) {
-      return card.GetBase().opaqueDisplayName();
+    if (card.getBase().opaqueBeforeBuying()) {
+      return card.getBase().opaqueDisplayName();
     } else {
       return super.displayNameMaker(card);
     }
   }
 
   descriptionMaker(card) {
-    if (card.GetBase().opaqueBeforeBuying()) {
+    if (card.getBase().opaqueBeforeBuying()) {
       return "...buy to see details";
     } else {
         return super.descriptionMaker(card);
@@ -258,7 +258,7 @@ export class DeckComponentMerchant extends DeckComponent {
 
   onRowClick(row) {
     let card = row.cardObj;
-    if (card.GetBase().opaqueBeforeBuying()) {
+    if (card.getBase().opaqueBeforeBuying()) {
       window.alert("You can't see the details until after you buy, sorry");
     } else {
       super.onRowClick(row);

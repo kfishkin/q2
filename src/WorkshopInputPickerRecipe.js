@@ -23,12 +23,12 @@ class WorkshopInputPickerRecipe extends React.Component {
 
   makePilesAndSignal() {
     let recipeCard = this.props.machine;
-    let recipeInfo = recipeCard.GetBase().getRecipeInfo();
+    let recipeInfo = recipeCard.getBase().getRecipeInfo();
     let inputPiles = [];
     for (const i in recipeInfo.ingredients) {
       let amount = recipeInfo.amounts[i];
       let ingredBaseId = recipeInfo.ingredients[i];
-      let haves = this.props.deck.filter((c) => c.GetBase().getId() === ingredBaseId);
+      let haves = this.props.deck.filter((c) => c.getBase().getId() === ingredBaseId);
       let haveThis = (haves.length >= amount);
       let pile;
       if (haveThis) {
@@ -59,11 +59,11 @@ class WorkshopInputPickerRecipe extends React.Component {
 
   render() {
     let recipeCard = this.props.machine;
-    let recipeInfo = recipeCard.GetBase().getRecipeInfo();
+    let recipeInfo = recipeCard.getBase().getRecipeInfo();
     let numSteps = recipeInfo.ingredients.length;
 
     const preamble = () => {
-      return <span>The {recipeCard.GetBase().getDisplayName()} recipe has <b>{numSteps}</b> steps:</span>;
+      return <span>The {recipeCard.getBase().getDisplayName()} recipe has <b>{numSteps}</b> steps:</span>;
     }
 
     const stepsUI = () => {
@@ -101,7 +101,7 @@ class WorkshopInputPickerRecipe extends React.Component {
           }
           let selectOptions = candidates.map((card) => {
             return {
-              label: card.TerselyDescribe(),
+              label: card.terselyDescribe(),
               value: card.getId(),
             }
           })
