@@ -18,20 +18,20 @@ class BEGateway {
         this.beURI = newURI;
     }
 
-    
+
     async ackStory(gameId, playerId, storyId) {
         const url = this.beURI
             + "games/players/stories/ack";
         let body = {
             gameId: gameId,
             playerId: playerId,
-           storyId: storyId
-        };        
+            storyId: storyId
+        };
         const requestOptions = {
-            method: 'PUT', 
+            method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
-        }        
+        }
         const response = await fetch(url, requestOptions);
         if (!response || !response.ok) {
             return Promise.reject(`couldn't ack story ${storyId}`);
@@ -350,7 +350,7 @@ class BEGateway {
             return [];
         }
         return response.json();
-    }    
+    }
 
     async getNewsCount(gameId, playerId) {
         const url = this.beURI + "games/" + gameId
@@ -526,7 +526,7 @@ class BEGateway {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
-        }        
+        }
         try {
             const response = await fetch(url, requestOptions);
             if (response.ok) {
@@ -612,6 +612,31 @@ class BEGateway {
         } catch (e) {
             return Promise.reject(e.name + ":" + e.message);
         }
+    }
+
+    async runaway(gameId, playerId, row, col) {
+        const url = this.beURI
+            + "rooms/runaway";
+        let body = {
+            gameId, playerId, row, col
+        };
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }
+        const response = await fetch(url, requestOptions);
+        console.log(`fe.runaway: fetch returns ${response}`);
+        if (response.ok) {
+            return response.json();
+        } else {
+            let msg = await response.text();
+            return {
+                ok: false,
+                statusText: msg
+            }
+        }
+
     }
 
     async fight(gameId, playerId, row, col, armorId, weaponId) {

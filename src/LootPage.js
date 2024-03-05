@@ -25,14 +25,12 @@ class LootPage extends React.Component {
 
   componentDidMount() {
     let gameInfo = this.props.gameInfo;
-    console.log(`component did mount, owner = ${JSON.stringify(this.props.owner)}`);
     if (!this.state.deck && !this.loading) {
       this.setState({ statusMessage: `loading inventory...`, statusType: 'info' });
       console.log(`asking for inventory, game.gameId = ${gameInfo.gameId}, game._id=${gameInfo._id}, owner _id = ${this.props.owner._id}`);
       this.loading = true;
       this.props.beGateway.oldGetPlayerCardsForGame(gameInfo.gameId, this.props.owner._id)
         .then((v) => {
-          console.log(`got loot of ${JSON.stringify(v)}`);
           this.loading = false;
           let deck = v.map((dbObj) => Card.Of(dbObj));
           this.setState({ statusMessage: `loaded ${v.length}-cards of loot...`, statusType: 'success', deck: deck });

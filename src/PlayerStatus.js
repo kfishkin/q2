@@ -30,7 +30,7 @@ class PlayerStatus extends React.Component {
           bestCard = card;
         }
       });
-      let body = (bestCard) ? `best weapon (${bestValue}): ${bestCard.terselyDescribe()}`
+      let body = (bestCard && bestValue > 0) ? `best weapon (${bestValue}): ${bestCard.terselyDescribe()}`
         : `you have no weapons`;
       return <div>{body}</div>
     }
@@ -45,7 +45,7 @@ class PlayerStatus extends React.Component {
           bestCard = card;
         }
       });
-      let body = (bestCard) ? `best armor (${bestValue}): ${bestCard.terselyDescribe()}`
+      let body = (bestCard && bestValue > 0) ? `best armor (${bestValue}): ${bestCard.terselyDescribe()}`
         : `you have no armor`;
       return <div>{body}</div>
     }

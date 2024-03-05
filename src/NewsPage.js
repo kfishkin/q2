@@ -70,8 +70,8 @@ class NewsPage extends React.Component {
     switch (type) {
       case StoryTypes.AWARD:
         return <div><StoryShowerAward {...props} /></div>;
-        case StoryTypes.BROADCAST:
-          return <div><StoryShowerBroadcast {...props}/></div>
+      case StoryTypes.BROADCAST:
+        return <div><StoryShowerBroadcast {...props} /></div>
       default:
         return <div><StoryShowerComponent {...props} /></div>;
     }
@@ -124,16 +124,16 @@ class NewsPage extends React.Component {
       console.log(`onDoneWithStory: called`);
       if (!this.state.selectedStory || this.state.acking) return;
       // ask the BE to zap it.
-      this.setState({acking: true, statusMessage: 'marking story as read...', statusType: 'info'});
+      this.setState({ acking: true, statusMessage: 'marking story as read...', statusType: 'info' });
       this.props.beGateway.ackStory(this.props.gameId, this.props.playerId, this.state.selectedStory._id).then((v) => {
         console.log(`FE: ack is acked`);
-        this.setState({acking: false, statusMessage: 'story read.', statusType: 'info'});
+        this.setState({ acking: false, statusMessage: 'story read.', statusType: 'info' });
         // doesn't re-ping the BE, don't know why.
         // try this...
         this.loadNews();
       }).catch((e) => {
         console.log(e.stack);
-        this.setState({acking: false, statusMessage: `error: ${e.name}:${e.message}`, statusType: 'error'})
+        this.setState({ acking: false, statusMessage: `error: ${e.name}:${e.message}`, statusType: 'error' })
       })
     };
 

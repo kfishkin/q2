@@ -224,7 +224,7 @@ class WorkshopPage extends React.Component {
           <div className="postamble">
             <button id="machine_do" disabled={!this.state.goodToGo} onClick={(e) => onTurnCrank()}>Use it</button>
           </div>
-          <CardsModal title="A new card" open={this.state.showModal} onOk={handleOk} onCancel={handleOk}
+          <CardsModal title="Workshop" open={this.state.showModal} onOk={handleOk} onCancel={handleOk}
             cards={this.state.modalCards}
             topHtml={this.state.modalTopHtml}
             bottomHtml={this.state.modalBottomHtml}

@@ -93,7 +93,6 @@ class TopLevel extends React.Component {
         if (!playerId || !gameId)
             return;
 
-        console.log(`BE change for player ${playerId} in game ${gameId}`);
         // get the awards, i don't care about them, but the BE gateway
         // can use this to stamp the new deck of cards...
         this.state.beGateway.getAwards(gameId, playerId).then((a) => {
@@ -117,7 +116,6 @@ class TopLevel extends React.Component {
     }
 
     async onGameDeckBEChange() {
-        console.log(`onGameDeckBEChange: called)`);
         let gameId = this.state.gameInfo.gameId;
         let v = await this.state.beGateway.getGameInfo(gameId)
         let gameInfo = this.state.gameInfo;

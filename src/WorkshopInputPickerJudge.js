@@ -201,6 +201,8 @@ class WorkshopInputPickerJudge extends React.Component {
             selectBaseCards.push(baseCard);
           }
         });
+        // sort by Alpha
+        selectBaseCards.sort((bc1, bc2) => bc1.getDisplayName().localeCompare(bc2.getDisplayName()));
         let selectOptions = selectBaseCards.map((baseCard) => {
           let amount = baseCard.ContainedInDeck(this.props.deck).length;
           return {

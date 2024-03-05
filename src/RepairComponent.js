@@ -18,7 +18,6 @@ class RepairComponent extends React.Component {
   }
 
   componentDidMount() {
-    console.log(`repair page DCM: asking for prices`);
     this.props.beGateway.getArtisanPrices(this.props.gameId)
       .then((v) => {
         console.log(`repair: v = ${JSON.stringify(v)}`);

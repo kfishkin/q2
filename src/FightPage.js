@@ -136,8 +136,7 @@ class FightPage extends React.Component {
 
     let weaponCard = this.state.selectedWeapon ? this.state.selectedWeapon
       : this.makeFallback('decor_fist', nothingCard);
-    let selectedValue = this.state.selectedWeapon ? this.state.selectedWeapon.getId() : 0;
-    console.log(`weapon: weapon = ${weaponCard.getBase().getHandle()}, value = ${selectedValue}`);
+    //let selectedValue = this.state.selectedWeapon ? this.state.selectedWeapon.getId() : 0;
 
     return (
       <li>
@@ -174,7 +173,6 @@ class FightPage extends React.Component {
     let armorCard = this.state.selectedArmor ? this.state.selectedArmor
       : this.makeFallback('decor_no_armor', nothingCard);
 
-    console.log(`armorUI: armorCard = ${armorCard.getBase().getHandle()}, value = ${selectedValue}`);
 
     return (
       <li>
@@ -189,7 +187,6 @@ class FightPage extends React.Component {
 
   lowerPart() {
     const onStartFight = () => {
-      console.log(`onStartFight2: called`);
       this.setState({ statusMessage: 'fighting...', statusType: 'info', fighting: true });
 
       const onContinue = () => {
@@ -198,7 +195,21 @@ class FightPage extends React.Component {
       }
       const onRunAway = () => {
         console.log(`wants to run away!`);
-        onStartFight(); // for now.
+        let p = this.props.beGateway.runaway(this.props.gameId, this.props.playerId,
+          this.props.row, this.props.col)
+        p.then((v) => {
+          if (!v.ok) {
+            this.setState({ statusMessage: `backend error: ${v.statusMessage}`, statusType: 'error' });
+          } else {
+            let fightDialogProps = {
+              status: 'RANAWAY',
+              lost: v.lost || [],
+              open: true,
+              onEndFight: (dict) => onEndFight(dict),
+            }
+            this.setState({ fightDialogProps: fightDialogProps, showFightDialog: true });
+          }
+        });
       }
 
       const onEndFight = (dict) => {

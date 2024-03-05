@@ -10,7 +10,8 @@ import { NAV_ITEM_PAGES } from './NavMenuItemComponent';
 //
 // props:
 // open - for the dialog
-// onEndFight({reloadDeck, reloadGame, nextPage}) - after the fight ends.
+// onEndFight({reloadDeck, reloadGame, nextPage, lost}) - after the fight ends.
+//    (lost) is cards lost if ran away.
 // onRunAway() - after wanting to run away.
 // onContinue() - after wanting to fight on.
 // status - one of (WIN, CONTINUE, DEAD)
@@ -28,8 +29,10 @@ class FightRoundDialog extends React.Component {
     this.state = {
       open: props.open,
       showLoot: false,
+      ranAway: false,
     }
   }
+
   render() {
     // show the dialog no matter the status, so user can read and absorb.
     // buttons will change though.
@@ -56,9 +59,8 @@ class FightRoundDialog extends React.Component {
     }
 
     const onAlmostEnded = (endStatus) => {
-      // if I have to show loot, then show it, else I'm done.
+      // if I have to show stuff, then show it, else I'm done.
       if (endStatus.hasLoot) {
-        console.log(`pausing to show the loot`);
         this.setState({ endStatus: endStatus, showLoot: true });
       } else {
         this.setState({ open: false });
@@ -121,7 +123,12 @@ class FightRoundDialog extends React.Component {
     const continueUI = () => {
       let msg = playByPlay() + '. the fight will continue.';
       const onRunAway = () => {
-        this.setState({ open: false })
+        let endStatus = {
+          reloadDeck: true,
+          reloadGame: true,
+          nextPage: NAV_ITEM_PAGES.GAME_PAGE,
+        }
+        this.setState({endStatus});
         this.props.onRunAway();
       }
       const onFightOn = () => {
@@ -131,8 +138,10 @@ class FightRoundDialog extends React.Component {
       return (<dialog id='fight_dialog' open={this.props.open}>
         {msg}
         <hr />
-        <button className='run_away_button' onClick={(e) => onRunAway()}>run away!</button>
+        <div style={{position:'relative'}}>
+        <button className='run_away_button' title='DOUBLE-click to run away' onDoubleClick={(e) => onRunAway()}>run away!</button> <span style={{fontSize: 'smaller'}}>(double-click)</span>
         <button className='fight_on_button' onClick={(e) => onFightOn()}>Fight on!</button>
+        </div>
       </dialog>);
 
     }
@@ -153,9 +162,37 @@ class FightRoundDialog extends React.Component {
     />);
     };
 
+    const ranAwayUI = () => {
+      let lossCards = this.props.lost.map((lootDb) =>  Card.Of(lootDb));
+      let showLosses = true;
+      const doneViewingLosses = () => {
+        showLosses = false;
+        this.setState({ open: false, showLoot: false});
+        this.props.onEndFight(this.state.endStatus);        
+      }
+
+      let descr;
+      switch (lossCards.length) {
+        case 0:
+          descr = "Luckily, you lost no cards";
+          break;
+        case 1:
+          descr = "You only lost 1 card";
+          break;
+        default:
+          descr = `You lost ${lossCards.length} cards`;
+      }
+      return (
+          <CardsModal title="Ran away" open={showLosses} onOk={(e) => doneViewingLosses()} onCancel={(e) => doneViewingLosses()}
+          cards={lossCards}
+          topHtml={descr}
+          bottomHtml=""
+          baseCards={this.props.baseCards}
+        />);
+    };    
+
     if (this.state.showLoot) {
       return showLootUI();
-
     } else {
 
       switch (this.props.status) {
@@ -165,6 +202,10 @@ class FightRoundDialog extends React.Component {
           return deadUI();
         case 'CONTINUE':
           return continueUI();
+          case undefined: // happens at the start
+          return "";
+          case 'RANAWAY':
+            return ranAwayUI();
         default:
           return unknownUI();
       }
