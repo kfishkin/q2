@@ -175,7 +175,13 @@ export class BaseCard { // abstract base class
                             return new CardTypeMachine(db);
                 }
             case CARD_TYPES.RECIPE_OUTLINE: return new CardTypeRecipeOutline(db);
-            case CARD_TYPES.RECIPE: return new CardTypeRecipe(db);
+            case CARD_TYPES.RECIPE: 
+              if (db.handle.startsWith('recipe_forensics_')) {
+                return new CardTypeRecipeForensics(db);
+              } else {
+                return new CardTypeRecipe(db);
+              }
+
             case CARD_TYPES.WEAPON: return new CardTypeWeapon(db);
             case CARD_TYPES.ARMOR: return new CardTypeArmor(db);
             case CARD_TYPES.INGREDIENT: return new CardTypeIngredient(db);
@@ -188,6 +194,7 @@ export class BaseCard { // abstract base class
               switch (db.handle) {
                 case 'category_armor': return new CardTypeCategoryArmor(db);
                 case 'category_clue': return new CardTypeCategoryClue(db);
+                case 'category_gear': return new CardTypeCategoryGear(db);
                 case 'category_outline': return new CardTypeCategoryOutline(db);
                 case 'category_weapon': return new CardTypeCategoryWeapon(db);
                 case 'category_number': return new CardTypeCategoryNumber(db);
@@ -366,7 +373,7 @@ class CardTypeRecipeOutline extends BaseCard {
             let ingredDescr = ingredientString(outline.possible_ingredients[step]);
             stepDescrs.push(<li><span>{amtDescr} of {ingredDescr}</span></li>);
         }
-        return <div>The Recipe has <b>{outline.num_steps}</b> {stepWord}:<ol className="step_list">{stepDescrs}</ol></div>;
+        return <div steps={outline.num_steps}>The Recipe has <b>{outline.num_steps}</b> {stepWord}:<ol className="step_list">{stepDescrs}</ol></div>;
     }
 }
 // a Recipe card
@@ -407,6 +414,20 @@ class CardTypeRecipe extends BaseCard {
         }
         return <div className="recipe_description">The Recipe has <b>{numSteps}</b> steps:<ol className="step_list">{stepDescrs}</ol></div>;
     }    
+}
+
+class CardTypeRecipeForensics extends CardTypeRecipe {
+    altText() { return "Forensics Lab"}
+    descriptionBackgroundImageURL() {
+        return `pix/card_backgrounds/forensics.png`;
+    }
+    fullyDescribe(baseCards) {
+        return (<div>
+            Given a piece of armor or weaponry of level &le; {this.getLevel()},
+            returns a recipe outline for how to make that piece,
+            if one exists. The input is <i>destroyed</i> in the process.
+        </div>) 
+    }
 }
 
 // a Weapon card
@@ -515,6 +536,14 @@ class CardTypeCategoryClue extends CardTypeCategory {
     getDisplayName() { return 'a Clue card' };
     ContainedInDeck(cards) {
         return super.cardsOfType(cards, CARD_TYPES.CLUE);
+    }    
+}
+
+class CardTypeCategoryGear extends CardTypeCategory {
+    getDisplayName() { return 'a piece of gear' };
+    ContainedInDeck(cards) {
+        return super.cardsOfType(cards, CARD_TYPES.ARMOR).concat(super.cardsOfType(cards, CARD_TYPES.WEAPON))
+          .filter((card) => card.getLevel() <= this.getLevel());
     }    
 }
 

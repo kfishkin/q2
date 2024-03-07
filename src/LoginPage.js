@@ -185,7 +185,7 @@ class LoginPage extends React.Component {
       return (
         <div>
           <h1>Login page</h1>
-          {this.state.debugMessage ? (<div>debugMessage = ${this.state.debugMessage}</div>) : ""}
+          {this.state.debugMessage ? (<div>debugMessage = {this.state.debugMessage}</div>) : ""}
           <Form
             name="basic"
             labelCol={{

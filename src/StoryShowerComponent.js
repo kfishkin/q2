@@ -104,7 +104,9 @@ export class StoryShowerAward extends StoryShowerComponent {
       if (this.state.loading) {
         line2 = <span>It came with a reward card! Looking it up...</span>
       } else if (!this.state.prizeCard) {
-        line2 = <span>It came with a reward card! Check your inventory...</span>
+        // this happens if the prize card is no longer yours, or was deleted.
+        // TODO store this knowledge within the story.
+        line2 = <span>It came with a reward card!</span>
       } else {
         let prizeCard = Card.Of(this.state.prizeCard);
         line2 = <div><span>It came with a reward card, a <i>{prizeCard.terselyDescribe()}</i> card.</span>

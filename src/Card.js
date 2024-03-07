@@ -79,6 +79,10 @@ export class Card { // abstract base class
         return this.baseCard;
     }
 
+    getLevel() {
+        return this.baseCard.getLevel();
+    }
+    
     getScoreInfo() {
         return this.db.score_info;
     }

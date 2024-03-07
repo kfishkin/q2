@@ -189,7 +189,7 @@ class SeerComponent extends React.Component {
     const PRICE_KEY = 'crystal_ball';
     let price = this.state.prices[PRICE_KEY][level - 1];    
     // for now, prices are way too high...
-    price = Math.min(price, 20*level);
+    // price = Math.min(price, 20*level);
     let bankroll = this.props.bankroll;
     if (price > bankroll) {
       return <div>The analysis costs ${price}, but you only have ${bankroll}.</div>

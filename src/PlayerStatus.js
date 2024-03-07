@@ -46,7 +46,7 @@ class PlayerStatus extends React.Component {
         }
       });
       let body = (bestCard && bestValue > 0) ? `best armor (${bestValue}): ${bestCard.terselyDescribe()}`
-        : `you have no armor`;
+        : `you have no useful armor`;
       return <div>{body}</div>
     }
 

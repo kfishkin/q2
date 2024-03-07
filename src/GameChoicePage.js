@@ -211,7 +211,6 @@ class GameChoicePage extends React.Component {
       let preamble = <span>You have created {this.state.playerGames.length} games.</span>;
       return <div>
         <span>{preamble}</span>
-        <span>The current game looks&nbsp;</span><span current="current">like this</span>
         <Table id="games_table" columns={columns} dataSource={antInnards}
           onRow={(row) => (row.isCurrent ? { current: "current" } : {})} />
         {this.createNewGameUI(this.props.playerInfo)}

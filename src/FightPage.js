@@ -298,7 +298,8 @@ class FightPage extends React.Component {
     let weaponCards = this.props.deck.filter((c) => c.getBase().getRawWeaponValue() > 0);
     let lifeCards = this.props.deck.filter((c) => c.getBase().isLife());
     let numLives = lifeCards.length;
-    let lifeMsg;
+    let lifeMsg = "";
+    /*
     switch (numLives) {
       case 0: lifeMsg = "You are dead!"; break;
       case 1: lifeMsg = <span className='warning'>You only have 1 life to live. If the monster gets through your armor, you will die!</span>;
@@ -306,6 +307,7 @@ class FightPage extends React.Component {
       default:
         lifeMsg = <span>You have {numLives} lives. If the monster gets through your armor, you will have {numLives - 1} left</span>;
     }
+    */
 
     return (<div>
       <div className='fight_header' affinity={this.props.room.affinity}>

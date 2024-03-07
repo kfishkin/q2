@@ -116,7 +116,7 @@ class WorkshopInputPickerRecipe extends React.Component {
         </li>)
       }
 
-      return <ol>{steps}</ol>;
+      return <ol className='step_list'>{steps}</ol>;
     }
 
 
