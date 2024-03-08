@@ -610,6 +610,11 @@ div.trophy[have] {
   background-image: url('../public/pix/general/blue_ribbon_yes.png');
 }
 
+div.trophy[have][which="8"] {
+  color: black;
+  background-image: url('../public/pix/trophy_backgrounds/made_yes.png');
+}
+
 div.trophy[have][which="9"] {
   color: black;
   background-image: url('../public/pix/trophy_backgrounds/buying_yes.png');
