@@ -68,7 +68,7 @@ class LootPage extends React.Component {
 
     let transferrable = (this.state.deck !== null && this.state.deck.length > 0);
     if (this.state.deck !== null && this.state.deck.length === 0) {
-      return <div>Sorry, there was no treasure left in the room.<br/>(click on 'Game' to return to the map)</div>
+      return <div>An empty room.<br/>(click on 'Game' to return to the map)</div>
     }
     /*
               <CardsModal title="A new card" open={this.state.showModal} onOk={handleOk} onCancel={handleOk}

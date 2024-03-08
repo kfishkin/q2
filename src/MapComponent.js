@@ -81,7 +81,7 @@ class MapComponent extends React.Component {
                 window.confirm('The room is empty');
                 break;
               case 'LOOT':
-                window.confirm("You may have found some treasure!");
+                //window.confirm("You may have found some treasure!");
                 owner = v[1]; // the pseudo-player who owns the loot.
                 this.props.onPlantFlag(row, col);
                 showPageFunc(NAV_ITEM_PAGES.LOOT_PAGE, { owner: owner });
@@ -91,7 +91,7 @@ class MapComponent extends React.Component {
                 showPageFunc(NAV_ITEM_PAGES.MERCHANT_PAGE, { owner: owner });
                 break;
               case 'MONSTER':
-                window.confirm('there is a monster here!');
+                //window.confirm('there is a monster here!');
                 showPageFunc(NAV_ITEM_PAGES.FIGHT_PAGE, { row, col});
                 break;
               case 'UNREACHABLE':

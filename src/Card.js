@@ -87,6 +87,16 @@ export class Card { // abstract base class
         return this.db.score_info;
     }
 
+    getAffinity() {
+        if (this.db.armor_info) {
+            return this.db.armor_info.affinity;
+        } else if (this.db.weapon_info) {
+            return this.db.weapon_info.affinity;
+        } else {
+            return this.baseCard.getAffinity();
+        }
+    }
+
     getArmorWear() {
         return (this.db && this.db.armor_info && ('wear' in this.db.armor_info))
             ? this.db.armor_info.wear : 0;

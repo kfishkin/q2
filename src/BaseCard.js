@@ -1,3 +1,4 @@
+import { Affinities, AffinityLabels } from "./Affinities";
 // this must match the similar enum in the BE
 export const CARD_TYPES = {
     NONE: 0,
@@ -115,6 +116,8 @@ export class BaseCard { // abstract base class
     }
     isLife() { return false; }
 
+    isRecipe() { return false; }
+
     isSellable() {
         return ('sellable' in this.db) ? this.db.sellable : true;
     }
@@ -138,6 +141,11 @@ export class BaseCard { // abstract base class
     getNumInputs() {
         return 0;
     }
+
+    getRecipe() {
+        return null;
+    }
+
     getRecipeOutline() {
         return null;
     }
@@ -192,6 +200,10 @@ export class BaseCard { // abstract base class
             case CARD_TYPES.NUMBER: return new CardTypeNumber(db);
             case CARD_TYPES.CATEGORY: 
               switch (db.handle) {
+                case 'category_affinity_air': return new CardTypeCategoryAffinity(Affinities.AIR(db));
+                case 'category_affinity_earth': return new CardTypeCategoryAffinity(Affinities.EARTH(db));
+                case 'category_affinity_fire': return new CardTypeCategoryAffinity(Affinities.FIRE(db));
+                case 'category_affinity_ice': return new CardTypeCategoryAffinity(Affinities.ICE(db));
                 case 'category_armor': return new CardTypeCategoryArmor(db);
                 case 'category_clue': return new CardTypeCategoryClue(db);
                 case 'category_gear': return new CardTypeCategoryGear(db);
@@ -386,6 +398,13 @@ class CardTypeRecipe extends BaseCard {
     descriptionBackgroundImageURL() {
         return `pix/card_backgrounds/recipe.png`;
     }
+    getRecipe() {
+        return this.db.recipe;
+    }
+    
+    isRecipe() {
+        return true;
+    }
     opaqueBeforeBuying() {
         return true;
     }
@@ -521,6 +540,18 @@ class CardTypeCategory extends BaseCard {
     cardsOfType(deck, type) {
         if (!deck) return [];
         return deck.filter((c) => c.getBase().getType() === type);
+    }
+}
+
+class CardTypeCategoryAffinity extends CardTypeCategory {
+    constructor(db, affinity) {
+        super(db);
+        this.affinity = affinity;
+    }
+
+    get DisplayName() { return `gear with ${AffinityLabels[this.affinity]} affinity`}
+    ContainedInDeck(cards) {
+        return cards.filter((card) => card.getAffinity() === this.affinity);
     }
 }
 

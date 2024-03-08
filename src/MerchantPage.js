@@ -5,6 +5,7 @@ import StatusMessage from './StatusMessage';
 import { DeckComponent, DeckComponentMerchant } from './DeckComponent';
 import RepairComponent from './RepairComponent';
 import SeerComponent from './SeerComponent';
+import ShopperComponent from './ShopperComponent';
 
 // props
 // owner: the player structure for the merchant that owns this shop.
@@ -16,7 +17,8 @@ const Action = {
   BUYING: 0,
   SELLING: 1,
   BLACKSMITH: 2,
-  SEER: 3
+  SEER: 3,
+  SHOPPER: 4
 }
 
 class MerchantPage extends React.Component {
@@ -207,6 +209,7 @@ class MerchantPage extends React.Component {
       let selling = this.state.action === Action.SELLING;
       let repairing = this.state.action === Action.BLACKSMITH;
       let seeing = this.state.action === Action.SEER;
+      let shopping = this.state.action === Action.SHOPPER;
 
       let bankroll = 0;
       this.props.playerInfo.deck.forEach((card) => {
@@ -221,6 +224,7 @@ class MerchantPage extends React.Component {
         <button className="merchant" current={selling ? "yes" : "no"} onClick={(e) => setAction(Action.SELLING)}>Sell</button>
         <button className="merchant" current={repairing ? "yes" : "no"} onClick={(e) => setAction(Action.BLACKSMITH)}>Repair</button>
         <button className="merchant" current={seeing ? "yes" : "no"} onClick={(e) => setAction(Action.SEER)}>Use Clue</button>
+        <button className="merchant" current={shopping ? "yes" : "no"} onClick={(e) => setAction(Action.SHOPPER)}>Personal Shopper</button>
       </div>);
 
     }
@@ -230,14 +234,15 @@ class MerchantPage extends React.Component {
     let selling = this.state.action === Action.SELLING;
     let repairing = this.state.action === Action.BLACKSMITH;
     let seeing = this.state.action === Action.SEER;
+    let shopping = this.state.action === Action.SHOPPER;
     // TODO: remove once playerInfo.deck is real cards.
     let deckObjs = this.props.playerInfo.deck.map((dbObj) => Card.Of(dbObj));
     deckObjs = deckObjs.filter((c) => c.getBase().isSellable());
 
     const closeDialog = () => {
-      this.setState({showDialog: false});
+      this.setState({ showDialog: false });
     }
-    
+
     return <div>Hello from the merchant page for merchant {this.props.owner.name}'s store.
       <br />{showModalUI()}
       <DeckComponentMerchant deck={this.state.merchantDeck} baseCards={this.props.gameInfo.baseCards} current={buying ? "yes" : "no"}
@@ -254,12 +259,19 @@ class MerchantPage extends React.Component {
         baseCards={this.props.gameInfo.baseCards}
         bankroll={this.state.bankroll}
         onTransact={(cards) => this.onStartCluing(cards)} />
-        <CardsModal title="Clue results" open={this.state.showDialog} onOk={closeDialog} onCancel={closeDialog}
-          cards={this.state.dialogCards}
-          topHtml={this.state.dialogTop}
-          bottomHtml=""
-          baseCards={this.props.gameInfo.baseCards}
-        />
+      <CardsModal title="Clue results" open={this.state.showDialog} onOk={closeDialog} onCancel={closeDialog}
+        cards={this.state.dialogCards}
+        topHtml={this.state.dialogTop}
+        bottomHtml=""
+        baseCards={this.props.gameInfo.baseCards}
+      />
+      <ShopperComponent deck={deckObjs} current={shopping ? "yes" : "no"}
+        beGateway={this.props.beGateway}
+        gameId={this.props.gameInfo.gameId}
+        baseCards={this.props.gameInfo.baseCards}
+        bankroll={this.state.bankroll}
+        onStartSell={(cards) => this.onStartSell(cards)}
+      />
       <StatusMessage message={this.state.statusMessage} type={this.state.statusType}
       />
     </div>;
