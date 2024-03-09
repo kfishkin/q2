@@ -1,5 +1,6 @@
 
 
+import { Affinities, AffinityLabels } from './Affinities';
 import StepDisplay from './StepDisplay';
 import dayjs from 'dayjs';
 const BaseCard = require('./BaseCard');
@@ -244,16 +245,17 @@ class CardWeapon extends Card {
         }
     }
     fullyDescribe(baseCards) {
-        if (this.getWeaponWear() === 0) {
-            return super.fullyDescribe(baseCards);
+        let parts = []; // build it up.
+        parts.push(<span><b>{this.getBase().getDisplayName()}</b>, weapon value <b>{this.getBase().getRawWeaponValue()}</b>.</span>)
+        let wear = this.getWeaponWear();
+        if (wear > 0) {
+            parts.push(<span>knocked down to <b>{this.getNetWeaponValue()}</b> by wear of <span class='wear_damage'>{wear}</span></span>)
         }
-        let base = this.getBase();
-        return (<div>
-            <hr />
-            <span><b>{base.getDisplayName()}</b> card: {base.getDescription()}.</span>
-            <hr />
-            <span>worth {base.getRawWeaponValue()}, but has wear damage of </span><span class="wear_damage">{this.getWeaponWear()}</span>
-        </div>);
+        let affinity = this.getAffinity()||Affinities.NONE;
+        if (affinity !== Affinities.NONE) {
+            parts.push(<div><hr/><span>Enchanted to <span class='affinity'>{AffinityLabels[affinity]} affinity</span></span></div>);
+        }
+        return <div>{parts}</div>;
     }
 }
 

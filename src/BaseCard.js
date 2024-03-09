@@ -39,6 +39,10 @@ export class BaseCard { // abstract base class
         });
     }
 
+    getAffinity() {
+        return this.db.affinity;
+    }
+    
     getType() {
         return this.type;
     }

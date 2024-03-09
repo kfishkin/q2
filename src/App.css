@@ -639,6 +639,11 @@ div.trophy[have][which="26"] {
   background-image: url('../public/pix/trophy_backgrounds/runaway_yes.png');
 }
 
+span.affinity {
+  font-weight: bold;
+  font-style: italic;
+}
+
 span.map_biome_label {
   text-transform: capitalize;
   font-weight: bold;

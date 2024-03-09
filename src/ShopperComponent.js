@@ -39,8 +39,19 @@ class ShopperComponent extends React.Component {
         // sigh. English.
         let preamble = (learnings.length === 1) ? "There is 1 Learning card"
           : `There are ${learnings.length} Learning cards `;
-        sellDescrs.push(<li>{preamble} that you used to learn the {recipeDescr} descr recipe: no longer needed.</li>)
-      }
+        sellDescrs.push(<li>{preamble} that you used to learn the '{recipeDescr}' recipe: no longer needed.</li>)
+      };
+      // same thing, but for outlines.
+      let outlines = this.props.deck.filter((card) => card.getBase().getRecipeOutline() && card.getBase().getId() === outlineBaseId);
+      outlines.forEach((outlineCard) => {
+        sellCards.push(outlineCard);
+      })
+      if (outlines.length > 0) {
+        // sigh. English.
+        let preamble = (outlines.length === 1) ? "There is 1 Recipe Outline card"
+          : `There are ${outlines.length} Recipe Outline cards `;
+        sellDescrs.push(<li>{preamble} that you used to learn the '{recipeDescr}' recipe: no longer needed.</li>)
+      };
     })
     if (sellDescrs.length === 0) {
       return (<div>
