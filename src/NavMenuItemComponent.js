@@ -90,6 +90,9 @@ export class NavMenuItemCashier extends NavMenuItemComponent {
 }
 
 export class NavMenuItemTrophies extends NavMenuItemComponent {
+  isEnabledNow() {
+    return this.props.haveGame && !this.props.fighting;
+  }
   pageDescriptor() { return NAV_ITEM_PAGES.TROPHY_PAGE }
   sideBarText() {
     return "Trophies"
