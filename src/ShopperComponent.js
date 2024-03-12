@@ -25,7 +25,6 @@ class ShopperComponent extends React.Component {
     // for recipes they already know can be tossed.
     let disabled = true;
     let recipes = this.props.deck.filter((card) => card.getBase().isRecipe());
-    console.log(`recipes.length = ${recipes.length}`);
     let sellDescrs = [];
     let sellCards = [];
     recipes.forEach((recipeCard) => {

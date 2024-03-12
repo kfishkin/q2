@@ -1,4 +1,4 @@
-import { Affinities, AffinityLabels } from "./Affinities";
+import { Affinities, AffinityByName, AffinityLabels, AffinityLevels } from "./Affinities";
 // this must match the similar enum in the BE
 export const CARD_TYPES = {
     NONE: 0,
@@ -190,6 +190,17 @@ export class BaseCard { // abstract base class
             case CARD_TYPES.RECIPE: 
               if (db.handle.startsWith('recipe_forensics_')) {
                 return new CardTypeRecipeForensics(db);
+              } else if (db.handle.startsWith('recipe_mastery_')) {
+                // recipe_mastery_<level>_<affinity>
+                let lastSep = db.handle.lastIndexOf('_');
+                let affStr = db.handle.slice(lastSep + 1);
+                let affinity = AffinityByName[affStr.toLowerCase()];
+                let nub = db.handle.substring(0, lastSep);
+                lastSep = nub.lastIndexOf('_');
+                let levelStr = nub.slice(lastSep + 1);
+                let level = parseInt(levelStr);
+                return new CardTypeRecipeMastery(db, level, affinity);
+
               } else {
                 return new CardTypeRecipe(db);
               }
@@ -204,10 +215,10 @@ export class BaseCard { // abstract base class
             case CARD_TYPES.NUMBER: return new CardTypeNumber(db);
             case CARD_TYPES.CATEGORY: 
               switch (db.handle) {
-                case 'category_affinity_air': return new CardTypeCategoryAffinity(Affinities.AIR(db));
-                case 'category_affinity_earth': return new CardTypeCategoryAffinity(Affinities.EARTH(db));
-                case 'category_affinity_fire': return new CardTypeCategoryAffinity(Affinities.FIRE(db));
-                case 'category_affinity_ice': return new CardTypeCategoryAffinity(Affinities.ICE(db));
+                case 'category_affinity_air': return new CardTypeCategoryAffinity(db,Affinities.AIR);
+                case 'category_affinity_earth': return new CardTypeCategoryAffinity(db,Affinities.EARTH);
+                case 'category_affinity_fire': return new CardTypeCategoryAffinity(db,Affinities.FIRE);
+                case 'category_affinity_ice': return new CardTypeCategoryAffinity(db, Affinities.ICE);
                 case 'category_armor': return new CardTypeCategoryArmor(db);
                 case 'category_clue': return new CardTypeCategoryClue(db);
                 case 'category_gear': return new CardTypeCategoryGear(db);
@@ -450,6 +461,38 @@ class CardTypeRecipeForensics extends CardTypeRecipe {
             returns a recipe outline for how to make that piece,
             if one exists. The input is <i>destroyed</i> in the process.
         </div>) 
+    }
+}
+
+class CardTypeRecipeMastery extends CardTypeRecipe {
+    constructor(db, level, affinity) {
+        super(db);
+        this.level = level;
+        this.affinity = affinity || Affinities.NONE;
+        this.affinityName = AffinityLabels[this.affinity];
+    }
+    altText() { return `Level ${this.level} ${this.affinityName} mastery`}
+    descriptionBackgroundImageURL() {
+        return `pix/card_backgrounds/mastery_${this.affinityName.toLowerCase()}.png`;
+    }
+
+    fullyDescribe(baseCards) {
+        const MAX_LEVEL = 6;
+        if (this.level === MAX_LEVEL) {
+            return (<div>
+                You are a <b>{AffinityLevels[this.level]}</b> <i>{this.affinityName}</i> crafter.
+                <br/>Use this card as a recipe, giving it a level {this.level} piece of gear
+                that you have made and enchanted to this affinity by yourself, to get
+                a Dragon Egg of {this.affinityName}
+            </div>)
+        }
+        return (<div>
+            <span>You are a level {this.level} <b>({AffinityLevels[this.level]})</b> <i>{this.affinityName}</i> crafter.</span>
+            <span>To advance to the next level ({AffinityLevels[this.level + 1]}),</span>
+            <span>use this card as a recipe, giving it a level {this.level} piece of gear
+            that you have made and enchanted to this affinity.</span>
+            <span>At {AffinityLevels[MAX_LEVEL]} mastery, you can craft a dragon's egg!</span>
+        </div>)
     }
 }
 

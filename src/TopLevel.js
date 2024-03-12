@@ -6,7 +6,7 @@ import { BaseCard } from './BaseCard';
 import BEGateway from './BEGateway';
 import Card from './Card';
 import CashierPage from './CashierPage';
-import ErrorBoundary from './ErrorBoundary';
+//import ErrorBoundary from './ErrorBoundary';
 import FightPage from './FightPage';
 import GamePage from './GamePage';
 import GameChoicePage from './GameChoicePage';
@@ -171,7 +171,7 @@ class TopLevel extends React.Component {
                     // and load the deck..
                     this.onPlayerDeckBEChange();
                 }).catch((e) => {
-                    console.log(`getGameInfo: e = ${e}, ${JSON.stringify(e)}`);
+                    console.log(`getGameInfo: e = ${e}, ${e.name}:${e.message}, ${e.stack}`);
                 })
             });
     }
@@ -182,21 +182,21 @@ class TopLevel extends React.Component {
         let deckObjs = (this.state.playerInfo && this.state.playerInfo.deck) ? this.state.playerInfo.deck.map((db) => Card.Of(db)) : [];
         switch (this.state.currentPage) {
             case NAV_ITEM_PAGES.CASHIER_PAGE:
-                ans = <ErrorBoundary which="cashier"><CashierPage beGateway={this.state.beGateway}
+                ans = <CashierPage beGateway={this.state.beGateway}
                     deck={this.state.playerInfo.deck} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
-                    baseCards={this.state.gameInfo.baseCards} /></ErrorBoundary>
+                    baseCards={this.state.gameInfo.baseCards} />
                 break;
             case NAV_ITEM_PAGES.LOGIN_PAGE:
-                ans = <ErrorBoundary which="login"><LoginPage beGateway={this.state.beGateway} onLogin={(id, handle, name) => this.onLogin(id, handle, name)}
+                ans = <LoginPage beGateway={this.state.beGateway} onLogin={(id, handle, name) => this.onLogin(id, handle, name)}
                     onLogout={() => this.onLogout()}
-                    playerInfo={this.state.playerInfo}></LoginPage></ErrorBoundary>;
+                    playerInfo={this.state.playerInfo}></LoginPage>;
                 break;
             case NAV_ITEM_PAGES.FIGHT_PAGE:
                 {
                     let row = this.state.extra.row;
                     let col = this.state.extra.col;
                     let room = this.state.gameInfo.map.rooms[row][col];
-                    ans = <ErrorBoundary which="fight"><FightPage room={room} deck={deckObjs}
+                    ans = <FightPage room={room} deck={deckObjs}
                         baseCards={this.state.gameInfo.baseCards}
                         beGateway={this.state.beGateway}
                         row={row} col={col}
@@ -205,21 +205,21 @@ class TopLevel extends React.Component {
                         onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
                         onGameDeckBEChange={() => this.onGameDeckBEChange()}
                         showPageFunc={(which, extra) => this.handleShowPage(which, extra)}
-                    /></ErrorBoundary>;
+                    />;
                 }
                 break;
             case NAV_ITEM_PAGES.GAME_ADMIN_PAGE:
-                ans = <ErrorBoundary which="game_admin"><GameChoicePage playerInfo={this.state.playerInfo} beGateway={this.state.beGateway}
+                ans = <GameChoicePage playerInfo={this.state.playerInfo} beGateway={this.state.beGateway}
                     gameInfo={this.state.gameInfo}
                     onSetCurrentGame={(gameId, gameName) => this.onSetCurrentGame(gameId, gameName)}
                     onUnloadCurrentGame={() => this.onUnloadCurrentGame()}>
-                </GameChoicePage></ErrorBoundary>
+                </GameChoicePage>
                 break;
             case NAV_ITEM_PAGES.GAME_PAGE:
-                ans = <ErrorBoundary which="game"><GamePage playerInfo={this.state.playerInfo} gameInfo={this.state.gameInfo} beGateway={this.state.beGateway}
+                ans = <GamePage playerInfo={this.state.playerInfo} gameInfo={this.state.gameInfo} beGateway={this.state.beGateway}
                     showPageFunc={(which, extra) => this.handleShowPage(which, extra)}
                     onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
-                    onPlantFlag={(row, col) => this.onPlantFlag(row, col)} /></ErrorBoundary>
+                    onPlantFlag={(row, col) => this.onPlantFlag(row, col)} />
                 break;
             case NAV_ITEM_PAGES.MERCHANT_PAGE:
                 // the only owner at present is the shop owner at xy (0,0)
@@ -232,34 +232,34 @@ class TopLevel extends React.Component {
                     let col = map.width >> 1;
                     owner = map.rooms[row][col].owner;
                 }
-                ans = <ErrorBoundary which="merchant"><MerchantPage owner={owner} beGateway={this.state.beGateway}
+                ans = <MerchantPage owner={owner} beGateway={this.state.beGateway}
                     gameInfo={this.state.gameInfo} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
-                    playerInfo={this.state.playerInfo} /></ErrorBoundary>;
+                    playerInfo={this.state.playerInfo} />;
                 break;
             case NAV_ITEM_PAGES.TROPHY_PAGE:
-                ans = <ErrorBoundary which="trophy"><TrophyPage beGateway={this.state.beGateway}
+                ans = <TrophyPage beGateway={this.state.beGateway}
                     gameId={this.state.gameInfo.gameId}
-                    playerId={this.state.playerInfo.playerId} /></ErrorBoundary>
+                    playerId={this.state.playerInfo.playerId} />
                 break;
             case NAV_ITEM_PAGES.WORKSHOP_PAGE:
-                ans = <ErrorBoundary which="workshop"><WorkshopPage beGateway={this.state.beGateway}
+                ans = <WorkshopPage beGateway={this.state.beGateway}
                     gameInfo={this.state.gameInfo} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
                     baseCards={this.state.gameInfo.baseCards}
-                    playerInfo={this.state.playerInfo} /></ErrorBoundary>;
+                    playerInfo={this.state.playerInfo} />;
                 break;
             case NAV_ITEM_PAGES.LOOT_PAGE:
-                ans = <ErrorBoundary which="loot"><LootPage owner={this.state.extra.owner} beGateway={this.state.beGateway}
-                    gameInfo={this.state.gameInfo} playerId={this.state.playerInfo.playerId} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()} /></ErrorBoundary>;
+                ans = <LootPage owner={this.state.extra.owner} beGateway={this.state.beGateway}
+                    gameInfo={this.state.gameInfo} playerId={this.state.playerInfo.playerId} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()} />;
                 break;
             case NAV_ITEM_PAGES.HOME_PAGE:
-                ans = <ErrorBoundary which="home"><div>Welcome! Pick an option on the left...</div></ErrorBoundary>;
+                ans = <div>Welcome! Pick an option on the left...</div>;
                 break;
             case NAV_ITEM_PAGES.NEWS_PAGE:
-                ans = <ErrorBoundary which="news"><NewsPage beGateway={this.state.beGateway}
-                    gameId={this.state.gameInfo.gameId} baseCards={this.state.gameInfo.baseCards} playerId={this.state.playerInfo.playerId} /></ErrorBoundary>;
+                ans = <NewsPage beGateway={this.state.beGateway}
+                    gameId={this.state.gameInfo.gameId} baseCards={this.state.gameInfo.baseCards} playerId={this.state.playerInfo.playerId} />;
                 break;
             default:
-                ans = <ErrorBoundary which="dflt"><div>unknown current page '{this.state.currentPage}'</div></ErrorBoundary>;
+                ans = <div>unknown current page '{this.state.currentPage}'</div>;
                 break;
 
         }
@@ -297,7 +297,6 @@ class TopLevel extends React.Component {
                     <div className="header_detail"><p>{headerText}</p></div>
                 </Header>
                 <Layout>
-                    <ErrorBoundary which="sider">
                     <Sider><div className="sider">
                         <PlayerStatus playerId={this.state.playerInfo ? this.state.playerInfo.playerId : null}
                           deck={haveDeck ? deckObjs : null} />
@@ -318,7 +317,6 @@ class TopLevel extends React.Component {
                     <div style={{backgroundColor: 'white'}}>
                     </div>
                     </Sider>
-                    </ErrorBoundary>
                     <Content>{this.renderContent()}</Content>
                 </Layout>
                 <Footer style={{ 'textAlign': 'left' }}><span>Q2 version {VERSION}</span></Footer>

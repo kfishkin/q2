@@ -4,6 +4,7 @@ import Card from './Card';
 import CardDetail from './CardDetail';
 import StatusMessage from './StatusMessage';
 import CardsModal from './CardsModal';
+import { Affinities, AffinityLabels } from './Affinities';
 
 // props:
 // deck - array of cards
@@ -128,7 +129,7 @@ export class DeckComponent extends React.Component {
     let preamble = <span>{msg} deck has {deck.length} cards, click on one to see it in more detail:</span>;
     let columns = [
       {
-        title: 'title', dataIndex: 'display_name',
+        title: 'name', dataIndex: 'display_name',
         sorter: (row1, row2) => row1.display_name.localeCompare(row2.display_name)
       },
       {
@@ -153,6 +154,15 @@ export class DeckComponent extends React.Component {
         sorter: (row1, row2) => row1.description.localeCompare(row2.description)
       },
       {
+        title: 'affinity', dataIndex: 'affinity',
+        sorter: (row1, row2) => row1.affinity - row2.affinity,
+        render: (val) => AffinityLabels[val]
+      },
+      {
+        title: 'you made?', dataIndex: 'youmade',
+        sorter: (row1, row2) => row1.youmade.localeCompare(row2.youmade),
+      },
+      {
         title: 'obtained', dataIndex: 'obtained',
         sorter: (row1, row2) => row1.obtainedMillis - row2.obtainedMillis
       },      
@@ -175,14 +185,15 @@ export class DeckComponent extends React.Component {
         card: card,
         cardObj: cardObj,
         obtained: obtainedDate.toLocaleString(),
-        obtainedMillis: obtainedDate.valueOf()
+        obtainedMillis: obtainedDate.valueOf(),
+        youmade: (card.makers_mark ? 'yes' : 'no'),
+        affinity: cardObj.getAffinity() || Affinities.NONE,
       };
       let tuple = this.valueDataMaker(card);
       row[tuple[0]] = tuple[1];
       return row;
     });
     const onOk= () => {
-      console.log(`confirmed you want to do the transaction`);
       this.setState({showModal: false});
       this.props.onTransact(this.state.selectedCards);
       this.rowSelectionController.onChange([], []); // clear the selection.

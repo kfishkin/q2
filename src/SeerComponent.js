@@ -55,6 +55,10 @@ class SeerComponent extends React.Component {
     let detailCard = null; // less confusing in the drop-downs
     let stepCards = [];
     Object.values(this.props.baseCards).forEach((bc) => {
+      if (!bc.getHandle()) {
+        console.log(`no handle on ${JSON.stringify(bc)}`);
+        return;
+      }
       if (!bc.getHandle().startsWith('number_')) return;
       let val = bc.getHandle().slice('number_'.length);
       let key = parseInt(val);

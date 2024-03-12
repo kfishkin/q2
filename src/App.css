@@ -96,6 +96,13 @@ div.card_face_prize_image {
   z-index: 0;
 }
 
+div.card_face_madeby_image {
+  position: absolute;
+  top: 8px;
+  right: 40px;
+  z-index: 0;
+}
+
 div.card_face_level_image {
   position: absolute;
   top: 0;

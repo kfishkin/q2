@@ -83,7 +83,7 @@ export class Card { // abstract base class
     getLevel() {
         return this.baseCard.getLevel();
     }
-    
+
     getScoreInfo() {
         return this.db.score_info;
     }
@@ -222,16 +222,21 @@ class CardArmor extends Card {
         }
     }
     fullyDescribe(baseCards) {
-        if (this.getArmorWear() === 0) {
-            return super.fullyDescribe(baseCards);
+        let parts = []; // build it up.
+        parts.push(<span><b>{this.getBase().getDisplayName()}</b>, armor value <b>{this.getBase().getRawArmorValue()}</b>.</span>)
+        let wear = this.getArmorWear();
+        if (wear > 0) {
+            parts.push(<span>knocked down to <b>{this.getNetArmorValue()}</b> by wear of <span class='wear_damage'>{wear}</span></span>)
         }
-        let base = this.getBase();
-        return (<div>
-            <hr />
-            <span><b>{base.getDisplayName()}</b> card: {base.getDescription()}.</span>
-            <hr />
-            <span>worth {base.getRawArmorValue()}, but has wear damage of </span><span class="wear_damage">{this.getArmorWear()}</span>
-        </div>);
+        let affinity = this.getAffinity() || Affinities.NONE;
+        if (affinity !== Affinities.NONE) {
+            parts.push(<div><hr /><span>Enchanted to <span class='affinity'>{AffinityLabels[affinity]} affinity</span></span></div>);
+        }
+        let mark = this.getDb().makers_mark;
+        if (mark && mark.when) {
+            parts.push(<div><hr /><span>You made this on {dayjs(mark.when).format("LL")}</span></div>);
+        }
+        return <div>{parts}</div>;
     }
 }
 
@@ -251,9 +256,14 @@ class CardWeapon extends Card {
         if (wear > 0) {
             parts.push(<span>knocked down to <b>{this.getNetWeaponValue()}</b> by wear of <span class='wear_damage'>{wear}</span></span>)
         }
-        let affinity = this.getAffinity()||Affinities.NONE;
+        let affinity = this.getAffinity() || Affinities.NONE;
         if (affinity !== Affinities.NONE) {
-            parts.push(<div><hr/><span>Enchanted to <span class='affinity'>{AffinityLabels[affinity]} affinity</span></span></div>);
+            parts.push(<div><hr /><span>Enchanted to <span class='affinity'>{AffinityLabels[affinity]} affinity</span></span></div>);
+        }
+        let mark = this.getDb().makers_mark;
+        if (mark && mark.when) {
+            parts.push(<div><hr /><img src="pix/general/hammer_and_anvil.png" width="32" title="You made this" alt="You made this" />
+            <span>You made this on {dayjs(mark.when).format("LL")}</span></div>);
         }
         return <div>{parts}</div>;
     }

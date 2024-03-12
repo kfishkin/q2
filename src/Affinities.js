@@ -14,4 +14,24 @@ labelDict[Affinities.AIR] = 'Air';
 labelDict[Affinities.FIRE] = 'Fire';
 labelDict[Affinities.ICE] = 'Ice';
 
+var affinityByName = {};
+Object.entries(labelDict).forEach((tuple) => {
+    let key = tuple[0];
+    let val = tuple[1];
+    affinityByName[val.toLowerCase()] = key;
+    affinityByName[val.toUpperCase()] = key;
+    affinityByName[val] = key;
+})
+export const AffinityByName = affinityByName;
+
 export const AffinityLabels = labelDict;
+
+export const AffinityLevels = {
+    0: 'None',
+    1: 'Novice',
+    2: 'Apprentice',
+    3: 'Adept',
+    4: 'Expert',
+    5: 'Master',
+    6: 'Grand Master'
+};
