@@ -87,18 +87,18 @@ class FightPage extends React.Component {
 
   monsterUI(monsterCard) {
     if (monsterCard.getBase().isNothing()) {
-      return (<li>
+      return (<div>
         The Monster is dead!
         <br />
         <CardDetail card={monsterCard} baseCards={this.props.baseCards} />
-      </li>);
+      </div>);
 
     } else {
-      return (<li>
+      return (<div>
         The Monster is a level {monsterCard.getBase().getLevel()} <b>{monsterCard.getBase().getDisplayName()}</b>
         <br />
         <CardDetail card={monsterCard} baseCards={this.props.baseCards} />
-      </li>);
+      </div>);
     }
   }
 
@@ -139,13 +139,13 @@ class FightPage extends React.Component {
     //let selectedValue = this.state.selectedWeapon ? this.state.selectedWeapon.getId() : 0;
 
     return (
-      <li>
+      <span>
         choose your weapon: <select style={{ width: 200 }} onChange={(val) => onWeaponChoice(val)}>
           {htmlOpts}
         </select>
         <br />
         <CardDetail card={weaponCard} baseCards={this.props.baseCards} />
-      </li>)
+      </span>)
   }
 
   armorUI(armorCards, nothingCard) {
@@ -175,17 +175,17 @@ class FightPage extends React.Component {
 
 
     return (
-      <li>
+      <span>
         choose your armor: <select style={{ width: 200 }} value={selectedValue}
           onChange={(val) => onArmorChoice(val)} >
           {htmlOpts}
         </select>
         <br />
         <CardDetail card={armorCard} baseCards={this.props.baseCards} />
-      </li>)
+      </span>)
   }
 
-  lowerPart() {
+  buttonPart() {
     const onStartFight = () => {
       this.setState({ statusMessage: 'fighting...', statusType: 'info', fighting: true });
 
@@ -318,19 +318,20 @@ class FightPage extends React.Component {
       </div>
 
       <div className='fight_outer' >
-        <div className='news_half'>
-          <ul className='fight_room'>
-            {this.monsterUI(monsterCard)}
-            {this.weaponUI(weaponCards, nothingCard)}
-            {this.armorUI(armorCards, nothingCard)}
-          </ul>
-        </div>
-        <div className='news_half'>
-          {this.lowerPart()}
-        </div>
-      </div>
+        <table>
+          <tbody>
+            <tr className='fight_top_row'>
+              <td>{this.weaponUI(weaponCards, nothingCard)}</td>
+              <td className='fight_rhs'>{this.buttonPart()}<br/></td>
+            </tr>
+            <tr className='fight_bottom_row'>
+            <td>{this.armorUI(armorCards, nothingCard)}</td>
+            <td className='fight_rhs'>{this.monsterUI(monsterCard)}</td>
+            </tr>
+          </tbody>
+        </table>
       <StatusMessage message={this.state.statusMessage} type={this.state.statusType} />
-
+      </div>
     </div>
     )
   }

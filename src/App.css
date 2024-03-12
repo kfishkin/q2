@@ -530,6 +530,19 @@ div.fight_header {
   background-clip: border-box;
 }
 
+tr.fight_top_row {
+  vertical-align: bottom;
+}
+
+tr.fight_bottom_row {
+  vertical-align: top;
+}
+
+td.fight_rhs {
+  padding-left: 2em;
+}
+
+
 div.fight_header[affinity="1"] {
   background-image: url('../public/pix/biomes/bg_1_25.png');
 }
@@ -541,13 +554,6 @@ div.fight_header[affinity="3"] {
 }
 div.fight_header[affinity="4"] {
   background-image: url('../public/pix/biomes/bg_4_25.png');
-}
-ul.fight_room {
-  list-style-type: none;
-}
-ul.fight_room li {
-  display: block;
-  text-align: left;
 }
 
 ul.trophy_rows {
