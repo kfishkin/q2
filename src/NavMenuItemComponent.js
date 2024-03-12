@@ -25,7 +25,7 @@ export const NAV_ITEM_PAGES = {
 // haveGame - do I have a current game.
 class NavMenuItemComponent extends React.Component {
   isEnabledNow() {
-    return this.props.haveGame && this.props.haveDeck && !this.props.fighting; // the default
+    return this.props.haveGame && this.props.haveDeck && !this.props.fighting && !this.props.isDead; // the default
   }
 
   pageDescriptor() {
@@ -62,7 +62,6 @@ export class NavMenuItemGameAdmin extends NavMenuItemComponent {
 }
 
 export class NavMenuItemGame extends NavMenuItemComponent {
-  isEnabledNow() { return this.props.loggedIn && this.props.haveGame && !this.props.fighting }
   pageDescriptor() { return NAV_ITEM_PAGES.GAME_PAGE }
   sideBarText() {
     return "Game"

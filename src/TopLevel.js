@@ -279,7 +279,9 @@ class TopLevel extends React.Component {
                 return (cdb.game_card.lives > 0);
             });
         }
-        //console.log(`isDead = ${isDead}`);
+        if (isDead) {
+            console.log(`you are dead`);
+        }
         let fighting = (NAV_ITEM_PAGES.FIGHT_PAGE === this.state.currentPage);
 
         console.log(`current page = [${this.state.currentPage}]`);
