@@ -414,6 +414,7 @@ height: 40px;
 img.nav_arrow {
   margin-left: 1em;
   margin-right: 1em;
+  z-index: 5;
 }
 
 span.score_0 {

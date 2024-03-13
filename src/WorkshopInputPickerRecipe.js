@@ -25,14 +25,16 @@ class WorkshopInputPickerRecipe extends React.Component {
     let recipeCard = this.props.machine;
     let recipeInfo = recipeCard.getBase().getRecipeInfo();
     let inputPiles = [];
+    let used = {};
     for (const i in recipeInfo.ingredients) {
       let amount = recipeInfo.amounts[i];
       let ingredBaseId = recipeInfo.ingredients[i];
-      let haves = this.props.deck.filter((c) => c.getBase().getId() === ingredBaseId);
+      let haves = this.props.deck.filter((c) => (c.getBase().getId() === ingredBaseId) && !used[c.getId()]);
       let haveThis = (haves.length >= amount);
       let pile;
       if (haveThis) {
         pile = haves.slice(0, amount);
+        pile.forEach((c) => used[c.getId()] = true);
       } else {
         // this happens if
         // (a) I just don't have it, or
