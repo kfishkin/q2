@@ -491,7 +491,7 @@ class CardTypeRecipeMastery extends CardTypeRecipe {
             <span>To advance to the next level ({AffinityLevels[this.level + 1]}),</span>
             <span>use this card as a recipe, giving it a level {this.level} piece of gear
             that you have made and enchanted to this affinity.</span>
-            <span>At {AffinityLevels[MAX_LEVEL]} mastery, you can craft a dragon's egg!</span>
+            <span>At {AffinityLevels[MAX_LEVEL]} level, you can craft a dragon's egg!</span>
         </div>)
     }
 }

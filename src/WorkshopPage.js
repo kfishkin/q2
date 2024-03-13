@@ -97,7 +97,7 @@ class WorkshopPage extends React.Component {
     }
 
     let onPilesChange = (newPiles) => {
-      console.log(`newPiles:called`);
+      //console.log(`newPiles:called`);
       this.setState({inputPiles: newPiles, goodToGo: true});
     }
 

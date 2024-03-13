@@ -1,7 +1,7 @@
 import React from 'react';
 import Card from './Card';
 import StatusMessage from './StatusMessage';
-import {DeckComponent} from './DeckComponent';
+import { DeckComponent } from './DeckComponent';
 
 
 // props
@@ -49,15 +49,15 @@ class LootPage extends React.Component {
 
   onDoLoot(gameId, ownerId, playerId) {
     console.log(`onDoLoot: game ${gameId}, owner ${ownerId} to player ${playerId}`);
-    this.setState({statusMessage: `transferring...`, statusType: "info"});
+    this.setState({ statusMessage: `transferring...`, statusType: "info" });
     this.props.beGateway.lootRoom(gameId, ownerId, playerId).then((v) => {
       console.log(`onDoLoot: v = ${JSON.stringify(v)}`);
-      this.setState({statusMessage: `loot transferred`, statusType: "success"});
+      this.setState({ statusMessage: `loot transferred`, statusType: "success" });
       this.props.onPlayerDeckBEChange();
     }).catch((e) => {
       console.log(`onDoLoot: e = ${e}`);
-      this.setState({statusMessage: `failure transferring loot: ${e}`, statusType: "error"});
-    })  
+      this.setState({ statusMessage: `failure transferring loot: ${e}`, statusType: "error" });
+    })
   }
 
   render() {
@@ -68,18 +68,13 @@ class LootPage extends React.Component {
 
     let transferrable = (this.state.deck !== null && this.state.deck.length > 0);
     if (this.state.deck !== null && this.state.deck.length === 0) {
-      return <div>An empty room.<br/>(click on 'Game' to return to the map)</div>
+      return <div>An empty room.<br />(click on 'Game' to return to the map)</div>
     }
-    /*
-              <CardsModal title="A new card" open={this.state.showModal} onOk={handleOk} onCancel={handleOk}
-            cards={[this.state.modalCard]}
-            topHtml={<span>You have just added a {this.state.modalCardName} card to your deck</span>}
-            bottomHtml=""
-            baseCards={this.props.baseCards}
-          />
-          */
+    let sortedDeck = this.state.deck||[];
+    sortedDeck.sort((c1, c2) => c2.getBase().getSellValue() - c1.getBase().getSellValue());
+
     return <div>You found some treasure!
-      <DeckComponent deck={this.state.deck} baseCards={this.props.gameInfo.baseCards} ronly={true} />
+      <DeckComponent deck={sortedDeck} baseCards={this.props.gameInfo.baseCards} ronly={true} />
       <button onClick={(e) => this.onDoLoot(this.props.gameInfo.gameId, this.props.owner._id, this.props.playerId)}
         disabled={!transferrable}>Add to my deck</button>
       <StatusMessage message={this.state.statusMessage} type={this.state.statusType} />

@@ -9,6 +9,7 @@ import { NAV_ITEM_PAGES } from './NavMenuItemComponent';
 // button size and placement.
 //
 // props:
+// fighting - am I doing BE fighting right now
 // open - for the dialog
 // onEndFight({reloadDeck, reloadGame, nextPage, lost}) - after the fight ends.
 //    (lost) is cards lost if ran away.
@@ -30,6 +31,7 @@ class FightRoundDialog extends React.Component {
       open: props.open,
       showLoot: false,
       ranAway: false,
+      fighting: props.fighting
     }
   }
 
@@ -132,10 +134,10 @@ class FightRoundDialog extends React.Component {
         this.props.onRunAway();
       }
       const onFightOn = () => {
-        this.setState({ open: false })
+        this.setState({ open: false, fighting: true })
         this.props.onContinue();
       }
-      return (<dialog id='fight_dialog' open={this.props.open}>
+      return (<dialog id='fight_dialog' open={this.props.open} fighting={this.state.fighting}>
         {msg}
         <hr />
         <div style={{position:'relative'}}>
@@ -148,6 +150,7 @@ class FightRoundDialog extends React.Component {
 
     const showLootUI = () => {
       let lootCards = this.props.loot.map((lootDb) =>  Card.Of(lootDb));
+      lootCards.sort((c1, c2) => c2.getBase().getSellValue() - c1.getBase().getSellValue());
       const doneViewingLoot = () => {
         this.setState({ open: false, showLoot: false });
         this.props.onEndFight(this.state.endStatus);        

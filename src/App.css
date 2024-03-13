@@ -542,6 +542,27 @@ td.fight_rhs {
   padding-left: 2em;
 }
 
+td.fight_rhs[fighting] {
+  background-color: #bbb;
+}
+
+tr.fight_top_row td.fight_rhs {
+  vertical-align: middle;
+}
+
+tr.fight_top_row td.fight_rhs[affinity="1"] {
+  background-image: url('../public/pix/biomes/bg_1_25.png');
+}
+tr.fight_top_row td.fight_rhs[affinity="2"] {
+  background-image: url('../public/pix/biomes/bg_2_25.png');
+}
+tr.fight_top_row td.fight_rhs[affinity="3"] {
+  background-image: url('../public/pix/biomes/bg_3_25.png');
+}
+tr.fight_top_row td.fight_rhs[affinity="4"] {
+  background-image: url('../public/pix/biomes/bg_4_25.png');
+}
+
 
 div.fight_header[affinity="1"] {
   background-image: url('../public/pix/biomes/bg_1_25.png');
@@ -694,6 +715,10 @@ div.player_status {
 #fight_dialog {
   z-index: 5;
   width: 600px;
+}
+
+#fight_dialog[fighting] {
+  background-color: #9AA;
 }
 
 button.run_away_button {

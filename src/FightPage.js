@@ -207,14 +207,14 @@ class FightPage extends React.Component {
               open: true,
               onEndFight: (dict) => onEndFight(dict),
             }
-            this.setState({ fightDialogProps: fightDialogProps, showFightDialog: true });
+            this.setState({ fightDialogProps: fightDialogProps, showFightDialog: true, fighting: false });
           }
         });
       }
 
       const onEndFight = (dict) => {
         console.log(`onEndFight: dict = ${JSON.stringify(dict)}`);
-        this.setState({ showFightDialog: false });
+        this.setState({ showFightDialog: false, fighting: false });
         let { reloadDeck, reloadGame, nextPage } = dict;
         if (reloadDeck) {
           this.props.onPlayerDeckBEChange();
@@ -262,7 +262,7 @@ class FightPage extends React.Component {
     return (
       <div>
         <button className='fight_button' disabled={this.state.fighting} onClick={(e) => onStartFight()}>Fight!</button>
-        <FightRoundDialog open={this.state.showFightDialog} {...this.state.fightDialogProps} baseCards={this.props.baseCards} />
+        <FightRoundDialog open={this.state.showFightDialog} fighting={this.state.fighting} {...this.state.fightDialogProps} baseCards={this.props.baseCards} />
       </div>
     )
   }
@@ -303,34 +303,33 @@ class FightPage extends React.Component {
       case 0: lifeMsg = "You are dead!"; break;
       default:
         lifeMsg = ""; break;
-        /*
-      case 1: lifeMsg = <span className='warning'>You only have 1 life to live. If the monster gets through your armor, you will die!</span>;
-        break;
-      default:
-        lifeMsg = <span>You have {numLives} lives. If the monster gets through your armor, you will have {numLives - 1} left</span>;
-        */
+      /*
+    case 1: lifeMsg = <span className='warning'>You only have 1 life to live. If the monster gets through your armor, you will die!</span>;
+      break;
+    default:
+      lifeMsg = <span>You have {numLives} lives. If the monster gets through your armor, you will have {numLives - 1} left</span>;
+      */
     }
 
     return (<div>
-      <div className='fight_header' affinity={this.props.room.affinity}>
-        This fight takes place in the <b>{AffinityNames[affinity]}</b> biome.
-        {lifeMsg}
-      </div>
+
 
       <div className='fight_outer' >
         <table>
           <tbody>
             <tr className='fight_top_row'>
               <td>{this.weaponUI(weaponCards, nothingCard)}</td>
-              <td className='fight_rhs'>{this.buttonPart()}<br/></td>
+              <td className='fight_rhs' affinity={affinity} fighting={this.state.fighting}>
+                <span>This fight takes place in the <b>{AffinityNames[affinity]}</b> biome.
+                  {lifeMsg}</span><br />{this.buttonPart()}<br /></td>
             </tr>
             <tr className='fight_bottom_row'>
-            <td>{this.armorUI(armorCards, nothingCard)}</td>
-            <td className='fight_rhs'>{this.monsterUI(monsterCard)}</td>
+              <td>{this.armorUI(armorCards, nothingCard)}</td>
+              <td className='fight_rhs'>{this.monsterUI(monsterCard)}</td>
             </tr>
           </tbody>
         </table>
-      <StatusMessage message={this.state.statusMessage} type={this.state.statusType} />
+        <StatusMessage message={this.state.statusMessage} type={this.state.statusType} />
       </div>
     </div>
     )
