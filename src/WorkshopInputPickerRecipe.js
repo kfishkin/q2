@@ -7,12 +7,15 @@ import { Select } from 'antd';
 // deck - deck of Cards the player has
 // baseCards hash of BaseCards in the game.
 // onPilesChange - callback(newPiles) whenever piles have changed, and we think it's good to go.
+// onPlayerDeckBEChange - BE deck has changed.
 // in this case, we stuff it with the cards to consume, assuming they have enough.
 class WorkshopInputPickerRecipe extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       piles: [], // one per step
+      needs: {}, // map from needed base id to {# needed, base card}
+      buying: false,
       haveAll: false,
     }
   }
@@ -26,6 +29,7 @@ class WorkshopInputPickerRecipe extends React.Component {
     let recipeInfo = recipeCard.getBase().getRecipeInfo();
     let inputPiles = [];
     let used = {};
+    let needs = {};
     for (const i in recipeInfo.ingredients) {
       let amount = recipeInfo.amounts[i];
       let ingredBaseId = recipeInfo.ingredients[i];
@@ -45,6 +49,9 @@ class WorkshopInputPickerRecipe extends React.Component {
         // so UI will pick, just put a placeholder:
         if (ingredBaseCard.isCategory()) {
           pile = ['category_placeholder'];
+        } else {
+          let needed = amount - haves.length;
+          needs[ingredBaseId] = { needed: needed, baseCard: ingredBaseCard }
         }
       }
       if (pile) {
@@ -52,7 +59,7 @@ class WorkshopInputPickerRecipe extends React.Component {
       }
     }
     let haveAll = (inputPiles.length >= recipeInfo.ingredients.length);
-    this.setState({ piles: inputPiles, haveAll: haveAll });
+    this.setState({ piles: inputPiles, haveAll: haveAll, needs: needs });
     if (haveAll) {
       this.props.onPilesChange(inputPiles);
     }
@@ -112,7 +119,7 @@ class WorkshopInputPickerRecipe extends React.Component {
           return <Select style={{ width: 210 }} onChange={(val) => onCategorySpec(val)} options={selectOptions} />
         }
 
-        steps.push(<li>
+        steps.push(<li key={Math.random()}>
           <span><b>{amount}</b> of <b>{ingredName}</b> {(baseCard.isCategory() && candidates.length > 0) ? categoryUI(baseCard, candidates) : ""}(have {have})</span>
           <img src={`pix/icons/${icon}`} className='thumb_icon' alt={alt} />
         </li>)
@@ -121,10 +128,71 @@ class WorkshopInputPickerRecipe extends React.Component {
       return <ol className='step_list'>{steps}</ol>;
     }
 
+    const needsUI = () => {
+      let needs = this.state.needs;
+      // sort 'em by alpha.
+      if (!needs || Object.keys(needs).length === 0) {
+        return '';
+      }
+      let needObjs = Object.values(needs);
+      needObjs.sort((blob1, blob2) => blob1.baseCard.getDisplayName().localeCompare(blob2.baseCard.getDisplayName()));
+      let totalCost = 0;
+      let parts = [];
+      needObjs.forEach((neededObj) => {
+        const MARKUP = 2.0;
+        let unitPrice = Math.round(neededObj.baseCard.getSellValue() * MARKUP);
+        let cost = neededObj.needed * unitPrice;
+        parts.push(<li key={Math.random()}>{neededObj.baseCard.getDisplayName()}:{neededObj.needed} @ {unitPrice} --&gt; ${cost}</li>);
+        totalCost += cost;
+      });
+
+      const buyButtonUI = (totalCost) => {
+        const onBuy = () => {
+          let baseCardIds = [];
+          Object.values(this.state.needs).forEach((blob) => {
+            let n = blob.needed;
+            let id = blob.baseCard.getId();
+            for (let i = 0; i < n; i++) {
+              baseCardIds.push(id);
+            }
+          });
+          console.log(`onBuy: called, gameId = ${this.props.gameId}, playerId = ${this.props.playerId}, bcIds = ${baseCardIds.join()}`);
+          this.setState({buying: true});
+          this.props.beGateway.buyBulk(this.props.gameId, this.props.playerId, baseCardIds).then((v) => {
+            this.props.onPlayerDeckBEChange();
+            this.setState({buying: false});
+          }).catch((e) => {
+            console.log(e);
+            this.setState({buying: false});
+          });
+        }
+
+        if (this.state.buying) {
+          return <span>buying...</span>;
+        } else {
+          return <button onClick={onBuy}>Buy for ${totalCost}</button>
+        }
+      }
+      <button>buy for ${totalCost}</button>
+      return (<div>
+        <hr/>
+        <span>Missing ingredients:</span>
+        <br/>
+        <ol style={{textAlign: 'left'}}>
+          {parts}
+        </ol>
+        <br/>
+        {buyButtonUI(totalCost)}
+
+      </div>)
+
+    }
+
 
     return (<div>
       {preamble()}
       {stepsUI()}
+      {needsUI()}
     </div>);
   }
 }

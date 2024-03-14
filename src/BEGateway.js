@@ -457,6 +457,29 @@ class BEGateway {
         }
     }
 
+    async buyBulk(gameId, playerId, baseCardIds) {
+        const url = this.beURI
+        + "cards/buy";
+    let body = {
+        gameId: gameId,
+        playerId: playerId,
+        cardIds: baseCardIds,
+        bulk: true
+    };
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+    }
+    try {
+        const response = await fetch(url, requestOptions);
+        console.log(`fe.buyBulk: fetch returns ${response}`);
+        return response;
+    } catch (e) {
+        return e;
+    }
+    }
+
     // player (playerId) in game (gameId) wants to sell the cards with the given IDs
     // to (merchantId)
     async sell(gameId, playerId, merchantId, cardIds) {

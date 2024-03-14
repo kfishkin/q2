@@ -130,9 +130,7 @@ class NewsPage extends React.Component {
       this.setState({ acking: true, statusMessage: 'marking story as read...', statusType: 'info' });
       this.props.beGateway.ackStory(this.props.gameId, this.props.playerId, this.state.selectedStory._id).then((v) => {
         console.log(`FE: ack is acked`);
-        this.setState({ acking: false, statusMessage: 'story read.', statusType: 'info' });
-        // doesn't re-ping the BE, don't know why.
-        // try this...
+        this.setState({ acking: false, statusMessage: 'story read.', statusType: 'info' , selectedStory: null});
         this.loadNews();
       }).catch((e) => {
         console.log(e.stack);

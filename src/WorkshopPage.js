@@ -132,7 +132,8 @@ class WorkshopPage extends React.Component {
             deck={deckCards} baseCards={this.props.gameInfo.baseCards} onPilesChange={(newPiles) => onPilesChange(newPiles)} />
           break;
         case 'WorkshopInputPickerRecipe':
-          picker = <WorkshopInputPickerRecipe machine={this.state.machineCard} beGateway={this.props.beGateway}
+          picker = <WorkshopInputPickerRecipe gameId={this.props.gameInfo.gameId} playerId={this.props.playerInfo.playerId} 
+            machine={this.state.machineCard} beGateway={this.props.beGateway}
             deck={deckCards} baseCards={this.props.gameInfo.baseCards} onPilesChange={(newPiles) => onPilesChange(newPiles)}/>;
           break;
         default:
