@@ -209,7 +209,7 @@ class BEGateway {
         });
         cardDbs.forEach((card) => {
             if (awardsByPrizeId[card._id]) {
-                console.log(`winner: card ${JSON.stringify(card)} was/is a prize`);
+                //console.log(`winner: card ${JSON.stringify(card)} was/is a prize`);
                 card.awardedFor = awardsByPrizeId[card._id];
             }
         })

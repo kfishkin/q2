@@ -14,7 +14,7 @@ class TrophyPage extends React.Component {
       trophies: [],
       awards: [],
       loading: true,
-      showAll: true
+      showAll: false
     };
   }
 

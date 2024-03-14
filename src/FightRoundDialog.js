@@ -52,7 +52,7 @@ class FightRoundDialog extends React.Component {
       if (props.armorBonus) {
         let amt = parseInt(props.armorBonus);
         if (amt > 0) {
-          msg += ' Your enchanted armor gave you a bonus.';
+          msg += ' Your enchanted armor gave you a bonus';
         } else if (amt < 0) {
           msg += ' Your enchanted armor gave your _opponent_ a bonus';
         }
@@ -63,7 +63,7 @@ class FightRoundDialog extends React.Component {
       if (props.weaponBonus) {
         let amt = parseInt(props.weaponBonus);
         if (amt > 0) {
-          msg += ' Your enchanted weapon gave you a bonus.';
+          msg += ' Your enchanted weapon gave you a bonus';
         } else if (amt < 0) {
           msg += ' Your enchanted weapon gave your _opponent_ a bonus';
         }
