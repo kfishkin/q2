@@ -10,7 +10,8 @@ import Card from './Card';
 const StoryTypes = {
   NONE: 0,
   DEBUG: 1,
-  AWARD: 2
+  AWARD: 2,
+  GOODY: 3
 };
 const StoryParts = {
   WHY: 'why',
@@ -30,6 +31,8 @@ export class StoryShowerComponent extends React.Component {
     switch (type) {
       case StoryTypes.AWARD:
         return new StoryShowerAward(props);
+      case StoryTypes.GOODY:
+        return new StoryShowerGoody(props);
       default:
         return new StoryShowerComponent(props);
     }
@@ -51,6 +54,15 @@ export class StoryShowerBroadcast extends StoryShowerComponent {
     return <div>{p}</div>;
     // return <div dangerouslySetInnerHTML={{ __html: story.textParts.html }} />
     //return <div dangerouslySetInnerHTML={{ __html: "<h1>Hi there!</h1>" }} />
+  }
+}
+
+export class StoryShowerGoody extends StoryShowerComponent {
+  render() {
+    let story = this.props.story;
+    let why = story.textParts[StoryParts.WHY];
+    let merch = story.textParts[StoryParts.MERCHANDISE];
+    return <div>For {why}, you earned {merch}</div>
   }
 }
 
