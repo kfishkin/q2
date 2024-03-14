@@ -639,37 +639,41 @@ div.trophy span {
   text-transform: capitalize;
 }
 
-div.trophy[have] {
+div.trophy[have="noshow"] {
+  display: none;
+}
+
+div.trophy[have="yes"] {
   /* color: white; */
   border: 3px solid gold;
   background-image: url('../public/pix/general/blue_ribbon_yes.png');
 }
 
-div.trophy[have][which="8"] {
+div.trophy[have="yes"][which="8"] {
   color: black;
   background-image: url('../public/pix/trophy_backgrounds/made_yes.png');
 }
 
-div.trophy[have][which="9"] {
+div.trophy[have="yes"][which="9"] {
   color: black;
   background-image: url('../public/pix/trophy_backgrounds/buying_yes.png');
 }
-div.trophy[have][which="10"] {
+div.trophy[have="yes"][which="10"] {
   color: black;
   background-image: url('../public/pix/trophy_backgrounds/sale_yes.png');
 }
 
-div.trophy[have][which="23"] {
+div.trophy[have="yes"][which="23"] {
   color: black;
   background-image: url('../public/pix/trophy_backgrounds/died_7_yes.png');
 }
 
-div.trophy[have][which="11"] {
+div.trophy[have="yes"][which="11"] {
   color: black;
   background-image: url('../public/pix/trophy_backgrounds/forensics_yes.png');
 }
 
-div.trophy[have][which="26"] {
+div.trophy[have="yes"][which="26"] {
   color: black;
   background-image: url('../public/pix/trophy_backgrounds/runaway_yes.png');
 }

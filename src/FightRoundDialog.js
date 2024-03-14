@@ -19,6 +19,7 @@ import { NAV_ITEM_PAGES } from './NavMenuItemComponent';
 // general info about the round:
 // armorRoll, weaponRoll
 // armorDegraded, weaponDegraded, lifeLost
+// armorBonus, weaponBonus
 // if WIN
 //   loot, if any
 // 
@@ -48,9 +49,25 @@ class FightRoundDialog extends React.Component {
       if (props.armorRoll) {
         msg += `You rolled a '${props.armorRoll}' for your defense.`;
       }
+      if (props.armorBonus) {
+        let amt = parseInt(props.armorBonus);
+        if (amt > 0) {
+          msg += ' Your enchanted armor gave you a bonus.';
+        } else if (amt < 0) {
+          msg += ' Your enchanted armor gave your _opponent_ a bonus';
+        }
+      }
       if (props.armorDegraded) {
         msg += ' Your armor was damaged.';
       }
+      if (props.weaponBonus) {
+        let amt = parseInt(props.weaponBonus);
+        if (amt > 0) {
+          msg += ' Your enchanted weapon gave you a bonus.';
+        } else if (amt < 0) {
+          msg += ' Your enchanted weapon gave your _opponent_ a bonus';
+        }
+      }      
       if (props.weaponDegraded) {
         msg += ' Your weapon was damaged.';
       }

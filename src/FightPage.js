@@ -240,6 +240,8 @@ class FightPage extends React.Component {
             armorRoll: v.armorRoll,
             armorDegraded: v.armorDegraded,
             weaponDegraded: v.weaponDegraded,
+            armorBonus: v.armorBonus,
+            weaponBonus: v.weaponBonus,
             lifeLost: v.lifeLost,
             loot: v.loot,
             status: v.status,

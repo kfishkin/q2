@@ -13,7 +13,8 @@ class TrophyPage extends React.Component {
     this.state = {
       trophies: [],
       awards: [],
-      loading: true
+      loading: true,
+      showAll: true
     };
   }
 
@@ -34,15 +35,16 @@ class TrophyPage extends React.Component {
   showTrophy(trophy, awardsByWhich) {
     let attrs = {};
     let description = trophy.description;
+    let show = this.state.showAll;
     if (awardsByWhich[trophy.which]) {
+      show = true;
       attrs = {'have': 'yes', 'which' : trophy.which };
       let award = awardsByWhich[trophy.which];
       let when = dayjs(award.when_granted).format("L"); // date, short
       description = `Awarded ${when} for ${award.message}`;
     }
-    return (<div className='trophy' {...attrs}>
-      <span>{description}</span>
-    </div>);
+    return show ? (<div className='trophy' {...attrs}>
+      <span>{description}</span></div>) : '';
   }
 
   showLevel(pile, awardsByWhich) {
@@ -90,7 +92,12 @@ class TrophyPage extends React.Component {
     });
 
     const preamble = () => {
-      <div><span><b>The Trophy Hall</b></span></div>
+      const flipMode = () => {
+        this.setState({showAll: !this.state.showAll});
+      }
+      return (
+      <div><span><b>The Trophy Hall</b></span>
+        <br/><button onClick={(e) => flipMode()}>{this.state.showAll ? 'Only show granted' : 'Show all'}</button></div>);
     }
     return (<div>
       {preamble()}
