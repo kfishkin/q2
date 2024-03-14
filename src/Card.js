@@ -84,6 +84,10 @@ export class Card { // abstract base class
         return this.baseCard.getLevel();
     }
 
+    getMakersMark() {
+        return this.db.makers_mark;
+    }
+
     getScoreInfo() {
         return this.db.score_info;
     }

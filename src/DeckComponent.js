@@ -31,7 +31,7 @@ export class DeckComponent extends React.Component {
     this.rowSelectionController =  this.props.ronly ? null : {
       selectedRowKeys: this.state.statefulSelectedRowKeys,
       onChange: (newKeys, selectedRows) => {
-        console.log(`selectedRowKeys: ${newKeys}`, 'selectedRows: ', selectedRows);
+        //console.log(`selectedRowKeys: ${newKeys}`, 'selectedRows: ', selectedRows);
         this.setState({selectedCards: selectedRows ? (selectedRows.map((row) => row.card)) : []});
         this.rowSelectionController.selectedRowKeys = newKeys;
         this.setState({statefulSelectedRowKeys: newKeys});
@@ -186,7 +186,7 @@ export class DeckComponent extends React.Component {
         cardObj: cardObj,
         obtained: obtainedDate.toLocaleString(),
         obtainedMillis: obtainedDate.valueOf(),
-        youmade: (card.makers_mark ? 'yes' : 'no'),
+        youmade: (cardObj.getMakersMark() ? 'yes' : 'no'),
         affinity: cardObj.getAffinity() || Affinities.NONE,
       };
       let tuple = this.valueDataMaker(card);
