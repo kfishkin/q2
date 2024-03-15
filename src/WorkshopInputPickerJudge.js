@@ -40,7 +40,7 @@ class WorkshopInputPickerJudge extends React.Component {
       }
       piles.push(thisPile);
     }
-    //console.log(`piles = ${JSON.stringify(piles)}`);
+    console.log(`piles = ${JSON.stringify(piles)}`);
     this.props.onPilesChange(piles);
   }
 

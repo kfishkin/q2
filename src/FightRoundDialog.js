@@ -52,9 +52,9 @@ class FightRoundDialog extends React.Component {
       if (props.armorBonus) {
         let amt = parseInt(props.armorBonus);
         if (amt > 0) {
-          msg += ' Your enchanted armor gave you a bonus';
+          msg += ' Your enchanted armor gave you a bonus.';
         } else if (amt < 0) {
-          msg += ' Your enchanted armor gave your _opponent_ a bonus';
+          msg += ' Your enchanted armor gave your _opponent_ a bonus.';
         }
       }
       if (props.armorDegraded) {
@@ -63,9 +63,9 @@ class FightRoundDialog extends React.Component {
       if (props.weaponBonus) {
         let amt = parseInt(props.weaponBonus);
         if (amt > 0) {
-          msg += ' Your enchanted weapon gave you a bonus';
+          msg += ' Your enchanted weapon gave you a bonus.';
         } else if (amt < 0) {
-          msg += ' Your enchanted weapon gave your _opponent_ a bonus';
+          msg += ' Your enchanted weapon gave your _opponent_ a bonus.';
         }
       }      
       if (props.weaponDegraded) {
@@ -90,7 +90,7 @@ class FightRoundDialog extends React.Component {
     const winUI = () => {
       const BUTTON_TEXT = 'I won!'
       let props = this.props;
-      let msg = playByPlay() + '. You won!';
+      let msg = playByPlay() + ' You won!';
       let hasLoot = (props.loot && props.loot.length > 0);
       if (hasLoot) {
         msg += ` You got some loot! Press the '${BUTTON_TEXT}' button to see it`;
@@ -140,7 +140,7 @@ class FightRoundDialog extends React.Component {
     }
 
     const continueUI = () => {
-      let msg = playByPlay() + '. the fight will continue.';
+      let msg = playByPlay() + ' The fight will continue.';
       const onRunAway = () => {
         let endStatus = {
           reloadDeck: true,

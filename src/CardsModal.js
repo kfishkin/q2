@@ -56,10 +56,11 @@ class CardsModal extends React.Component {
     }
 
     return (<Modal className="cards_modal" open={this.props.open} title={this.props.title} onOk={this.props.onOk} onCancel={this.props.onCancel}>
+      {renderNavigation()}
+      <br/>
       {this.props.topHtml}
        <CardDetail card={card} baseCards={this.props.baseCards} />
        {this.props.bottomHtml}
-       {renderNavigation()}
   </Modal>)
   }
 }

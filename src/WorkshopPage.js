@@ -70,8 +70,17 @@ class WorkshopPage extends React.Component {
   }
 
   chooseMachineCard() {
-    let cardBoxes = this.state.machineCards.map((card) => {
-      return (<li style={{ "display": "inline-block" }} onClick={(e) => this.onMachineSelect(card)}><CardDetail card={card.getDb()} baseCards={this.props.gameInfo.baseCards} deck={this.props.gameInfo.deck} /></li>)
+    // sort the cards by level desc, within that name asc.
+    let cards = this.state.machineCards || [];
+    cards.sort((mach1, mach2) => {
+      let delta = mach2.getLevel() - mach1.getLevel();
+      if (delta > 0 || delta < 0) return delta;
+      delta = mach1.getBase().getDisplayName().localeCompare(mach2.getBase().getDisplayName());
+      return delta;
+    });
+
+    let cardBoxes = cards.map((card) => {
+      return (<li key={card.getId()} style={{ "display": "inline-block" }} onClick={(e) => this.onMachineSelect(card)}><CardDetail card={card.getDb()} baseCards={this.props.gameInfo.baseCards} deck={this.props.gameInfo.deck} /></li>)
     })
     return (<div>
       Click on the card you would like to use:

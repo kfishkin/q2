@@ -14,7 +14,7 @@ class WorkshopInputPickerRecipe extends React.Component {
     super(props);
     this.state = {
       piles: [], // one per step
-      needs: {}, // map from needed base id to {# needed, base card}
+      buyableNeeds: {}, // map from needed base id to {# needed, base card}
       buying: false,
       haveAll: false,
     }
@@ -49,7 +49,7 @@ class WorkshopInputPickerRecipe extends React.Component {
         // so UI will pick, just put a placeholder:
         if (ingredBaseCard.isCategory()) {
           pile = ['category_placeholder'];
-        } else {
+        } else if (ingredBaseCard.getDb().buyable) {
           let needed = amount - haves.length;
           needs[ingredBaseId] = { needed: needed, baseCard: ingredBaseCard }
         }
@@ -59,7 +59,7 @@ class WorkshopInputPickerRecipe extends React.Component {
       }
     }
     let haveAll = (inputPiles.length >= recipeInfo.ingredients.length);
-    this.setState({ piles: inputPiles, haveAll: haveAll, needs: needs });
+    this.setState({ piles: inputPiles, haveAll: haveAll, buyableNeeds: needs });
     if (haveAll) {
       this.props.onPilesChange(inputPiles);
     }
@@ -129,7 +129,7 @@ class WorkshopInputPickerRecipe extends React.Component {
     }
 
     const needsUI = () => {
-      let needs = this.state.needs;
+      let needs = this.state.buyableNeeds;
       // sort 'em by alpha.
       if (!needs || Object.keys(needs).length === 0) {
         return '';
@@ -149,7 +149,7 @@ class WorkshopInputPickerRecipe extends React.Component {
       const buyButtonUI = (totalCost) => {
         const onBuy = () => {
           let baseCardIds = [];
-          Object.values(this.state.needs).forEach((blob) => {
+          Object.values(this.state.buyableNeeds).forEach((blob) => {
             let n = blob.needed;
             let id = blob.baseCard.getId();
             for (let i = 0; i < n; i++) {
