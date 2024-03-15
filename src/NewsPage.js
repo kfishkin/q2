@@ -160,7 +160,7 @@ class NewsPage extends React.Component {
       </div>
     }
     return (<div><h1>Hello from the News page</h1>
-      {preamble}
+      {preamble()}
       {this.storyButtonUI()}
       <div>
         {this.showStory()}

@@ -8,15 +8,14 @@ import React from 'react';
 // onPilesChange - callback(newPiles) whenever piles have changed, and we think it's good to go.
 // onPlayerDeckBEChange - BE deck has changed.
 // in this case, we stuff it with the cards to consume, assuming they have enough.
+const BAD_ID = 0;
 class WorkshopInputPickerRecipe extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      piles: [], // one per step
       buyableNeeds: {}, // map from needed base id to {# needed, base card}
       buying: false,
-      haveAll: false,
-      selectedCategoryId: 0,
+      selectedCategoryCard: null,
     }
   }
 
@@ -35,7 +34,7 @@ class WorkshopInputPickerRecipe extends React.Component {
       let ingredBaseId = recipeInfo.ingredients[i];
       let haves = this.props.deck.filter((c) => (c.getBase().getId() === ingredBaseId) && !used[c.getId()]);
       let haveThis = (haves.length >= amount);
-      let pile;
+      let pile = null;
       if (haveThis) {
         pile = haves.slice(0, amount);
         pile.forEach((c) => used[c.getId()] = true);
@@ -47,8 +46,9 @@ class WorkshopInputPickerRecipe extends React.Component {
         let ingredBaseCard = this.props.baseCards[ingredBaseId];
         // this happens if a category, you don't "have" that in your deck.
         // so UI will pick, just put a placeholder:
-        if (ingredBaseCard.isCategory()) {
-          pile = ['category_placeholder'];
+        if (ingredBaseCard.isCategory() && this.state.selectedCategoryCard) {
+          haveThis = true;
+          pile = [this.state.selectedCategoryCard];
         } else if (ingredBaseCard.getDb().buyable) {
           let needed = amount - haves.length;
           needs[ingredBaseId] = { needed: needed, baseCard: ingredBaseCard }
@@ -59,7 +59,7 @@ class WorkshopInputPickerRecipe extends React.Component {
       }
     }
     let haveAll = (inputPiles.length >= recipeInfo.ingredients.length);
-    this.setState({ piles: inputPiles, haveAll: haveAll, buyableNeeds: needs });
+    this.setState({ buyableNeeds: needs });
     if (haveAll) {
       this.props.onPilesChange(inputPiles);
     }
@@ -103,18 +103,15 @@ class WorkshopInputPickerRecipe extends React.Component {
 
             let card = this.props.deck.find((c) => c.getId() === val);
             //console.log(`card = ${JSON.stringify(card)}`);
-            if (card) {
-              let newPiles = this.state.piles;
-              newPiles[0] = [card];
-              this.setState({ piles: newPiles, goodToGo: (val !== 0), selectedCategoryId: val });
-              this.props.onPilesChange(newPiles);
-            }
+            // callback is for waiting until after setState()
+            // is complete.
+            this.setState({ selectedCategoryCard: card }, () => this.makePilesAndSignal());
           }
           let selectOptions = candidates.map((card) => {
-            return (<option value={card.getId()} selected={card.getId() === this.state.selectedCategoryId}>{card.terselyDescribe()}</option>)
+            return (<option value={card.getId()} selected={this.state.selectedCategoryCard && (this.state.selectedCategoryCard.getId() === card.getId())}>{card.terselyDescribe()}</option>)
           })
           // prepend the 'None' option.
-          selectOptions.unshift(<option value="0" selected={0 === this.state.selectedCategoryId}> ---- None ----</option>);
+          selectOptions.unshift(<option value={BAD_ID} selected={!this.state.selectedCategoryCard}> ---- None ----</option>);
 
           // if this was a category card, need to have user pick which one.
           return <select className='width250' onChange={(val) => onCategorySpec(val)}>
@@ -160,14 +157,14 @@ class WorkshopInputPickerRecipe extends React.Component {
             }
           });
           console.log(`onBuy: called, gameId = ${this.props.gameId}, playerId = ${this.props.playerId}, bcIds = ${baseCardIds.join()}`);
-          this.setState({buying: true});
+          this.setState({ buying: true });
           this.props.beGateway.buyBulk(this.props.gameId, this.props.playerId, baseCardIds).then((v) => {
             this.props.onPlayerDeckBEChange();
-            this.setState({buying: false});
+            this.setState({ buying: false });
             this.makePilesAndSignal();
           }).catch((e) => {
             console.log(e);
-            this.setState({buying: false});
+            this.setState({ buying: false });
           });
         }
 
@@ -179,13 +176,13 @@ class WorkshopInputPickerRecipe extends React.Component {
       }
       <button>buy for ${totalCost}</button>
       return (<div>
-        <hr/>
+        <hr />
         <span>Missing ingredients:</span>
-        <br/>
-        <ol style={{textAlign: 'left'}}>
+        <br />
+        <ol style={{ textAlign: 'left' }}>
           {parts}
         </ol>
-        <br/>
+        <br />
         {buyButtonUI(totalCost)}
 
       </div>)
@@ -197,7 +194,7 @@ class WorkshopInputPickerRecipe extends React.Component {
       {preamble()}
       {stepsUI()}
       {needsUI()}
-    </div>);
+    </div >);
   }
 }
 

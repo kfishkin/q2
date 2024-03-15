@@ -201,8 +201,8 @@ class BEGateway {
         // hash from the id of the card that was the prize to its award.
         let awardsByPrizeId = {};
         awards.forEach((award) => {
-            if (!award.cards) return;
-            award.cards.forEach((prize) => {
+            if (!award.card_ids) return;
+            award.card_ids.forEach((prize) => {
                 //console.log(`prize ${prize} awarded by award ${JSON.stringify(award)}`);
                 awardsByPrizeId[prize] = award;
             });

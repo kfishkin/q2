@@ -151,8 +151,7 @@ class FightRoundDialog extends React.Component {
         this.props.onRunAway();
       }
       const onFightOn = () => {
-        this.setState({ open: false, fighting: true })
-        this.props.onContinue();
+        this.setState({ open: false, fighting: true }, () => this.props.onContinue());
       }
       return (<dialog id='fight_dialog' open={this.props.open} fighting={this.state.fighting}>
         {msg}

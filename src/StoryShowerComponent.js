@@ -24,6 +24,7 @@ const StoryParts = {
 // props:
 // story - what to show.
 // beGateway - so can ping BE. 
+// baseCards
 // subclasses have more.
 export class StoryShowerComponent extends React.Component {
   static Of(props) {
@@ -72,38 +73,28 @@ export class StoryShowerAward extends StoryShowerComponent {
     super(props);
     this.state = {
       loading: false,
-      prizeCard: null
+      prizeBaseCard: null
     }
   }
   componentDidMount() {
     //console.log(`award shower: mounted`);
     //console.log(`cdm: story = ${JSON.stringify(this.props.story)}`);
-    let cards = this.props.story.cards;
-    console.log(`cards = ${JSON.stringify(cards)}`);
+    let base_card_ids = this.props.story.base_card_ids;
     console.log(`playerId = ${this.props.playerId}, gameId = ${this.props.gameId}`);
-    if (cards && (cards.length > 0)) {
-      if (!this.state.loading) {
+    if (base_card_ids && (base_card_ids.length > 0)) {
         // NB: for now assume 1 prize card, doesn't load bunches.
-        let cardId = cards[0];
-        console.log(`looking up prize card ${cardId}`);
-        this.setState({ loading: true });
-        this.props.beGateway.getCard(cardId).then((v) => {
-          //console.log(`got card ${JSON.stringify(v)}`);
-          this.setState({ loading: false, prizeCard: v });
+        let baseCardId = base_card_ids[0];
+        console.log(`looking up prize card ${baseCardId}`);
+        let prizeBaseCard = this.props.baseCards.find((bc) => bc.getId() === baseCardId);
+          this.setState({ prizeBaseCard: prizeBaseCard });
           this.forceUpdate();
-        }).catch((e) => {
-          console.log(`e: ${e}`);
-          this.setState({ loading: false, prizeCard: null });
-        })
-      }
     } else {
-      this.setState({ prizeCard: null });
-
+      this.setState({ prizeBaseCard: null });
     }
   }
 
   componentWillUnmount() {
-    this.setState({ prizeCard: null });
+    this.setState({ prizeBaseCard: null });
   }
 
   render() {
@@ -112,17 +103,17 @@ export class StoryShowerAward extends StoryShowerComponent {
     let why = story.textParts.why;
     let line1 = <span>You won the award for <i><b>{why}</b></i>. </span>;
     let line2 = "";
-    if (story.cards && story.cards.length > 0) {
-      if (this.state.loading) {
-        line2 = <span>It came with a reward card! Looking it up...</span>
-      } else if (!this.state.prizeCard) {
-        // this happens if the prize card is no longer yours, or was deleted.
-        // TODO store this knowledge within the story.
+    if (story.base_cards && story.base_card_ids.length > 0) {
+      let baseId = story.base_card_ids[0];
+      let storyBaseCard = this.props.baseCards.find((bc) => bc.getId() === baseId);
+      if (!storyBaseCard) {
+        // couldn't find it.
+        console.log(`couldn't find prize base card w/id ${story.base_card_ids[0]}`);
         line2 = <span>It came with a reward card!</span>
       } else {
-        let prizeCard = Card.Of(this.state.prizeCard);
-        line2 = <div><span>It came with a reward card, a <i>{prizeCard.terselyDescribe()}</i> card.</span>
-          <CardDetail card={prizeCard} baseCards={this.props.baseCards} />
+        let fakeCard = Card.Of({ game_card: storyBaseCard.getDb() });
+        line2 = <div><span>It came with a reward card, a <i>{storyBaseCard.getDisplayName()}</i> card.</span>
+          <CardDetail card={fakeCard} baseCards={this.props.baseCards} />
         </div>
       }
     }
