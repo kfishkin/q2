@@ -219,22 +219,27 @@ class CardMachine extends Card {
 
 class CardArmor extends Card {
     terselyDescribe() {
-        if (this.getArmorWear() === 0) {
-            return super.terselyDescribe();
-        } else {
-            return `${this.getBase().getDisplayName()} - wear ${this.getArmorWear()}`;
+        let msg = super.terselyDescribe();
+        let affinity = this.getAffinity() || Affinities.NONE;
+        if (affinity !== Affinities.NONE) {
+            msg += `(${AffinityLabels[affinity]} affinity)`;
         }
+        if (this.getArmorWear() > 0) {
+            msg += ` (wear ${this.getArmorWear()})`;
+        }
+        return msg;
     }
+
     fullyDescribe(baseCards) {
         let parts = []; // build it up.
         parts.push(<span><b>{this.getBase().getDisplayName()}</b>, armor value <b>{this.getBase().getRawArmorValue()}</b>.</span>)
         let wear = this.getArmorWear();
         if (wear > 0) {
-            parts.push(<span>knocked down to <b>{this.getNetArmorValue()}</b> by wear of <span class='wear_damage'>{wear}</span></span>)
+            parts.push(<span>knocked down to <b>{this.getNetArmorValue()}</b> by wear of <span className='wear_damage'>{wear}</span></span>)
         }
         let affinity = this.getAffinity() || Affinities.NONE;
         if (affinity !== Affinities.NONE) {
-            parts.push(<div><hr /><span>Enchanted to <span class='affinity'>{AffinityLabels[affinity]} affinity</span></span></div>);
+            parts.push(<div><hr /><span>Enchanted to <span className='affinity'>{AffinityLabels[affinity]} affinity</span></span></div>);
         }
         let mark = this.getDb().makers_mark;
         if (mark && mark.when) {
@@ -247,22 +252,27 @@ class CardArmor extends Card {
 
 class CardWeapon extends Card {
     terselyDescribe() {
-        if (this.getWeaponWear() === 0) {
-            return super.terselyDescribe();
-        } else {
-            return `${this.getBase().getDisplayName()} - wear ${this.getWeaponWear()}`;
+        let msg = super.terselyDescribe();        
+        let affinity = this.getAffinity() || Affinities.NONE;
+        if (affinity !== Affinities.NONE) {
+            msg += `(${AffinityLabels[affinity]} affinity)`;
         }
+        if (this.getWeaponWear() > 0) {
+            msg += ` (wear ${this.getWeaponWear()})`;
+        }
+        return msg;
     }
+
     fullyDescribe(baseCards) {
         let parts = []; // build it up.
         parts.push(<span><b>{this.getBase().getDisplayName()}</b>, weapon value <b>{this.getBase().getRawWeaponValue()}</b>.</span>)
         let wear = this.getWeaponWear();
         if (wear > 0) {
-            parts.push(<span>knocked down to <b>{this.getNetWeaponValue()}</b> by wear of <span class='wear_damage'>{wear}</span></span>)
+            parts.push(<span>knocked down to <b>{this.getNetWeaponValue()}</b> by wear of <span className='wear_damage'>{wear}</span></span>)
         }
         let affinity = this.getAffinity() || Affinities.NONE;
         if (affinity !== Affinities.NONE) {
-            parts.push(<div><hr /><span>Enchanted to <span class='affinity'>{AffinityLabels[affinity]} affinity</span></span></div>);
+            parts.push(<div><hr /><span>Enchanted to <span className='affinity'>{AffinityLabels[affinity]} affinity</span></span></div>);
         }
         let mark = this.getDb().makers_mark;
         if (mark && mark.when) {
@@ -325,9 +335,9 @@ class CardScore extends Card {
             {fillInSteps(this.db.score_info, baseCards)}
             <hr />
             <span>Legend:</span>
-            <br /><span class="score_2">X</span> -- right!
-            <br /><span class="score_1">X</span> -- right value, wrong position
-            <br /><span class="score_0">X</span> -- value not in the recipe.
+            <br /><span className="score_2">X</span> -- right!
+            <br /><span className="score_1">X</span> -- right value, wrong position
+            <br /><span className="score_0">X</span> -- value not in the recipe.
         </div>);
 
     }

@@ -88,7 +88,7 @@ class WorkshopInputPickerJudge extends React.Component {
       return (
         <div>
           <span>Which recipe outline would you like to use?: </span>
-          <Select style={{width: 250}} onChange={(val) => onChange(val)} options={selectOptions}/>
+          <Select className='width250' onChange={(val) => onChange(val)} options={selectOptions}/>
         </div>
       )
     }

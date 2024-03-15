@@ -140,7 +140,7 @@ class FightPage extends React.Component {
 
     return (
       <span>
-        choose your weapon: <select style={{ width: 200 }} onChange={(val) => onWeaponChoice(val)}>
+        choose your weapon: <select className='width200' onChange={(val) => onWeaponChoice(val)}>
           {htmlOpts}
         </select>
         <br />
@@ -176,7 +176,7 @@ class FightPage extends React.Component {
 
     return (
       <span>
-        choose your armor: <select style={{ width: 200 }} value={selectedValue}
+        choose your armor: <select className='width200' value={selectedValue}
           onChange={(val) => onArmorChoice(val)} >
           {htmlOpts}
         </select>

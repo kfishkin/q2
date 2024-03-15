@@ -1,5 +1,4 @@
 import React from 'react';
-import { Select } from 'antd';
 
 // props:
 // machine - the card for the machine that needs input
@@ -17,6 +16,7 @@ class WorkshopInputPickerRecipe extends React.Component {
       buyableNeeds: {}, // map from needed base id to {# needed, base card}
       buying: false,
       haveAll: false,
+      selectedCategoryId: 0,
     }
   }
 
@@ -97,26 +97,29 @@ class WorkshopInputPickerRecipe extends React.Component {
         }
 
         const categoryUI = (baseCard, candidates) => {
-          let onCategorySpec = (val) => {
+          let onCategorySpec = (e) => {
+            let val = e.target.value;
             console.log(`you chose ${val}`);
+
             let card = this.props.deck.find((c) => c.getId() === val);
             //console.log(`card = ${JSON.stringify(card)}`);
             if (card) {
               let newPiles = this.state.piles;
               newPiles[0] = [card];
-              this.setState({ piles: newPiles, goodToGo: true });
+              this.setState({ piles: newPiles, goodToGo: (val !== 0), selectedCategoryId: val });
               this.props.onPilesChange(newPiles);
             }
           }
           let selectOptions = candidates.map((card) => {
-            return {
-              label: card.terselyDescribe(),
-              value: card.getId(),
-            }
+            return (<option value={card.getId()} selected={card.getId() === this.state.selectedCategoryId}>{card.terselyDescribe()}</option>)
           })
+          // prepend the 'None' option.
+          selectOptions.unshift(<option value="0" selected={0 === this.state.selectedCategoryId}> ---- None ----</option>);
 
           // if this was a category card, need to have user pick which one.
-          return <Select style={{ width: 210 }} onChange={(val) => onCategorySpec(val)} options={selectOptions} />
+          return <select className='width250' onChange={(val) => onCategorySpec(val)}>
+            {selectOptions}
+          </select>
         }
 
         steps.push(<li key={Math.random()}>
@@ -161,6 +164,7 @@ class WorkshopInputPickerRecipe extends React.Component {
           this.props.beGateway.buyBulk(this.props.gameId, this.props.playerId, baseCardIds).then((v) => {
             this.props.onPlayerDeckBEChange();
             this.setState({buying: false});
+            this.makePilesAndSignal();
           }).catch((e) => {
             console.log(e);
             this.setState({buying: false});

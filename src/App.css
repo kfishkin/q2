@@ -201,7 +201,6 @@ button.fight_button {
 
 button.fight_button:hover {
   background-color: salmon;
-
 }
 
 
@@ -743,4 +742,12 @@ button.fight_on_button {
   position: absolute;
   right: 8px;
   bottom: -8px;
+}
+
+.width200 {
+  width: 200px;
+}
+
+.width250 {
+  width: 250px;
 }
