@@ -1,11 +1,14 @@
 import React from 'react';
+import BuyNeededComponent from './BuyNeededComponent';
 
 // props:
 // machine - the card for the machine that needs input
 // beGateway - the be gateway
 // deck - deck of Cards the player has
 // baseCards hash of BaseCards in the game.
-// onPilesChange - callback(newPiles) whenever piles have changed, and we think it's good to go.
+// gameId
+// heartbeat
+// onTurnCrank - callback(newPiles) when user wants to turn the crank, (newPiles) are the input cards.
 // onPlayerDeckBEChange - BE deck has changed.
 // in this case, we stuff it with the cards to consume, assuming they have enough.
 const BAD_ID = 0;
@@ -13,17 +16,16 @@ class WorkshopInputPickerRecipe extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      buyableNeeds: {}, // map from needed base id to {# needed, base card}
       buying: false,
       selectedCategoryCard: null,
     }
   }
 
   componentDidMount() {
-    this.makePilesAndSignal();
   }
 
-  makePilesAndSignal() {
+  // computes locally, does NOT set state.
+  makeNeedsAndPiles() {
     let recipeCard = this.props.machine;
     let recipeInfo = recipeCard.getBase().getRecipeInfo();
     let inputPiles = [];
@@ -51,25 +53,31 @@ class WorkshopInputPickerRecipe extends React.Component {
           pile = [this.state.selectedCategoryCard];
         } else if (ingredBaseCard.getDb().buyable) {
           let needed = amount - haves.length;
-          needs[ingredBaseId] = { needed: needed, baseCard: ingredBaseCard }
+          // it might already have been needed...
+          let curNeed = needs[ingredBaseId] ? needs[ingredBaseId].needed + needed : needed;
+          needs[ingredBaseId] = { needed: curNeed, baseCard: ingredBaseCard }
         }
       }
       if (pile) {
         inputPiles.push(pile);
       }
     }
-    let haveAll = (inputPiles.length >= recipeInfo.ingredients.length);
-    this.setState({ buyableNeeds: needs });
-    if (haveAll) {
-      this.props.onPilesChange(inputPiles);
-    }
 
+    let haveAll = (inputPiles.length >= recipeInfo.ingredients.length);
+    return { needs, inputPiles, haveAll};
+  }
+
+  makePilesAndSignal() {
+    let {needs, inputPiles, haveAll} = this.makeNeedsAndPiles();
+    console.log(`makePiles: needs = ${JSON.stringify(needs)}`);
   }
 
   render() {
+    // react doesn't like this, but I can't find a better way to force re-computation
+    // when heartbeat changes.
     let recipeCard = this.props.machine;
     let recipeInfo = recipeCard.getBase().getRecipeInfo();
-    let numSteps = recipeInfo.ingredients.length;
+    let numSteps = recipeInfo.ingredients ? recipeInfo.ingredients.length : 0;
 
     const preamble = () => {
       return <span>The {recipeCard.getBase().getDisplayName()} recipe has <b>{numSteps}</b> steps:</span>;
@@ -129,65 +137,38 @@ class WorkshopInputPickerRecipe extends React.Component {
     }
 
     const needsUI = () => {
-      let needs = this.state.buyableNeeds;
-      // sort 'em by alpha.
-      if (!needs || Object.keys(needs).length === 0) {
-        return '';
+      const onInitiate = (baseCardIds) => {
+        console.log(`onInitiate: baseCardIds = ${baseCardIds.join()}`);
+        this.setState({ buying: true });
+        this.props.beGateway.buyBulk(this.props.gameId, this.props.playerId, baseCardIds).then((v) => {
+          this.props.onPlayerDeckBEChange();
+          this.setState({ buying: false });
+          this.makePilesAndSignal();
+        }).catch((e) => {
+          console.log(e);
+          this.setState({ buying: false });
+        });        
       }
-      let needObjs = Object.values(needs);
-      needObjs.sort((blob1, blob2) => blob1.baseCard.getDisplayName().localeCompare(blob2.baseCard.getDisplayName()));
-      let totalCost = 0;
-      let parts = [];
-      needObjs.forEach((neededObj) => {
-        const MARKUP = 2.0;
-        let unitPrice = Math.round(neededObj.baseCard.getSellValue() * MARKUP);
-        let cost = neededObj.needed * unitPrice;
-        parts.push(<li key={Math.random()}>{neededObj.baseCard.getDisplayName()}:{neededObj.needed} @ {unitPrice} --&gt; ${cost}</li>);
-        totalCost += cost;
-      });
+      
+      let {needs, inputPiles, haveAll} = this.makeNeedsAndPiles();
+      console.log(`haveAll = ${haveAll}, needs = ${JSON.stringify(needs)}`);
 
-      const buyButtonUI = (totalCost) => {
-        const onBuy = () => {
-          let baseCardIds = [];
-          Object.values(this.state.buyableNeeds).forEach((blob) => {
-            let n = blob.needed;
-            let id = blob.baseCard.getId();
-            for (let i = 0; i < n; i++) {
-              baseCardIds.push(id);
-            }
-          });
-          console.log(`onBuy: called, gameId = ${this.props.gameId}, playerId = ${this.props.playerId}, bcIds = ${baseCardIds.join()}`);
-          this.setState({ buying: true });
-          this.props.beGateway.buyBulk(this.props.gameId, this.props.playerId, baseCardIds).then((v) => {
-            this.props.onPlayerDeckBEChange();
-            this.setState({ buying: false });
-            this.makePilesAndSignal();
-          }).catch((e) => {
-            console.log(e);
-            this.setState({ buying: false });
-          });
-        }
-
-        if (this.state.buying) {
-          return <span>buying...</span>;
-        } else {
-          return <button onClick={onBuy}>Buy for ${totalCost}</button>
-        }
-      }
-      <button>buy for ${totalCost}</button>
-      return (<div>
-        <hr />
-        <span>Missing ingredients:</span>
-        <br />
-        <ol style={{ textAlign: 'left' }}>
-          {parts}
-        </ol>
-        <br />
-        {buyButtonUI(totalCost)}
-
-      </div>)
-
+    const doitUI = () => {
+      return (
+      <div className="postamble">
+      <button id="machine_do" disabled={!haveAll} onClick={(e) => this.props.onTurnCrank(inputPiles)}>Use it</button>
+    </div>
+      );
     }
+
+      return (<div>
+        <BuyNeededComponent buying={this.state.buying} deck={this.props.deck} gameId={this.props.gameId} 
+          heartbeat={this.props.heartbeat}
+          needs={needs} onInitiate={onInitiate} beGateway={this.props.beGateway} />
+          {doitUI()}
+      </div>)
+    }
+
 
 
     return (<div>

@@ -112,7 +112,7 @@ class FightRoundDialog extends React.Component {
     }
 
     const deadUI = () => {
-      const BUTTON_TEXT = "vive memor leti"
+      const BUTTON_TEXT = "Bummer!"
       let msg = playByPlay() + ". You've died! On to the trophy hall...";
       let endStatus = {
         reloadDeck: false,

@@ -80,7 +80,7 @@ class ShopperComponent extends React.Component {
     return (
       <div className='shopper_component' current={this.props.current}>
         <div horiz='yes' style={{verticalAlign: 'top'}}>
-          <span>The Personal Shopper can take some of the tedcium out of shopping...</span>
+          <span>The Personal Shopper can take some of the tedium out of shopping...</span>
         <div className='card_face_border'>
           <div className="card_face_description_bg">
             <img src={imgUrl} width="250" alt="" />

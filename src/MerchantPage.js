@@ -82,7 +82,7 @@ class MerchantPage extends React.Component {
   }
 
   onStartBuy(cards) {
-    console.log(`wants to buy cards ${JSON.stringify(cards)}`);
+    //console.log(`wants to buy cards ${JSON.stringify(cards)}`);
     // just need the IDs to send over the wire.
     if (!cards) return;
     let cardIds = cards.map((card) => card._id);

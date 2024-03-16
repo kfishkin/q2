@@ -11,6 +11,7 @@ import WorkshopInputPickerRecipe from './WorkshopInputPickerRecipe';
 // owner: the player structure for the merchant that owns this shop.
 // beGateway
 // gameInfo
+// heartbeat
 // playerInfo
 // onPlayerDeckBEChange
 class WorkshopPage extends React.Component {
@@ -112,9 +113,11 @@ class WorkshopPage extends React.Component {
 
     let makeInputAreaUI = () => {
       let base = this.state.machineCard.getBase();
+      /*
       if (base.getNumInputs() === 0) {
         return "";
       }
+      */
       // at least for the judge, the first input drives all the others.
       // Plus there are typically only a few options for each.
       // also, recipes and the judge require _two_ things per step (amount and ingredient).
@@ -138,13 +141,18 @@ class WorkshopPage extends React.Component {
         case 'WorkshopInputPickerJudge':
 
           picker = <WorkshopInputPickerJudge machine={this.state.machineCard} beGateway={this.props.beGateway}
-            deck={deckCards} baseCards={this.props.gameInfo.baseCards} onPilesChange={(newPiles) => onPilesChange(newPiles)} />
+            deck={deckCards} baseCards={this.props.gameInfo.baseCards} onPilesChange={(newPiles) => onPilesChange(newPiles)}
+            gameId={this.props.gameInfo.gameId} playerId={this.props.playerInfo.playerId}
+            onPlayerDeckBEChange={this.props.onPlayerDeckBEChange}
+            onTurnCrank ={(inputPiles) => onTurnCrank(inputPiles) }
+            heartbeat={this.props.heartbeat} />
           break;
         case 'WorkshopInputPickerRecipe':
           picker = <WorkshopInputPickerRecipe gameId={this.props.gameInfo.gameId} playerId={this.props.playerInfo.playerId} 
             machine={this.state.machineCard} beGateway={this.props.beGateway}
             onPlayerDeckBEChange={this.props.onPlayerDeckBEChange}
-            deck={deckCards} baseCards={this.props.gameInfo.baseCards} onPilesChange={(newPiles) => onPilesChange(newPiles)}/>;
+            onTurnCrank ={(inputPiles) => onTurnCrank(inputPiles)}
+            deck={deckCards} baseCards={this.props.gameInfo.baseCards} />;
           break;
         default:
       }
@@ -154,7 +162,7 @@ class WorkshopPage extends React.Component {
     }
 
 
-    let onTurnCrank = () => {
+    const onTurnCrank = (inputPiles) => {
       console.log(`fire in the hole!`);
       let card = this.state.machineCard;
       let gameId = card.getBase().getGameId();
@@ -165,8 +173,8 @@ class WorkshopPage extends React.Component {
 
       // the input piles for the BE are cards
       let pilesOfIds = [];
-      for (let step = 0; step < this.state.inputPiles.length; step++) {
-        let pileOfIds = this.state.inputPiles[step].map((card) => card.getId());
+      for (let step = 0; step < inputPiles.length; step++) {
+        let pileOfIds = inputPiles[step].map((card) => card.getId());
         pilesOfIds.push(pileOfIds);
       }
       this.props.beGateway.use(gameId, playerId, machineId, pilesOfIds).then((v) => {
@@ -202,7 +210,7 @@ class WorkshopPage extends React.Component {
             modalTopHtml: v.topHtml, modalBottomHtml: v.bottomHtml
           });
           console.log(`set top to ${v.topHtml}, bottom to ${v.bottomHtml}`);
-          this.setState({ showModal: true }); // wait until after other stuff set
+          this.setState({ showModal: true, inputPiles: [] }); // wait until after other stuff set
 
           if (this.props.onPlayerDeckBEChange) {
             this.props.onPlayerDeckBEChange();
@@ -211,7 +219,7 @@ class WorkshopPage extends React.Component {
 
       }).catch((e) => {
         console.log(`fe:beGateway.use e = ${e}, e.name = ${e.name}, message=${e.message}`);
-        this.setState({ statusMessage: e.message, statusType: 'error' });
+        this.setState({ statusMessage: e.message, statusType: 'error', inputPiles: [] });
       });
     }
 
@@ -219,6 +227,10 @@ class WorkshopPage extends React.Component {
       this.setState({showModal: false});
     }
 
+    //
+    //           <div className="postamble">
+    // <button id="machine_do" disabled={!this.state.goodToGo} onClick={(e) => onTurnCrank()}>Use it</button>
+    // </div>
     // status message across the top, so it doesn't get lost.
     // on the left, show the machine card, with the 'use it' button below that.
     // on the right, the input playground.
@@ -231,10 +243,6 @@ class WorkshopPage extends React.Component {
             <br /> You can also <button onClick={(e) => onChooseDifferent()}>choose a different one</button>
           </div>
           <CardDetail card={this.state.machineCard} baseCards={this.props.gameInfo.baseCards} />
-
-          <div className="postamble">
-            <button id="machine_do" disabled={!this.state.goodToGo} onClick={(e) => onTurnCrank()}>Use it</button>
-          </div>
           <CardsModal title="Workshop" open={this.state.showModal} onOk={handleOk} onCancel={handleOk}
             cards={this.state.modalCards}
             topHtml={this.state.modalTopHtml}

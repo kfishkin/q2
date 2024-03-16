@@ -39,6 +39,7 @@ class TopLevel extends React.Component {
             // created later
             // playerInfo: { handle, id, playerId, displayName, deck}
             // gameInfo: { gameId, name, baseCards:dict of BaseCard }
+            heartbeat: 0, // used to make kids re-render
         }
         this.intervalId = null;
     }
@@ -96,8 +97,6 @@ class TopLevel extends React.Component {
         // get the awards, i don't care about them, but the BE gateway
         // can use this to stamp the new deck of cards...
         this.state.beGateway.getAwards(gameId, playerId).then((a) => {
-
-
             this.state.beGateway.oldGetPlayerCardsForGame(gameId, playerId)
                 .then((v) => {
                     //console.log(`onSetCurrentGame: player deck has ${v.length} cards`);
@@ -108,7 +107,8 @@ class TopLevel extends React.Component {
                     })
                     // newPlayerData.deck = [...v];
                     //console.log(`new deck = ${JSON.stringify(newPlayerData.deck)}`);
-                    this.setState({ playerInfo: newPlayerData });
+                    // set the heartbeat AFTER the player info has changed, just to be sure.
+                    this.setState({ playerInfo: newPlayerData}, () => this.setState({heartbeat: this.state.heartbeat + 1}));
                 }).catch((e) => {
                     console.error(`onPlayerDeckBEChange: e=${e}`);
                 });
@@ -245,6 +245,7 @@ class TopLevel extends React.Component {
                 ans = <WorkshopPage beGateway={this.state.beGateway}
                     gameInfo={this.state.gameInfo} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
                     baseCards={this.state.gameInfo.baseCards}
+                    heartbeat={this.state.heartbeat}
                     playerInfo={this.state.playerInfo} />;
                 break;
             case NAV_ITEM_PAGES.LOOT_PAGE:

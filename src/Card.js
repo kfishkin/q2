@@ -49,6 +49,12 @@ export class Card { // abstract base class
                 return new CardWeapon(db);
             case BaseCard.CARD_TYPES.LEARNING:
                 return new CardLearning(db);
+            case BaseCard.CARD_TYPES.RECIPE:
+                if (db.game_card.handle.startsWith('horn_of_plenty_')) {
+                    return new CardHornOfPlenty(db);
+                } else {
+                    return new Card(db);
+                }
             default:
                 return new Card(db);
         }
@@ -127,7 +133,11 @@ export class Card { // abstract base class
     }
 
     terselyDescribe() {
-        return this.getBase().getDisplayName();
+        let msg = this.getBase().getDisplayName();
+        if (this.getMakersMark()) {
+            msg += " (you made)";
+        }
+        return msg;
     }
 }
 
@@ -217,6 +227,10 @@ class CardMachine extends Card {
     }
 }
 
+class CardHornOfPlenty extends CardMachine {
+
+}
+
 class CardArmor extends Card {
     terselyDescribe() {
         let msg = super.terselyDescribe();
@@ -252,7 +266,7 @@ class CardArmor extends Card {
 
 class CardWeapon extends Card {
     terselyDescribe() {
-        let msg = super.terselyDescribe();        
+        let msg = super.terselyDescribe();
         let affinity = this.getAffinity() || Affinities.NONE;
         if (affinity !== Affinities.NONE) {
             msg += `(${AffinityLabels[affinity]} affinity)`;
@@ -277,7 +291,7 @@ class CardWeapon extends Card {
         let mark = this.getDb().makers_mark;
         if (mark && mark.when) {
             parts.push(<div><hr /><img src="pix/general/hammer_and_anvil.png" width="32" title="You made this" alt="You made this" />
-            <span>You made this on {dayjs(mark.when).format("LL")}</span></div>);
+                <span>You made this on {dayjs(mark.when).format("LL")}</span></div>);
         }
         return <div>{parts}</div>;
     }

@@ -85,7 +85,7 @@ export class StoryShowerAward extends StoryShowerComponent {
         // NB: for now assume 1 prize card, doesn't load bunches.
         let baseCardId = base_card_ids[0];
         console.log(`looking up prize card ${baseCardId}`);
-        let prizeBaseCard = this.props.baseCards.find((bc) => bc.getId() === baseCardId);
+        let prizeBaseCard = this.props.baseCards[baseCardId];
           this.setState({ prizeBaseCard: prizeBaseCard });
           this.forceUpdate();
     } else {
@@ -103,9 +103,9 @@ export class StoryShowerAward extends StoryShowerComponent {
     let why = story.textParts.why;
     let line1 = <span>You won the award for <i><b>{why}</b></i>. </span>;
     let line2 = "";
-    if (story.base_cards && story.base_card_ids.length > 0) {
+    if (story.base_card_ids && story.base_card_ids.length > 0) {
       let baseId = story.base_card_ids[0];
-      let storyBaseCard = this.props.baseCards.find((bc) => bc.getId() === baseId);
+      let storyBaseCard = this.props.baseCards[baseId];
       if (!storyBaseCard) {
         // couldn't find it.
         console.log(`couldn't find prize base card w/id ${story.base_card_ids[0]}`);

@@ -58,7 +58,9 @@ export class BaseCard { // abstract base class
     getDb() {
         return this.db;
     }
-    
+    getGameId() {
+        return this.db.game_id;
+    }
     getHandle() {
         return this.db.handle;
     }
@@ -73,10 +75,6 @@ export class BaseCard { // abstract base class
 
     getLevel() {
         return this.db.level;
-    }
-
-    getGameId() {
-        return this.db.game_id;
     }
 
     getSellValue() {
@@ -174,13 +172,10 @@ export class BaseCard { // abstract base class
                     NONE: 0,
                     JUDGE: 1,
                     CRYSTAL_BALL: 2,
-                    HORN_OF_PLENTY: 3,
                     FORENSICS: 4
                 };
                 let machineType = db.machine.type;
                 switch (machineType) {
-                    case MachineType.HORN_OF_PLENTY:
-                        return new CardTypeMachineHornOfPlenty(db);
                     case MachineType.JUDGE:
                         return new CardTypeMachineJudge(db);
                         default:
@@ -200,7 +195,8 @@ export class BaseCard { // abstract base class
                 let levelStr = nub.slice(lastSep + 1);
                 let level = parseInt(levelStr);
                 return new CardTypeRecipeMastery(db, level, affinity);
-
+              } else if (db.handle.startsWith('horn_of_plenty')) {
+                return new CardTypeRecipeHornOfPlenty(db);
               } else {
                 return new CardTypeRecipe(db);
               }
@@ -322,12 +318,6 @@ class CardTypeMachine extends BaseCard {
     }    
 }
 
-// a Machine card
-class CardTypeMachineHornOfPlenty extends CardTypeMachine {
-    descriptionBackgroundImageURL() {
-                return "pix/general/horn_of_plenty_big.jpg";
-    }
-}
 
 // a Machine card
 class CardTypeMachineJudge extends CardTypeMachine {
@@ -428,7 +418,6 @@ class CardTypeRecipe extends BaseCard {
     }
     getInputPickerComponentName() {
         return "WorkshopInputPickerRecipe";
-
     }
     getNumInputs() {
         return this.db.recipe.ingredients.length;
@@ -461,6 +450,17 @@ class CardTypeRecipeForensics extends CardTypeRecipe {
             returns a recipe outline for how to make that piece,
             if one exists. The input is <i>destroyed</i> in the process.
         </div>) 
+    }
+}
+
+class CardTypeRecipeHornOfPlenty extends CardTypeRecipe {
+    altText() { return "Horn of Plenty" }
+
+    getInputPickerComponentName() {
+        return "WorkshopInputPickerRecipe";
+    }
+    descriptionBackgroundImageURL() {
+                return "pix/general/horn_of_plenty_big.jpg";
     }
 }
 
