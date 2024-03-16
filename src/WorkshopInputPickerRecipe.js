@@ -68,7 +68,7 @@ class WorkshopInputPickerRecipe extends React.Component {
   }
 
   makePilesAndSignal() {
-    let {needs, inputPiles, haveAll} = this.makeNeedsAndPiles();
+    let {needs} = this.makeNeedsAndPiles();
     console.log(`makePiles: needs = ${JSON.stringify(needs)}`);
   }
 

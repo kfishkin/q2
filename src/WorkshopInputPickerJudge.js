@@ -190,7 +190,7 @@ class WorkshopInputPickerJudge extends React.Component {
           }
         }
         if (allOk) {
-          let { piles } = this.makePiles(this.props.deck, this.state.currentAmounts, this.state.currentIngreds);
+          this.makePiles(this.props.deck, this.state.currentAmounts, this.state.currentIngreds);
           this.setState({ haveAll: true });
         } else {
         }
@@ -283,7 +283,7 @@ class WorkshopInputPickerJudge extends React.Component {
             this.setState({ buying: false });
           });
         }
-        let { piles, needs } = this.makePiles(this.props.deck, this.state.currentAmounts, this.state.currentIngreds);
+        let { needs } = this.makePiles(this.props.deck, this.state.currentAmounts, this.state.currentIngreds);
 
         return (<div>
           <BuyNeededComponent buying={this.state.buying} deck={this.props.deck} gameId={this.props.gameId}
@@ -293,12 +293,6 @@ class WorkshopInputPickerJudge extends React.Component {
 
       const doitUI = () => {
         let { piles } = this.makePiles(this.props.deck, this.state.currentAmounts, this.state.currentIngreds);
-        let numNonEmpty = 0;
-        piles.forEach((pile) => {
-          if (pile && pile.length && pile.length > 0) {
-            numNonEmpty++;
-          }
-        });
         //let haveAll = numNonEmpty >= outlineInfo.num_steps + 1;
         return (<div className="postamble">
           <button id="machine_do" disabled={!this.state.haveAll} onClick={(e) => this.props.onTurnCrank(piles)}> Judge </button>
