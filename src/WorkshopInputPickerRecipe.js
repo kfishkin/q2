@@ -93,6 +93,10 @@ class WorkshopInputPickerRecipe extends React.Component {
         let candidates = baseCard.ContainedInDeck(this.props.deck);
         if (baseCard.isCategory()) {
           candidates = baseCard.ContainedInDeck(candidates);
+          // the category card is of max level. Now need to filter
+          // based on the level of the machine.
+          const machineLevel = this.props.machine.db.game_card.level;
+          candidates = candidates.filter((bc) => bc.getLevel() <= machineLevel);
         }
 
         let have = candidates.length;

@@ -36,7 +36,7 @@ class BuyNeededComponent extends React.Component {
         bankroll += moneyCard.getBase().getSellValue();
       });
       this.setState({bankroll});
-      console.log(`cdm.BuyNeededComponent: bankroll = ${bankroll}`);
+      //console.log(`cdm.BuyNeededComponent: bankroll = ${bankroll}`);
   }
 
    needsUI() {

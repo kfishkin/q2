@@ -235,7 +235,7 @@ class WorkshopInputPickerJudge extends React.Component {
         let selectOptions = selectBaseCards.map((baseCard) => {
           let amount = baseCard.ContainedInDeck(this.props.deck).length;
           return {
-            label: `${baseCard.getDisplayName()} (${amount})`,
+            label: `${baseCard.getDisplayName()}`,
             value: baseCard.getId(),
             dont_have: (amount === 0)
           }
@@ -249,7 +249,7 @@ class WorkshopInputPickerJudge extends React.Component {
         return <Select style={{ width: 200 }} onChange={(val) => onIngredChange(step, val)} options={selectOptions}
           optionRender={(option) => (
             <Space>
-              <span className={option.data.dont_have ? 'dont_have' : ''}>
+              <span>
                 {option.data.label}
               </span>
             </Space>
