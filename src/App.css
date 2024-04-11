@@ -50,7 +50,8 @@ div.unguessed {
 }
 
 div.header_detail {
-  color: antiquewhite;
+  background-color: antiquewhite;
+  color: black;
 }
 
 div.sider {
@@ -754,4 +755,16 @@ button.fight_on_button {
 
 div.buy_needed {
   background-color: lightgoldenrodyellow;
+}
+
+div.button_bar {
+  text-align: left;
+}
+
+div.button_bar_image {
+  display: inline-block;
+}
+
+div.button_bar_buttons_and_text {
+  display: inline-block;
 }

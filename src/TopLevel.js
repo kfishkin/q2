@@ -1,9 +1,10 @@
 import React from 'react';
 import 'antd/dist/reset.css';
 import { VERSION } from './AboutPage';
-import { Layout, Menu } from 'antd';
+import { Layout } from 'antd';
 import { BaseCard } from './BaseCard';
 import BEGateway from './BEGateway';
+import ButtonBar from './ButtonBar';
 import Card from './Card';
 import CashierPage from './CashierPage';
 //import ErrorBoundary from './ErrorBoundary';
@@ -14,14 +15,12 @@ import LoginPage from './LoginPage';
 import MerchantPage from './MerchantPage';
 import NewsPage from './NewsPage';
 import Pile from './pile';
-import PlayerStatus from './PlayerStatus';
+import { PlayerStates } from './PlayerStates';
 import TrophyPage from './TrophyPage';
 import WorkshopPage from './WorkshopPage';
 import LootPage from './LootPage';
 import {
     NAV_ITEM_PAGES,
-    NavMenuItemCashier, NavMenuItemGame, NavMenuItemGameAdmin, NavMenuItemLogin,
-    NavMenuItemMerchant, NavMenuItemNews, NavMenuItemTrophies, NavMenuItemWorkshop
 } from './NavMenuItemComponent';
 
 
@@ -32,7 +31,7 @@ class TopLevel extends React.Component {
         console.log(`baseURI=${beURI}`);
         let pile = new Pile();
         this.state = {
-            currentPage: NAV_ITEM_PAGES.HOME_PAGE,
+            currentPage: NAV_ITEM_PAGES.LOGIN_PAGE,
             spoilers: false,
             beURI: beURI,
             beGateway: new BEGateway(beURI, pile),
@@ -108,7 +107,7 @@ class TopLevel extends React.Component {
                     // newPlayerData.deck = [...v];
                     //console.log(`new deck = ${JSON.stringify(newPlayerData.deck)}`);
                     // set the heartbeat AFTER the player info has changed, just to be sure.
-                    this.setState({ playerInfo: newPlayerData}, () => this.setState({heartbeat: this.state.heartbeat + 1}));
+                    this.setState({ playerInfo: newPlayerData }, () => this.setState({ heartbeat: this.state.heartbeat + 1 }));
                 }).catch((e) => {
                     console.error(`onPlayerDeckBEChange: e=${e}`);
                 });
@@ -180,6 +179,16 @@ class TopLevel extends React.Component {
         var ans = "";
         // temp until we make all the cards be Cards...
         let deckObjs = (this.state.playerInfo && this.state.playerInfo.deck) ? this.state.playerInfo.deck.map((db) => Card.Of(db)) : [];
+        let loggedIn = this.state.playerInfo && this.state.playerInfo.handle;
+        let isDead = false; // only true if we _know_ you're dead
+        if (this.state.playerInfo && this.state.playerInfo.deck) {
+            isDead = !this.state.playerInfo.deck.some((cdb) => {
+                return (cdb.game_card.lives > 0);
+            });
+        }
+        let haveGame = this.state.gameInfo && this.state.gameInfo.gameId;
+        let showButtonBar = loggedIn && haveGame;
+        let playerState = isDead ? PlayerStates.DEAD : PlayerStates.HOME; // NB: de-kludge this.
         switch (this.state.currentPage) {
             case NAV_ITEM_PAGES.CASHIER_PAGE:
                 ans = <CashierPage beGateway={this.state.beGateway}
@@ -196,6 +205,7 @@ class TopLevel extends React.Component {
                     let row = this.state.extra.row;
                     let col = this.state.extra.col;
                     let room = this.state.gameInfo.map.rooms[row][col];
+                    playerState = PlayerStates.FIGHTING;
                     ans = <FightPage room={room} deck={deckObjs}
                         baseCards={this.state.gameInfo.baseCards}
                         beGateway={this.state.beGateway}
@@ -219,7 +229,7 @@ class TopLevel extends React.Component {
                 ans = <GamePage playerInfo={this.state.playerInfo} gameInfo={this.state.gameInfo} beGateway={this.state.beGateway}
                     showPageFunc={(which, extra) => this.handleShowPage(which, extra)}
                     onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
-                    onPlantFlag={(row, col) => this.onPlantFlag(row, col)} />
+                    onPlantFlag={(row, col) => this.onPlantFlag(row, col)} />;
                 break;
             case NAV_ITEM_PAGES.MERCHANT_PAGE:
                 // the only owner at present is the shop owner at xy (0,0)
@@ -264,11 +274,17 @@ class TopLevel extends React.Component {
                 break;
 
         }
+        if (showButtonBar) {
+            ans = [<ButtonBar playerState={playerState} playerName={this.state.playerInfo.displayName}
+                showPageFunc={(which, extra) => this.handleShowPage(which, extra)} />,
+                ans];
+        }
+
         return ans;
     }
 
     render() {
-        const { Header, Footer, Sider, Content } = Layout;
+        const { Header, Footer, Content } = Layout;
         // make the templates for the nav menu. could/should be done in the ctor,
         // but those should be short and simple, and computers is fast.
         let loggedIn = this.state.playerInfo && this.state.playerInfo.handle;
@@ -292,7 +308,6 @@ class TopLevel extends React.Component {
             loggedIn, haveGame, haveDeck, fighting, isDead
         };
         commonProps.showPageFunc = (which, extra) => this.handleShowPage(which, extra);
-        let deckObjs = haveDeck ? this.state.playerInfo.deck.map((cdb) => Card.Of(cdb)) : null;
 
         return (
             <Layout>
@@ -300,26 +315,6 @@ class TopLevel extends React.Component {
                     <div className="header_detail"><p>{headerText}</p></div>
                 </Header>
                 <Layout>
-                    <Sider><div className="sider">
-                        <PlayerStatus playerId={this.state.playerInfo ? this.state.playerInfo.playerId : null}
-                          deck={haveDeck ? deckObjs : null} />
-                        <div><Menu theme="light" mode="inline">
-                            <NavMenuItemLogin {...commonProps}/>
-                            <NavMenuItemGameAdmin {...commonProps}/>
-                            <NavMenuItemGame {...commonProps}/>
-                            <NavMenuItemMerchant {...commonProps} />
-                            <NavMenuItemCashier {...commonProps} />
-                            <NavMenuItemWorkshop {...commonProps} />
-                            <NavMenuItemNews {...commonProps}
-                                beGateway={this.state.beGateway} playerId={this.state.playerInfo ? this.state.playerInfo.playerId : null}
-                                gameId={this.state.gameInfo ? this.state.gameInfo.gameId : null}
-                            />
-                            <NavMenuItemTrophies {...commonProps} />
-                        </Menu></div>
-                    </div>
-                    <div style={{backgroundColor: 'white'}}>
-                    </div>
-                    </Sider>
                     <Content>{this.renderContent()}</Content>
                 </Layout>
                 <Footer style={{ 'textAlign': 'left' }}><span>Q2 version {VERSION}</span></Footer>
