@@ -3,99 +3,104 @@ import { NAV_ITEM_PAGES } from './NavMenuItemComponent';
 import { PlayerStates } from './PlayerStates';
 
 // props:
+// beGateway
+// gameId
+// playerId
 // playerName - String
 // playerState - enum
-// loggedIn - am I logged in.
-// haveDeck - do I have a deck of cards.
-// haveGame - do I have a current game.
-// showPageFunc - f(page, extra) to jump to that page
+// props.showPageFunc - f(page, extra) to jump to that page
 class ButtonBar extends React.Component {
-  isEnabledNow() {
-    return this.props.haveGame && this.props.haveDeck && !this.props.fighting && !this.props.isDead; // the default
+  constructor(props) {
+    super(props);
+    this.state = {
+      pinging: false,
+      newsCount: 0
+    };
+    // can't find a nicer OO way to do this in react without a lot of hair,
+    // because each needs to be its own component.
+    this.imgUrls = {};
+    this.imgUrls[PlayerStates.AWAY] = 'pix/general/away.png';
+    this.imgUrls[PlayerStates.DEAD] = 'pix/general/dead.png';
+    this.imgUrls[PlayerStates.FIGHTING] = 'pix/general/fighting.png';
+    this.imgUrls[PlayerStates.HOME] = 'pix/general/home.png';
+    this.imgTitles = {};
+    this.imgTitles[PlayerStates.AWAY] = 'away';
+    this.imgTitles[PlayerStates.DEAD] = 'dead';
+    this.imgTitles[PlayerStates.FIGHTING] = 'fighting';
+    this.imgTitles[PlayerStates.HOME] = 'home';
+
   }
 
-  pageDescriptor() {
-    return "BOGUS"; // over-ride in subclasses.
-  }
-  sideBarText() {
-    return "OVER_RIDE ME";
-  }
-
-  static Of(state, props) {
-    switch (state) {
-      /*
-      case PlayerStates.AWAY: return new ButtonBarFillerAway();
-      case PlayerStates.DEAD: return new ButtonBarFillerDead();
-      case PlayerStates.FIGHTING: return new ButtonBarFillerFighting();
-      
-      case PlayerStates.UNKNOWN:
-        */
-      case PlayerStates.HOME: return new ButtonBarFillerHome(props.playerName, props.showPageFunc);
-        default:
-          return new ButtonBarFillerUnknown(props.playerName);
+  newsPinger() {
+    if (this.props.gameId && this.props.playerId && this.props.beGateway && !this.state.pinging) {
+      this.setState({ pinging: true });
+      this.props.beGateway.getNewsCount(this.props.gameId, this.props.playerId)
+        .then((v) => {
+          console.log(`newsCount now ${v}`);
+          this.setState({ pinging: false, newsCount: parseInt(v) });
+        }).catch((e) => {
+          console.log(`e = ${e}`);
+          this.setState({ pinging: false });
+        });
     }
   }
 
+  componentDidMount() {
+    // need the bind so 'this' in newsPinger isn't the window...
+    this.intervalId = window.setInterval(this.newsPinger.bind(this), 10000); // every 10 sec.
+    //console.log(`news cdm: intervalid = ${this.intervalId}`);
+  }
+
+  componentWillUnmount() {
+    if (this.intervalId) {
+      window.clearInterval(this.intervalId);
+    }
+  }
+
+  imageUI() {
+    let imgUrl = this.imgUrls[this.props.playerState];
+    let title = this.imgTitles[this.props.playerState];
+    return imgUrl ? <img src={imgUrl} width="64" alt={title} title={title} /> : '';
+  }
+
+  textUI() {
+    return <span>You can </span>;
+  }
+
+  buttonsUI() {
+    switch (this.props.playerState) {
+      case PlayerStates.HOME:
+        let newsText = (this.state.newsCount > 0) ?  (<span><span>News</span><span className='new_news'>({this.state.newsCount})</span></span>) :
+        (<span disabled="disabled">News</span>);
+        return [
+          <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.LOGIN_PAGE)}>Logout</button>,
+          <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.GAME_ADMIN_PAGE)}>Administer Games</button>,
+          <span>Shop Retail</span>,
+          <span>Shop Wholesale</span>,
+          <span>Pack your backpack</span>,
+          <span>Go adventuring with your backpack</span>,
+          <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.CASHIER_PAGE)}>See the Cashier</button>,
+          <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.WORKSHOP_PAGE)}>Go to the Workshop</button>,
+          <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.NEWS_PAGE)}>{newsText}</button>,
+          <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.TROPHY_PAGE)}>View Trophies</button>
+        ];
+      default:
+        return '';
+    }
+  }
 
   render() {
-    // can't find an OO way to do this in React...
-    let buttonBarFiller = ButtonBar.Of(this.props.playerState, this.props);
+    // can't find a clean OO way to do this in React...
     return <div className='button_bar'>
       <div className='button_bar_image'>
-      {buttonBarFiller.imageUI()}
+        {this.imageUI()}
       </div>
       <div className='button_bar_buttons_and_text'>
-        {buttonBarFiller.textUI()}
-        <br/>
-        {buttonBarFiller.buttonsUI()}
+        {this.textUI()}
+        <br />
+        {this.buttonsUI()}
       </div>
     </div>
-  }
-}
-
-class ButtonBarFillerHome {
-  constructor(playerName, showPageFunc) {
-    this.playerName = playerName;
-    this.showPageFunc = showPageFunc;
-  }
-
-  imageUI() {
-    let imgUrl = "pix/general/home.png";
-    return (
-            <img src={imgUrl} width="64" alt="home" title='home' />
-    )
-  }
-
-  textUI() {
-    return 'You are at home. From here you can: ';
-  }
-  buttonsUI() {
-    return [
-      <button onClick={(e) => this.showPageFunc(NAV_ITEM_PAGES.LOGIN_PAGE)}>Logout</button>,
-      <button onClick={(e) => this.showPageFunc(NAV_ITEM_PAGES.GAME_ADMIN_PAGE)}>Administer Games</button>,
-      <span>Shop Retail</span>,
-      <span>Shop Wholesale</span>,
-      <button onClick={(e) => this.showPageFunc(NAV_ITEM_PAGES.CASHIER_PAGE)}>See the Cashier</button>,
-      <button onClick={(e) => this.showPageFunc(NAV_ITEM_PAGES.WORKSHOP_PAGE)}>Go to the Workshop</button>,
-      <button onClick={(e) => this.showPageFunc(NAV_ITEM_PAGES.NEWS_PAGE)}>Look at news</button>,
-      <button onClick={(e) => this.showPageFunc(NAV_ITEM_PAGES.TROPHY_PAGE)}>View Trophies</button>
-    ];
-  }  
-}
-
-class ButtonBarFillerUnknown {
-  constructor(playerName) {
-    this.playerName = playerName;
-  }
-
-  imageUI() {
-    return "imageUI";
-  }
-  textUI() {
-    return this.playerName ? `Welcome, ${this.playerName}` : '';
-  }
-  buttonsUI() {
-    return "buttonsUI";
   }
 }
 

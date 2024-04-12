@@ -720,5 +720,18 @@ class BEGateway {
         return response.json();
     }
 
+    async getPlayerState(gameId, playerId) {
+        const url = this.beURI
+            + "players/" + playerId
+            + "/games/" + gameId
+            + "/state";
+        const requestOptions = {
+            method: 'GET',
+        };
+        const response = await fetch(url, requestOptions);
+        return response.json();              
+
+    }
+
 }
 export default BEGateway;
