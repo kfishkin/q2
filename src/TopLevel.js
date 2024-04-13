@@ -2,6 +2,7 @@ import React from 'react';
 import 'antd/dist/reset.css';
 import { VERSION } from './AboutPage';
 import { Layout } from 'antd';
+import BackpackPage from './BackpackPage';
 import { BaseCard } from './BaseCard';
 import BEGateway from './BEGateway';
 import ButtonBar from './ButtonBar';
@@ -35,6 +36,7 @@ class TopLevel extends React.Component {
             spoilers: false,
             beURI: beURI,
             beGateway: new BEGateway(beURI, pile),
+            playerState: PlayerStates.UNKNOWN,
             // created later
             // playerInfo: { handle, id, playerId, displayName, deck}
             // gameInfo: { gameId, name, baseCards:dict of BaseCard }
@@ -178,15 +180,18 @@ class TopLevel extends React.Component {
         // temp until we make all the cards be Cards...
         let deckObjs = (this.state.playerInfo && this.state.playerInfo.deck) ? this.state.playerInfo.deck.map((db) => Card.Of(db)) : [];
         let loggedIn = this.state.playerInfo && this.state.playerInfo.handle;
+        /* TODO: put back in to new playerState framework
         let isDead = false; // only true if we _know_ you're dead
         if (this.state.playerInfo && this.state.playerInfo.deck) {
             isDead = !this.state.playerInfo.deck.some((cdb) => {
                 return (cdb.game_card.lives > 0);
             });
         }
+        */
         let haveGame = this.state.gameInfo && this.state.gameInfo.gameId;
         let showButtonBar = loggedIn && haveGame;
-        let playerState = isDead ? PlayerStates.DEAD : PlayerStates.HOME; // NB: de-kludge this.
+        let playerState = this.state.playerState;
+        let page = (this.state.currentPage === undefined) ? NAV_ITEM_PAGES.GAME_ADMIN_PAGE : this.state.currentPage;
         switch (this.state.currentPage) {
             case NAV_ITEM_PAGES.CASHIER_PAGE:
                 content = <CashierPage beGateway={this.state.beGateway}
@@ -203,7 +208,8 @@ class TopLevel extends React.Component {
                     let row = this.state.extra.row;
                     let col = this.state.extra.col;
                     let room = this.state.gameInfo.map.rooms[row][col];
-                    playerState = PlayerStates.FIGHTING;
+                    // TODO: change this to new way
+                    //playerState = PlayerStates.FIGHTING;
                     content = <FightPage room={room} deck={deckObjs}
                         baseCards={this.state.gameInfo.baseCards}
                         beGateway={this.state.beGateway}
@@ -267,20 +273,56 @@ class TopLevel extends React.Component {
                 content = <NewsPage beGateway={this.state.beGateway}
                     gameId={this.state.gameInfo.gameId} baseCards={this.state.gameInfo.baseCards} playerId={this.state.playerInfo.playerId} />;
                 break;
+            case NAV_ITEM_PAGES.AWAY_PAGE:
+                content = <div>Welcoome to the away page</div>;
+                break;
+            case NAV_ITEM_PAGES.BACKPACK_PAGE:
+                content = <BackpackPage
+                beGateway={this.state.beGateway}
+                  gameId={this.state.gameInfo.gameId}
+                  playerId={this.state.playerInfo.playerId}
+                  baseCards={this.state.gameInfo.baseCards}
+                  deck={deckObjs}
+                  onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
+                  playerState={playerState}/>
+                break;
             default:
                 content = <div>unknown current page '{this.state.currentPage}'</div>;
                 break;
 
         }
         if (showButtonBar) {
-            content = [<ButtonBar playerState={playerState} playerName={this.state.playerInfo.displayName}
+            content = [<ButtonBar playerState={this.state.playerState} playerName={this.state.playerInfo.displayName}
                 beGateway={this.state.beGateway}
                 gameId={this.state.gameInfo.gameId} playerId={this.state.playerInfo.playerId}
+                startAdventureFunc={() => this.startAdventure()}
+                endAdventureFunc={() => this.endAdventure()}
                 showPageFunc={(which, extra) => this.handleShowPage(which, extra)} />,
                 content];
         }
 
         return content;
+    }
+
+    endAdventure() {
+        console.log(`end adventure: called`);
+        // signal the BE, and wait. TODO other stuff.
+        let newState = PlayerStates.HOME;
+        this.state.beGateway.setPlayerState(this.state.gameInfo.gameId, this.state.playerInfo.playerId, newState).then((v) => {
+            console.log(`top.endAdventure: v = ${v}`);
+            this.setState({playerState: parseInt(v.player_state)}, () => this.handleShowPage(NAV_ITEM_PAGES.GAME_PAGE, {}));
+        }).catch((e) => console.log(`endAdventure: e=${e}`));        
+    }
+
+    startAdventure() {
+        console.log(`start Adventure: called`);
+        // signal the BE, and wait...
+        let newState = PlayerStates.AWAY;
+        this.state.beGateway.setPlayerState(this.state.gameInfo.gameId, this.state.playerInfo.playerId, newState).then((v) => {
+            console.log(`top.startAdventure: v = ${v}`);
+            let newPage = NAV_ITEM_PAGES.AWAY_PAGE;
+            this.setState({playerState: parseInt(v.player_state)}, () => this.handleShowPage(newPage,{}));
+        }).catch((e) => console.log(`startAdventure: e=${e}`));
     }
 
     render() {

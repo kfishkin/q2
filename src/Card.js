@@ -128,8 +128,20 @@ export class Card { // abstract base class
         return Math.max(0, val - this.getWeaponWear());
     }
 
+    inBackpack() {
+        return (this.db && ('in_backpack' in this.db)) ? this.db.in_backpack : false;
+    }
+
+    isBackpackable() {
+        return false; // over-ride in subclasses
+    }
+
     isLearningFor(baseCardId) {
         return false;
+    }
+
+    setBackpack(val) {
+        this.db.in_backpack = val;
     }
 
     terselyDescribe() {
@@ -261,6 +273,9 @@ class CardArmor extends Card {
         }
         return <div>{parts}</div>;
     }
+    isBackpackable() {
+        return true;
+    }
 }
 
 
@@ -295,6 +310,9 @@ class CardWeapon extends Card {
         }
         return <div>{parts}</div>;
     }
+    isBackpackable() {
+        return true;
+    }    
 }
 
 

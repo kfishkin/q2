@@ -730,8 +730,58 @@ class BEGateway {
         };
         const response = await fetch(url, requestOptions);
         return response.json();              
-
     }
 
+    /**
+     * 
+     * @param {Id} gameId 
+     * @param {Id} playerId 
+     * @param {PlayerState} state 
+     * @returns the new perpperg, .player_state is the new player state.
+     */
+    async setPlayerState(gameId, playerId, state) {
+        const url = this.beURI
+            + `players/${playerId}/games/${gameId}/state`;
+        let body = {
+            state: state
+        };
+        const requestOptions = {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }
+        const response = await fetch(url, requestOptions);
+        if (!response || !response.ok) {
+            return Promise.reject(`couldn't set player state to ${state}`);
+        } else {
+            return response.json();
+        }        
+    }
+
+    /**
+     * Sets the in_backpack bit for the following card ids
+     * @param {[Id]]} cardIds 
+     * @param {Boolean} val 
+     */
+    async setBackpack(cardIds, val) {
+        const url = this.beURI
+            + `cards/backpack`;
+        let body = {
+            cardIds: cardIds,
+            value: val
+        };
+        const requestOptions = {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }
+        const response = await fetch(url, requestOptions);
+        if (!response || !response.ok) {
+            return Promise.reject(`couldn't set backpack`);
+        } else {
+            return response.json();
+        }
+
+    }
 }
 export default BEGateway;

@@ -116,6 +116,10 @@ export class DeckComponent extends React.Component {
     }
   }
 
+  preambleFor(deck) {
+    let msg = this.forWhom;
+    return <span>{msg} deck has {deck.length} cards, click on one to see it in more detail:</span>;
+  }
 
   // props
   // deck - array of cards in the deck.
@@ -125,8 +129,7 @@ export class DeckComponent extends React.Component {
     if (!deck || deck.length === 0) {
       return <div>Empty deck.</div>
     }
-    let msg = this.forWhom;
-    let preamble = <span>{msg} deck has {deck.length} cards, click on one to see it in more detail:</span>;
+    let preamble = this.preambleFor(deck);
     let columns = [
       {
         title: 'name', dataIndex: 'display_name',
@@ -320,4 +323,74 @@ export class DeckComponentInventory extends DeckComponent {
     let numChecked = rows.length;
     this.setState({ statusMessage: `${this.state.verb} ${numChecked}`, statusType: 'clickable' });
   }
+}
+
+
+// deck view that only has the backpack
+export class DeckComponentBackpack extends DeckComponent {
+  constructor(props) {
+    super(props);
+    this.flavor = "backpack";
+    this.state.verb = "move FROM the backpack";
+  }
+
+  componentDidMount() {
+    if (!this.props.ronly)
+      this.setState({ statusMessage: "click things to move out of the backpack", type: "info" });
+  }
+
+  onSelectedRows(rows) {
+    if (!rows || rows.length === 0) {
+      this.setState({ statusMessage: "click things to move out of the backpack", statusType: "info" });
+      return;
+    }
+    let numChecked = rows.length;
+    this.setState({ statusMessage: `${this.state.verb} ${numChecked}`, statusType: 'clickable' });
+  }
+
+  preambleFor(deck) {
+    switch (deck.length) {
+      case 0:
+        return <span>Your backpack is empty</span>;
+      case 1:
+        return <span>Your packpack has 1 item:</span>;
+      default:
+        return <span>Your backpack has {deck.length} items:</span>;
+    }
+  }
+}
+
+// deck view that only has NON-backup items that can go into the backpack
+export class DeckComponentBackpackable extends DeckComponent {
+  constructor(props) {
+    super(props);
+    this.flavor = "backpackable";
+    this.state.verb = "move TO the backpack";
+  }
+
+  componentDidMount() {
+    if (!this.props.ronly)
+      this.setState({ statusMessage: "click things to move into the backpack", type: "info" });
+  }
+
+  onSelectedRows(rows) {
+    if (!rows || rows.length === 0) {
+      this.setState({ statusMessage: "click things to move into the backpack", statusType: "info" });
+      return;
+    }
+    let numChecked = rows.length;
+    this.setState({ statusMessage: `${this.state.verb} ${numChecked}`, statusType: 'clickable' });
+  }
+
+  preambleFor(deck) {
+    switch (deck.length) {
+      case 0:
+        return <span>Nothing left to go into the backpack</span>;
+      case 1:
+        return <span>1 item could go into the backpack:</span>;
+      default:
+        return <span>{deck.length} items could go into the backpack:</span>;
+    }
+  }  
+  
 }

@@ -12,6 +12,8 @@ export const TROPHY_PAGE = "trophy";
 export const LOOT_PAGE = "loot";
 export const CASHIER_PAGE = "cashier";
 export const WORKSHOP_PAGE = "workshop";
+export const AWAY_PAGE = "away";
+export const BACKPACK_PAGE = "backpack";
 // props:
 // pageTemplates - the page templates
 

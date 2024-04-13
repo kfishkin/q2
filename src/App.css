@@ -245,6 +245,18 @@ div.deck[flavor="inventory"] th {
   color: black; 
 }
 
+
+div.deck[flavor="backpackable"] th {
+  background-color: lightgray;
+  color: black; 
+}
+
+
+div.deck[flavor="backpack"] th {
+  background-color: wheat;
+  color: black; 
+}
+
 span[has=no] {
   background-color: #E0E0E0;
 }

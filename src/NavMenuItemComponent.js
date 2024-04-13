@@ -14,7 +14,9 @@ export const NAV_ITEM_PAGES = {
   CASHIER_PAGE: "Cashier",
   TROPHY_PAGE: "Trophies",
   NEWS_PAGE: "News",
-  HOME_PAGE: "home"
+  HOME_PAGE: "home",
+  AWAY_PAGE: "away",
+  BACKPACK_PAGE: "backpack",
 }
 
 // props:

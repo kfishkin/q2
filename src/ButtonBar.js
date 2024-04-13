@@ -9,6 +9,8 @@ import { PlayerStates } from './PlayerStates';
 // playerName - String
 // playerState - enum
 // props.showPageFunc - f(page, extra) to jump to that page
+// props.startAdventureFunc - f() to start adventuring.
+// props.endAdventureFunc - f() to end adventuring.
 class ButtonBar extends React.Component {
   constructor(props) {
     super(props);
@@ -67,23 +69,51 @@ class ButtonBar extends React.Component {
     return <span>You can </span>;
   }
 
+  maybeStartAdventuring() {
+    let ok = window.confirm('Are you sure you want to leave home? Anything in your backpack will be available, but at risk');
+    if (ok) {
+      this.props.startAdventureFunc();
+    }
+  }
+
+  maybeEndAdventure() {
+    let ok = window.confirm('Are you sure you want to go home? The dungeon will restock with harder foes');
+    if (ok) {
+      this.props.endAdventureFunc();
+    }    
+
+  }
+
   buttonsUI() {
-    switch (this.props.playerState) {
+    // for backward compat, NB: remove this...
+    let state = this.props.playerState;
+    if (state === PlayerStates.UNKNOWN) {
+      state = PlayerStates.HOME;
+    }
+    let newsText = (this.state.newsCount > 0) ?  (<span><span>News</span><span className='new_news'>({this.state.newsCount})</span></span>) :
+    (<span disabled="disabled">News</span>);
+    switch (state) {
       case PlayerStates.HOME:
-        let newsText = (this.state.newsCount > 0) ?  (<span><span>News</span><span className='new_news'>({this.state.newsCount})</span></span>) :
-        (<span disabled="disabled">News</span>);
         return [
           <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.LOGIN_PAGE)}>Logout</button>,
           <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.GAME_ADMIN_PAGE)}>Administer Games</button>,
           <span>Shop Retail</span>,
           <span>Shop Wholesale</span>,
-          <span>Pack your backpack</span>,
-          <span>Go adventuring with your backpack</span>,
+          <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.BACKPACK_PAGE)}>Pack your backpack</button>,
+          <button onClick={(e) => this.maybeStartAdventuring()}>Go adventuring!</button>,
           <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.CASHIER_PAGE)}>See the Cashier</button>,
           <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.WORKSHOP_PAGE)}>Go to the Workshop</button>,
           <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.NEWS_PAGE)}>{newsText}</button>,
           <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.TROPHY_PAGE)}>View Trophies</button>
         ];
+        case PlayerStates.AWAY:
+          return [
+            <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.LOGIN_PAGE)}>Logout</button>,
+            <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.GAME_ADMIN_PAGE)}>Administer Games</button>,
+            <button onClick={(e) => this.maybeEndAdventure()}>Go Home</button>,
+            <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.NEWS_PAGE)}>{newsText}</button>,
+            <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.TROPHY_PAGE)}>View Trophies</button>
+          ]
       default:
         return '';
     }
