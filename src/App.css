@@ -780,3 +780,8 @@ div.button_bar_image {
 div.button_bar_buttons_and_text {
   display: inline-block;
 }
+
+img.board_room {
+  width:96px;
+  margin-left: 10px;
+}

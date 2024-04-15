@@ -107,12 +107,6 @@ export class DeckComponent extends React.Component {
       this.setState({showModal: true});
       // this will bring up the are-you-sure modal, which will then call
       // onConfirm or onCancel as appropriate.
-/*
-      let ok = window.confirm(`Are you sure you want to ${this.verb} these ${this.state.selectedCards.length} cards?`);
-      if (ok) {
-        this.props.onTransact(this.state.selectedCards);
-        this.rowSelectionController.onChange([], []); // clear the selection.
-      } */
     }
   }
 
@@ -220,12 +214,12 @@ export class DeckComponent extends React.Component {
             onClick: (e) => this.onRowClick(row, i, e)
           };
         }}></Table>
-          <CardsModal title="Are you sure?" open={this.state.showModal} onOk={onOk} onCancel={onCancel}
-  cards={this.state.selectedCards}
-  topHtml={<span>Sure you want to {this.state.verb} {sentenceObject}?</span>}
-  bottomHtml=""
-  baseCards={this.props.baseCards}
-/>
+      <CardsModal title="Are you sure?" open={this.state.showModal} onOk={onOk} onCancel={onCancel}
+        cards={this.state.selectedCards}
+        topHtml={<span>Sure you want to {this.state.verb} {sentenceObject}?</span>}
+        bottomHtml=""
+        baseCards={this.props.baseCards}
+      />
     </div>
   }
 }
@@ -351,11 +345,11 @@ export class DeckComponentBackpack extends DeckComponent {
   preambleFor(deck) {
     switch (deck.length) {
       case 0:
-        return <span>Your backpack is empty</span>;
+        return <span><b>Your backpack</b> is empty</span>;
       case 1:
-        return <span>Your packpack has 1 item:</span>;
+        return <span><b>Your backpack</b> has 1 item:</span>;
       default:
-        return <span>Your backpack has {deck.length} items:</span>;
+        return <span><b>Your backpack</b> has {deck.length} items:</span>;
     }
   }
 }

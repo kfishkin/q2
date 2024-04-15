@@ -1,6 +1,7 @@
 import React from 'react';
 import { DeckComponentBackpack, DeckComponentBackpackable } from './DeckComponent';
 import { PlayerStates } from './PlayerStates';
+import StatusMessage from './StatusMessage';
 
 /**
  * Works in two modes. Might make two classes someday
@@ -17,16 +18,28 @@ import { PlayerStates } from './PlayerStates';
  */
 
 class BackpackPage extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      statusMessage: null,
+      statusType: 'info',
+    }
+  }
   backpackPart() {
     const onFromBackpack = (cards) => {
+
+
+      // do it internally first, for speed.
+      cards = cards.map((card) => { card.setBackpack(false); return card });
+
+      this.setState({statusMessage: 'moving...', statusType: 'info'});
+      // this side-effected into the props.deck list.
+      this.props.setPlayerDeck(this.props.deck);
+      // now let the BE know about it
+      this.setState({statusMessage: 'updating BE...', statusType: 'info'});
       let ids = cards.map((card) => card.getId());
       this.props.beGateway.setBackpack(ids, false).then((v) => {
-        console.log(`fromBackpack: v = ${v}`);
-        // also do it internally, just in case.
-        cards = cards.map((card) => card.setBackpack(true));
-        // TODO: rerender w/o waiting for BEchange, which can take a while.
-        // or at least use StatusMessage
-        this.props.onPlayerDeckBEChange();
+        this.setState({statusMessage: 'moved', statusType: 'info'});
       }).catch((e) => {
         console.log(`err in onFromBackpack: ${e}`);
       })
@@ -36,6 +49,7 @@ class BackpackPage extends React.Component {
     return (
       <DeckComponentBackpack deck={backpackCards} baseCards={this.props.baseCards}
         current="yes"
+        ronly={this.props.playerState !== PlayerStates.HOME}
         onTransact={(cards) => onFromBackpack(cards)} />)
   }
   
@@ -46,11 +60,18 @@ class BackpackPage extends React.Component {
     }
     const onToBackpack = (cards) => {
       console.log(`onToBackpack: cards = ${JSON.stringify(cards)}`);
+      // do it internally first, for speed.
+      cards = cards.map((card) => { card.setBackpack(true); return card });
+
+      this.setState({statusMessage: 'moving...', statusType: 'info'});
+      // this side-effected into the props.deck list.
+      this.props.setPlayerDeck(this.props.deck);
+      // now let the BE know about it
+      this.setState({statusMessage: 'updating BE...', statusType: 'info'});
       let ids = cards.map((card) => card.getId());
-      this.props.beGateway.setBackpack(ids, true).then((v) => {
-        // also do it internally, just in case.
-        cards = cards.map((card) => card.setBackpack(true));
-        this.props.onPlayerDeckBEChange();
+      this.props.beGateway.setBackpack(ids, false).then((v) => {
+        this.setState({statusMessage: 'moved', statusType: 'info'});
+
       }).catch((e) => {
         console.log(`err in onToBackpack: ${e}`);
       })
@@ -73,9 +94,7 @@ class BackpackPage extends React.Component {
 
   render() {
     return (<div>
-      Hello from the backpack page.
-      Player state = {this.props.playerState}
-      <h2>Your backpack</h2>
+            {this.state.statusMessage ? <StatusMessage message={this.state.statusMessage} type={this.state.statusType} /> : ''}
       {this.backpackPart()}
       <hr />
       {this.nonBackpackPart()}

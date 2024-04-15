@@ -65,15 +65,10 @@ class BEGateway {
         return response.text();
     }
 
-    async enterRoom(gameId, row, col, playerId) {
+    async enterRoom(gameId, playerId, affinity, ordinality) {
         const url = this.beURI
             + "rooms/enter";
-        let body = {
-            gameId: gameId,
-            playerId: playerId,
-            row: row,
-            col: col
-        };
+        let body = { gameId, playerId, affinity, ordinality};
         //console.log(`body = ${JSON.stringify(body)}`);
         const requestOptions = {
             method: 'POST',

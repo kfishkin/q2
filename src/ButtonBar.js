@@ -110,6 +110,8 @@ class ButtonBar extends React.Component {
           return [
             <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.LOGIN_PAGE)}>Logout</button>,
             <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.GAME_ADMIN_PAGE)}>Administer Games</button>,
+            <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.BACKPACK_PAGE)}>View your backpack</button>,
+            <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.AWAY_PAGE)}>View the game board</button>,
             <button onClick={(e) => this.maybeEndAdventure()}>Go Home</button>,
             <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.NEWS_PAGE)}>{newsText}</button>,
             <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.TROPHY_PAGE)}>View Trophies</button>

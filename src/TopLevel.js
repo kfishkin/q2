@@ -2,6 +2,7 @@ import React from 'react';
 import 'antd/dist/reset.css';
 import { VERSION } from './AboutPage';
 import { Layout } from 'antd';
+import AwayPage from './AwayPage';
 import BackpackPage from './BackpackPage';
 import { BaseCard } from './BaseCard';
 import BEGateway from './BEGateway';
@@ -86,7 +87,12 @@ class TopLevel extends React.Component {
         })
     }
 
-    // signal that something about a room has changed on the BE, need to reload cache.
+    // the deck has been changed as given. Cause re-renderings
+    setPlayerDeck(newDeck) {
+        let newPlayerData = { ...this.state.playerInfo };
+        newPlayerData.deck = newDeck;
+        this.setState({ playerInfo: newPlayerData }, () => this.setState({ heartbeat: this.state.heartbeat + 1 }));
+    }
 
     // signal that a player's deck has changed on the BE, need to reload cache.
     onPlayerDeckBEChange() {
@@ -147,13 +153,16 @@ class TopLevel extends React.Component {
     // on setting current game, call a chain of async functions to get all state.
     // returns that as a dict for caller to setState() on.
     async getGameData(playerId, gameId) {
-        let playerState = await this.state.beGateway.getPlayerState(gameId, playerId);
-        //console.log(`playerState = ${playerState}`);
-        let map = await this.state.beGateway.getGameInfo(gameId);
+        let playerStateBundle = await this.state.beGateway.getPlayerState(gameId, playerId);
+        let playerState = playerStateBundle.state;
+        console.log(`playerState = ${playerState}`);
+        let gameInfo = await this.state.beGateway.getGameInfo(gameId);
+        let map = gameInfo.map;
+        let board = gameInfo.board;
         //console.log(`map = ${JSON.stringify(map)}`);
         let rawBaseCards = await this.state.beGateway.getBaseCardsFor(gameId);
         //console.log(`rawBaseCards = ${JSON.stringify(rawBaseCards)}`);
-        return { playerState, map, rawBaseCards };
+        return { playerState, map, board, rawBaseCards };
     }
 
     // TODO: have this call an async helper function, get out of .then chaining indentation.
@@ -164,14 +173,23 @@ class TopLevel extends React.Component {
             console.log(`getGameData: v = ${v}`);
             let newGameData = {
                 gameId: gameId, name: gameName,
-                map: v.map
+                map: v.map,
+                board: v.board
             };
             let baseCards = {};
             v.rawBaseCards.forEach((bc) => {
                 baseCards[bc._id] = BaseCard.make(bc.type, bc)
             });
             newGameData.baseCards = baseCards;
-            this.setState({ gameInfo: newGameData, playerState: v.playerState }, () => { this.onPlayerDeckBEChange(); });
+            let page;
+            switch (v.playerState) {
+                case PlayerStates.AWAY: page = NAV_ITEM_PAGES.AWAY_PAGE; break;
+                case PlayerStates.DEAD: page = NAV_ITEM_PAGES.TROPHY_PAGE; break;
+                case PlayerStates.FIGHTING: page = NAV_ITEM_PAGES.FIGHT_PAGE; break;
+                case PlayerStates.HOME: page = NAV_ITEM_PAGES.HOME_PAGE; break;
+                default: page = NAV_ITEM_PAGES.GAME_ADMIN_PAGE; break;
+            }
+            this.setState({ gameInfo: newGameData, playerState: v.playerState, currentPage: page }, () => { this.onPlayerDeckBEChange(); });
         });
     }
 
@@ -192,7 +210,7 @@ class TopLevel extends React.Component {
         let showButtonBar = loggedIn && haveGame;
         let playerState = this.state.playerState;
         let page = (this.state.currentPage === undefined) ? NAV_ITEM_PAGES.GAME_ADMIN_PAGE : this.state.currentPage;
-        switch (this.state.currentPage) {
+        switch (page) {
             case NAV_ITEM_PAGES.CASHIER_PAGE:
                 content = <CashierPage beGateway={this.state.beGateway}
                     deck={this.state.playerInfo.deck} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
@@ -274,17 +292,23 @@ class TopLevel extends React.Component {
                     gameId={this.state.gameInfo.gameId} baseCards={this.state.gameInfo.baseCards} playerId={this.state.playerInfo.playerId} />;
                 break;
             case NAV_ITEM_PAGES.AWAY_PAGE:
-                content = <div>Welcoome to the away page</div>;
+                content = <AwayPage
+                    beGateway={this.state.beGateway}
+                    gameId={this.state.gameInfo.gameId}
+                    playerId={this.state.playerInfo.playerId}
+                    baseCards={this.state.gameInfo.baseCards}
+                    board={this.state.gameInfo.board}
+                    deck={deckObjs} />
                 break;
             case NAV_ITEM_PAGES.BACKPACK_PAGE:
                 content = <BackpackPage
-                beGateway={this.state.beGateway}
-                  gameId={this.state.gameInfo.gameId}
-                  playerId={this.state.playerInfo.playerId}
-                  baseCards={this.state.gameInfo.baseCards}
-                  deck={deckObjs}
-                  onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
-                  playerState={playerState}/>
+                    beGateway={this.state.beGateway}
+                    gameId={this.state.gameInfo.gameId}
+                    playerId={this.state.playerInfo.playerId}
+                    baseCards={this.state.gameInfo.baseCards}
+                    deck={deckObjs}
+                    setPlayerDeck={(deck) => this.setPlayerDeck(deck)}
+                    playerState={playerState} />
                 break;
             default:
                 content = <div>unknown current page '{this.state.currentPage}'</div>;
@@ -310,8 +334,8 @@ class TopLevel extends React.Component {
         let newState = PlayerStates.HOME;
         this.state.beGateway.setPlayerState(this.state.gameInfo.gameId, this.state.playerInfo.playerId, newState).then((v) => {
             console.log(`top.endAdventure: v = ${v}`);
-            this.setState({playerState: parseInt(v.player_state)}, () => this.handleShowPage(NAV_ITEM_PAGES.GAME_PAGE, {}));
-        }).catch((e) => console.log(`endAdventure: e=${e}`));        
+            this.setState({ playerState: parseInt(v.player_state) }, () => this.handleShowPage(NAV_ITEM_PAGES.GAME_PAGE, {}));
+        }).catch((e) => console.log(`endAdventure: e=${e}`));
     }
 
     startAdventure() {
@@ -321,7 +345,7 @@ class TopLevel extends React.Component {
         this.state.beGateway.setPlayerState(this.state.gameInfo.gameId, this.state.playerInfo.playerId, newState).then((v) => {
             console.log(`top.startAdventure: v = ${v}`);
             let newPage = NAV_ITEM_PAGES.AWAY_PAGE;
-            this.setState({playerState: parseInt(v.player_state)}, () => this.handleShowPage(newPage,{}));
+            this.setState({ playerState: parseInt(v.player_state) }, () => this.handleShowPage(newPage, {}));
         }).catch((e) => console.log(`startAdventure: e=${e}`));
     }
 
