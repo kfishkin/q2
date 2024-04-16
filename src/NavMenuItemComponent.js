@@ -19,6 +19,7 @@ export const NAV_ITEM_PAGES = {
   BACKPACK_PAGE: "backpack",
   FIGHT_PAGE: "fight",
   FIGHT_START_PAGE: "prefight",
+  INVENTORY_PAGE: "inventory",
 }
 
 // props:

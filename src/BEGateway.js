@@ -654,7 +654,6 @@ class BEGateway {
                 statusText: msg
             }
         }
-
     }
 
     async fight(gameId, playerId, row, col, armorId, weaponId) {
@@ -701,6 +700,30 @@ class BEGateway {
             }
         } catch (e) {
             return Promise.reject(e.name + ":" + e.message);
+        }
+    }
+
+    async flee(gameId, playerId) {
+        const url = this.beURI
+            + "games/flee";
+        let body = {
+            gameId, playerId
+        };
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }
+        const response = await fetch(url, requestOptions);
+        console.log(`fe.flee: fetch returns ${response}`);
+        if (response.ok) {
+            return response.json();
+        } else {
+            let msg = await response.text();
+            return {
+                ok: false,
+                statusText: msg
+            }
         }
     }
 

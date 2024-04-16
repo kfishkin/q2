@@ -107,6 +107,7 @@ class ButtonBar extends React.Component {
           <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.GAME_ADMIN_PAGE)}>Administer Games</button>,
           <span>Shop Retail</span>,
           <span>Shop Wholesale</span>,
+          <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.INVENTORY_PAGE)}>See your inventory</button>,
           <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.BACKPACK_PAGE)}>Pack your backpack</button>,
           <button onClick={(e) => this.maybeStartAdventuring()}>Go adventuring!</button>,
           <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.CASHIER_PAGE)}>See the Cashier</button>,
@@ -130,8 +131,8 @@ class ButtonBar extends React.Component {
             <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.LOGIN_PAGE)}>Logout</button>,
             <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.GAME_ADMIN_PAGE)}>Administer Games</button>,
             <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.BACKPACK_PAGE)}>View your backpack</button>,
-            <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.FIGHT_START_PAGE)}>View the fight</button>,
-            <button className='fight_button' >Fight</button>,
+            <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.FIGHT_START_PAGE)}>View the fight setup</button>,
+            <button className='fight_button' title='no changes to gear once the fight starts'>Start the Fight</button>,
           ];
       default:
         return '';

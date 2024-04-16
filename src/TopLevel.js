@@ -13,6 +13,7 @@ import CashierPage from './CashierPage';
 import FightStartPage from './FightStartPage';
 import GamePage from './GamePage';
 import GameChoicePage from './GameChoicePage';
+import InventoryPage from './InventoryPage';
 import LoginPage from './LoginPage';
 import MerchantPage from './MerchantPage';
 import NewsPage from './NewsPage';
@@ -128,6 +129,7 @@ class TopLevel extends React.Component {
         let v = await this.state.beGateway.getGameInfo(gameId)
         let gameInfo = this.state.gameInfo;
         gameInfo.map = v.map;
+        gameInfo.board = v.board;
         //console.log(`getGameInfo: v = ${v}, ${JSON.stringify(v)}`);
         this.setState({ gameInfo: gameInfo });
     }
@@ -154,7 +156,7 @@ class TopLevel extends React.Component {
     // just get the player state part
     async getPlayerState(gameId, playerId) {
         let playerStateBundle = await this.state.beGateway.getPlayerState(gameId, playerId);
-        this.setState({playerState: playerStateBundle.state, playerStateBundle: playerStateBundle});
+        this.setState({ playerState: playerStateBundle.state, playerStateBundle: playerStateBundle });
         return playerStateBundle;
     }
 
@@ -168,7 +170,7 @@ class TopLevel extends React.Component {
         let newState = dict;
         this.state.beGateway.setPlayerState(this.state.gameInfo.gameId, this.state.playerInfo.playerId, newState).then((v) => {
             console.log(`onUpdatePlayerState: v = ${JSON.stringify(v)}`);
-            this.setState({ playerState: parseInt(v.player_state_bundle.state), playerStateBundle: v.player_state_bundle});  
+            this.setState({ playerState: parseInt(v.player_state_bundle.state), playerStateBundle: v.player_state_bundle });
         });
     }
 
@@ -245,7 +247,7 @@ class TopLevel extends React.Component {
                     playerInfo={this.state.playerInfo}></LoginPage>;
                 break;
             case NAV_ITEM_PAGES.FIGHT_PAGE:
-                    content = <p>Hello from the fight page</p>
+                content = <p>Hello from the fight page</p>
                 break;
             case NAV_ITEM_PAGES.FIGHT_START_PAGE:
                 {
@@ -266,7 +268,7 @@ class TopLevel extends React.Component {
                         onUpdatePlayerState={(dict) => this.onUpdatePlayerState(dict)}
                         deck={deckObjs} />
                 }
-                    break;
+                break;
             case NAV_ITEM_PAGES.GAME_ADMIN_PAGE:
                 content = <GameChoicePage playerInfo={this.state.playerInfo} beGateway={this.state.beGateway}
                     gameInfo={this.state.gameInfo}
@@ -279,6 +281,11 @@ class TopLevel extends React.Component {
                     showPageFunc={(which, extra) => this.handleShowPage(which, extra)}
                     onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
                     onPlantFlag={(row, col) => this.onPlantFlag(row, col)} />;
+                break;
+            case NAV_ITEM_PAGES.INVENTORY_PAGE:
+                content = <InventoryPage playerInfo={this.state.playerInfo} gameInfo={this.state.gameInfo} beGateway={this.state.beGateway}
+                    baseCards={this.state.gameInfo.baseCards}
+                    deck={deckObjs} />;
                 break;
             case NAV_ITEM_PAGES.MERCHANT_PAGE:
                 // the only owner at present is the shop owner at xy (0,0)
@@ -359,22 +366,23 @@ class TopLevel extends React.Component {
     }
 
     onFlee() {
+        // lotsa stuff happens, do it all on the BE and then wait...
         console.log(`flee: called`);
-        // could combine this with endAdvneture, let's wait and see...
-        let newState = { state: PlayerStates.HOME};
-
-        this.state.beGateway.loseBackpack(this.state.gameInfo.gameId, this.state.playerInfo.playerId).then((v) => {
-            this.state.beGateway.setPlayerState(this.state.gameInfo.gameId, this.state.playerInfo.playerId, newState).then((v) => {
+        this.state.beGateway.flee(this.state.gameInfo.gameId, this.state.playerInfo.playerId).then((v) => {
+            // load the new gameInfo - board may have changed.
+            this.onGameDeckBEChange().then((v) => {
                 console.log(`top.flee: v = ${v}`);
-                this.setState({ playerState: parseInt(v.player_state_bundle.state), playerStateBundle: v.player_state_bundle }, () => this.handleShowPage(NAV_ITEM_PAGES.HOME_PAGE, {}));
-            }).catch((e) => console.log(`flee: e=${e}`));
-        });
-    }    
+                let bundle = this.state.playerStateBundle;
+                bundle.state = PlayerStates.HOME;
+                this.setState({ playerState: PlayerStates.HOME, playerStateBundle: bundle }, () => this.handleShowPage(NAV_ITEM_PAGES.HOME_PAGE, {}));
+            });
+        }).catch((e) => console.log(`flee: e=${e}`));
+    }
 
     endAdventure() {
         console.log(`end adventure: called`);
         // signal the BE, and wait. TODO other stuff.
-        let newState = { state: PlayerStates.HOME};
+        let newState = { state: PlayerStates.HOME };
 
         this.state.beGateway.claimBackpack(this.state.gameInfo.gameId, this.state.playerInfo.playerId).then((v) => {
             this.state.beGateway.setPlayerState(this.state.gameInfo.gameId, this.state.playerInfo.playerId, newState).then((v) => {

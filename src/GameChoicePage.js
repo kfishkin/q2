@@ -53,7 +53,7 @@ class GameChoicePage extends React.Component {
     }
     const onSubmit = (e) => {
       if (!inputValue) return;
-      this.setState({statusMessage: 'creating game', statusType: 'info'});
+      this.setState({statusMessage: `creating game ${inputValue}`, statusType: 'info'});
       component.state.beGateway.createGame(inputValue, playerInfo.playerId)
         .then((v) => {
           let gameData = v;
