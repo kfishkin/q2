@@ -104,6 +104,9 @@ export class BaseCard { // abstract base class
     iconURL() {
         return "pix/card_types/none.png";
     }
+
+    isArmor() { return false; }
+
     isBuyable() {
         return ('buyable' in this.db) ? this.db.buyable : true;
     }
@@ -127,6 +130,8 @@ export class BaseCard { // abstract base class
     isNothing() {
         return false;
     }
+
+    isWeapon() { return false; }
 
     descriptionBackgroundImageURL() {
         return "";
@@ -503,6 +508,7 @@ class CardTypeWeapon extends BaseCard {
     }
     altText() { return "Weapon" }
     iconURL() { return "pix/card_types/weapon.png"; }
+    isWeapon() { return true; }
 
     descriptionBackgroundImageURL() {
         return `pix/card_backgrounds/${this.db.handle}.png`;
@@ -520,6 +526,7 @@ class CardTypeArmor extends BaseCard {
     }
     altText() { return "Armor" }
     iconURL() { return "pix/card_types/armor.png"; }
+    isArmor() { return true; }
 
 
     descriptionBackgroundImageURL() {

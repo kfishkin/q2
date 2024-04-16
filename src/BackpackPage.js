@@ -69,7 +69,7 @@ class BackpackPage extends React.Component {
       // now let the BE know about it
       this.setState({statusMessage: 'updating BE...', statusType: 'info'});
       let ids = cards.map((card) => card.getId());
-      this.props.beGateway.setBackpack(ids, false).then((v) => {
+      this.props.beGateway.setBackpack(ids, true).then((v) => {
         this.setState({statusMessage: 'moved', statusType: 'info'});
 
       }).catch((e) => {

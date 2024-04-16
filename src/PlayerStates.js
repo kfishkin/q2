@@ -4,5 +4,6 @@ export const PlayerStates = {
     HOME: 1,
     AWAY: 2,
     FIGHTING: 3,
-    DEAD: 4
+    DEAD: 4,
+    FIGHT_START: 5
 };

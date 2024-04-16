@@ -5,6 +5,7 @@ import { PlayerStates } from './PlayerStates';
 // props:
 // beGateway
 // gameId
+// onFlee - f() to flee
 // playerId
 // playerName - String
 // playerState - enum
@@ -23,6 +24,7 @@ class ButtonBar extends React.Component {
     this.imgUrls = {};
     this.imgUrls[PlayerStates.AWAY] = 'pix/general/away.png';
     this.imgUrls[PlayerStates.DEAD] = 'pix/general/dead.png';
+    this.imgUrls[PlayerStates.FIGHT_START] = 'pix/general/prefight.jpg';
     this.imgUrls[PlayerStates.FIGHTING] = 'pix/general/fighting.png';
     this.imgUrls[PlayerStates.HOME] = 'pix/general/home.png';
     this.imgTitles = {};
@@ -66,7 +68,7 @@ class ButtonBar extends React.Component {
   }
 
   textUI() {
-    return <span>You can </span>;
+    return <span>You can ({this.props.playerState})</span>;
   }
 
   maybeStartAdventuring() {
@@ -81,7 +83,13 @@ class ButtonBar extends React.Component {
     if (ok) {
       this.props.endAdventureFunc();
     }    
+  }
 
+  maybeFlee() {
+    let ok = window.confirm('Are you sure you want to flee? You will lose ALL items in your backpack');
+    if (ok) {
+      this.props.onFlee();
+    }    
   }
 
   buttonsUI() {
@@ -116,6 +124,15 @@ class ButtonBar extends React.Component {
             <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.NEWS_PAGE)}>{newsText}</button>,
             <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.TROPHY_PAGE)}>View Trophies</button>
           ]
+        case PlayerStates.FIGHT_START:
+          return [
+            <button className='run_away_button' onClick={(e) => this.maybeFlee()}>FLEE</button>,
+            <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.LOGIN_PAGE)}>Logout</button>,
+            <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.GAME_ADMIN_PAGE)}>Administer Games</button>,
+            <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.BACKPACK_PAGE)}>View your backpack</button>,
+            <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.FIGHT_START_PAGE)}>View the fight</button>,
+            <button className='fight_button' >Fight</button>,
+          ];
       default:
         return '';
     }

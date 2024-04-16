@@ -731,15 +731,19 @@ class BEGateway {
      * 
      * @param {Id} gameId 
      * @param {Id} playerId 
-     * @param {PlayerState} state 
+     * @param {hash} bundle - set whatever keys are in this.
      * @returns the new perpperg, .player_state is the new player state.
      */
-    async setPlayerState(gameId, playerId, state) {
+    async setPlayerState(gameId, playerId, bundle) {
         const url = this.beURI
             + `players/${playerId}/games/${gameId}/state`;
-        let body = {
-            state: state
-        };
+
+        let body = { };
+        Object.entries(bundle).forEach((keyvalue) => {
+            let key = keyvalue[0];
+            let value = keyvalue[1];
+            body[key] = value;
+        })
         const requestOptions = {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -747,7 +751,7 @@ class BEGateway {
         }
         const response = await fetch(url, requestOptions);
         if (!response || !response.ok) {
-            return Promise.reject(`couldn't set player state to ${state}`);
+            return Promise.reject(`couldn't set player state to ${JSON.stringify(bundle)}`);
         } else {
             return response.json();
         }        
@@ -777,6 +781,53 @@ class BEGateway {
             return response.json();
         }
 
+    }
+
+    /**
+     * Claim everything in the backpack into permanent inventory.
+     * @param {ObjectId} gameId 
+     * @param {ObjectId} playerId 
+     * @returns 
+     */
+    async claimBackpack(gameId, playerId) {
+        const url = this.beURI
+            + `cards/backpack/claim`;
+        let body = { gameId, playerId };
+        const requestOptions = {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }
+        const response = await fetch(url, requestOptions);
+        if (!response || !response.ok) {
+            return Promise.reject(`couldn't set backpack`);
+        } else {
+            return response.json();
+        }
+    }
+
+    
+    /**
+     * lose everything in the backpack
+     * @param {ObjectId} gameId 
+     * @param {ObjectId} playerId 
+     * @returns 
+     */
+    async loseBackpack(gameId, playerId) {
+        const url = this.beURI
+            + `cards/backpack/lose`;
+        let body = { gameId, playerId };
+        const requestOptions = {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }
+        const response = await fetch(url, requestOptions);
+        if (!response || !response.ok) {
+            return Promise.reject(`couldn't lose backpack`);
+        } else {
+            return response.json();
+        }
     }
 }
 export default BEGateway;

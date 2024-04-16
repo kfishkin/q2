@@ -1,6 +1,7 @@
 import React from 'react';
 import StatusMessage from './StatusMessage';
 import { Affinities, AffinityLabels } from './Affinities';
+import { NAV_ITEM_PAGES } from './NavMenuItemComponent';
 
 // props
 // beGateway
@@ -8,6 +9,8 @@ import { Affinities, AffinityLabels } from './Affinities';
 // gameId
 // playerId
 // baseCards
+// onReloadPlayerState
+// showPageFunc
 class AwayPage extends React.Component {
   constructor(props) {
     super(props);
@@ -41,18 +44,21 @@ class AwayPage extends React.Component {
             this.setState({statusMessage: 'empty room', statusType: 'info'});
           } else {
             this.setState({statusMessage: 'a fight begins!', statusType: 'info'});
-            // TODO: save fighting state on BE (or have enterRoom do it on BE),
-            // go to fight page
+            // state has changed on BE, get FE to realize it...
+            this.props.onReloadPlayerState();
+            this.props.showPageFunc(NAV_ITEM_PAGES.FIGHT_START_PAGE, {});
           }
 
         })
       }
-      return <img onClick={(e) => onEnterRoom(affinity, room)} className='board_room' src={url} alt={title} title={title}/>
+      return <td><img onClick={(e) => onEnterRoom(affinity, room)} className='board_room' src={url} alt={title} title={title}/></td>
     }
     return <table>
+    <tbody>
       <tr>
         {rooms.map((room) => renderRoom(affinity, room))}
       </tr>
+      </tbody>
     </table>
   }
   renderZone(zone) {
