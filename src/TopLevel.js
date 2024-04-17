@@ -369,7 +369,7 @@ class TopLevel extends React.Component {
         // lotsa stuff happens, do it all on the BE and then wait...
         console.log(`flee: called`);
         this.state.beGateway.flee(this.state.gameInfo.gameId, this.state.playerInfo.playerId).then((v) => {
-            // load the new gameInfo - board may have changed.
+            // load the new gameInfo - lots may have changed.
             this.onGameDeckBEChange().then((v) => {
                 console.log(`top.flee: v = ${v}`);
                 let bundle = this.state.playerStateBundle;
@@ -380,22 +380,17 @@ class TopLevel extends React.Component {
     }
 
     endAdventure() {
-        console.log(`end adventure: called`);
-        // signal the BE, and wait. TODO other stuff.
-        let newState = { state: PlayerStates.HOME };
-
-        this.state.beGateway.claimBackpack(this.state.gameInfo.gameId, this.state.playerInfo.playerId).then((v) => {
-            this.state.beGateway.setPlayerState(this.state.gameInfo.gameId, this.state.playerInfo.playerId, newState).then((v) => {
-                console.log(`top.endAdventure: v = ${v}`);
-                // nuke backpack status locally, can avoid reload from BE...
-                if (this.state.playerInfo.deck) {
-                    this.state.playerInfo.deck.forEach((cardDb) => {
-                        cardDb.in_backpack = false;
-                    });
-                }
-                this.setState({ playerState: parseInt(v.player_state_bundle.state) }, () => this.handleShowPage(NAV_ITEM_PAGES.HOME_PAGE, {}));
-            }).catch((e) => console.log(`endAdventure: e=${e}`));
-        });
+        // lotsa stuff happens, do it all on the BE and then wait...
+        console.log(`endAdventure: called`);
+        this.state.beGateway.goHome(this.state.gameInfo.gameId, this.state.playerInfo.playerId).then((v) => {
+            // load the new gameInfo - lots may have changed.
+            this.onGameDeckBEChange().then((v) => {
+                console.log(`top.goHome: v = ${v}`);
+                let bundle = this.state.playerStateBundle;
+                bundle.state = PlayerStates.HOME;
+                this.setState({ playerState: PlayerStates.HOME, playerStateBundle: bundle }, () => this.handleShowPage(NAV_ITEM_PAGES.HOME_PAGE, {}));
+            });
+        }).catch((e) => console.log(`flee: e=${e}`));
     }
 
     startAdventure() {

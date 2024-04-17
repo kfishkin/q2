@@ -727,6 +727,30 @@ class BEGateway {
         }
     }
 
+    async goHome(gameId, playerId) {
+        const url = this.beURI
+            + "games/gohome";
+        let body = {
+            gameId, playerId
+        };
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }
+        const response = await fetch(url, requestOptions);
+        console.log(`fe.goHome: fetch returns ${response}`);
+        if (response.ok) {
+            return response.json();
+        } else {
+            let msg = await response.text();
+            return {
+                ok: false,
+                statusText: msg
+            }
+        }
+    }    
+
     async getArtisanPrices(gameId) {
         const url = this.beURI
             + "games/" + gameId
