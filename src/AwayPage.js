@@ -24,7 +24,7 @@ class AwayPage extends React.Component {
     const renderRoom = (affinity, room) => {
       let title = `Room ${room.ordinality + 1} in the ${AffinityLabels[affinity]} biome`;
       let url = `pix/biomes/${affinity}_${room.is_alive ? 'unknown' : 'empty'}.png`;
-      if (room.is_known) {
+      if (room.is_alive && room.is_known) { // too subtle to see the diffeence is known and !alive.
         let baseId = room.monster_card_id;
         let baseCard = this.props.baseCards[baseId];
         if (baseCard) {

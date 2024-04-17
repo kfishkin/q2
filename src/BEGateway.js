@@ -656,18 +656,14 @@ class BEGateway {
         }
     }
 
-    async fight(gameId, playerId, row, col, armorId, weaponId) {
+    async fight(gameId, playerId) {
         const url = this.beURI
             + "rooms/fight";
         let body = {
-            gameId, playerId, row, col
+            gameId, playerId
         };
-        if (armorId) {
-            body.armorId = armorId;
-        }
-        if (weaponId) {
-            body.weaponId = weaponId;
-        }
+        // all the context (location, gear) is stored
+        // on BE already.
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

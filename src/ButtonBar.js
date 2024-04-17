@@ -9,6 +9,7 @@ import { PlayerStates } from './PlayerStates';
 // playerId
 // playerName - String
 // playerState - enum
+// props.onStartFighting - f() to start the fight going.
 // props.showPageFunc - f(page, extra) to jump to that page
 // props.startAdventureFunc - f() to start adventuring.
 // props.endAdventureFunc - f() to end adventuring.
@@ -92,6 +93,10 @@ class ButtonBar extends React.Component {
     }    
   }
 
+  onStartFight() {
+    this.props.onStartFighting();
+  }
+
   buttonsUI() {
     // for backward compat, NB: remove this...
     let state = this.props.playerState;
@@ -101,6 +106,14 @@ class ButtonBar extends React.Component {
     let newsText = (this.state.newsCount > 0) ?  (<span><span>News</span><span className='new_news'>({this.state.newsCount})</span></span>) :
     (<span disabled="disabled">News</span>);
     switch (state) {
+      case PlayerStates.DEAD:
+        return [
+          <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.LOGIN_PAGE)}>Logout</button>,
+          <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.GAME_ADMIN_PAGE)}>Administer Games</button>,
+          <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.INVENTORY_PAGE)}>See your inventory</button>,
+          <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.NEWS_PAGE)}>{newsText}</button>,
+          <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.TROPHY_PAGE)}>View Trophies</button>
+        ];      
       case PlayerStates.HOME:
         return [
           <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.LOGIN_PAGE)}>Logout</button>,
@@ -132,7 +145,7 @@ class ButtonBar extends React.Component {
             <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.GAME_ADMIN_PAGE)}>Administer Games</button>,
             <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.BACKPACK_PAGE)}>View your backpack</button>,
             <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.FIGHT_START_PAGE)}>View the fight setup</button>,
-            <button className='fight_button' title='no changes to gear once the fight starts'>Start the Fight</button>,
+            <button onClick={(e) => this.onStartFight()} className='fight_button' title='no changes to gear once the fight starts'>Start the Fight</button>,
           ];
       default:
         return '';

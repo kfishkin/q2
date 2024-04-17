@@ -1,340 +1,177 @@
 import React from 'react';
 import Card from './Card';
 import CardDetail from './CardDetail';
-import FightRoundDialog from './FightRoundDialog';
-import StatusMessage from './StatusMessage';
-
-// TODO: sync this with BE
-const AffinityNames = {
-  0: 'None',
-  1: 'Earth',
-  2: 'Air',
-  3: 'Fire',
-  4: 'Ice'
-}
 
 // fighting UI.
 // props:
-// room - the room for the fight
-// deck - player deck as Card objects
-// baseCards - base cards
+// baseCards - hash from Id to baseCardDb
 // beGateway
-// row, col - of the room
+// deck - [Card]
+// gameId
+// onDie - f() when dead.
+// onFlee - f() to flee
+// onWon - f() when win.
 // playerId
-// onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
-// showPageFunc={(which, extra) => this.handleShowPage(which, extra)}
+// room - the room for the fight
 class FightPage extends React.Component {
   // this is called once when the page first loads, NOT each time the parent state changes.
   constructor(props) {
     super(props);
-
+    let noWeaponBaseCard = Object.values(this.props.baseCards).find((bc) => bc.getHandle() === 'decor_fist');
+    let noArmorBaseCard = Object.values(this.props.baseCards).find((bc) => bc.getHandle() === 'decor_no_armor');
+    // note that this can take a while.
     this.state = {
-      selectedArmor: null,
-      selectedWeapon: null,
-      statusMessage: '',
-      statusType: 'info',
-      fighting: false,
-      fightDialogProps: {},
-      showFightDialog: false
-    };
+      logEntries: [],
+      isEphemeral: [], // indicates if the i'th entry is ephemeral - only show if TOS
+      noArmorBaseCard,
+      noWeaponBaseCard,
+    }
+  }
+
+  maybeFlee() {
+    let ok = window.confirm('Are you sure you want to flee? You will lose ALL items in your backpack');
+    if (ok) {
+      this.props.onFlee();
+    }    
+  }
+
+  done() {
+    this.props.onWon();
+  }
+
+  onDie() {
+    this.props.onDie();
+  }
+
+  continueFight() {
+    const WIN_STATUS = "WIN";
+    const DIE_STATUS = "DEAD";
+    const TIE_STATUS = "CONTINUE";
+
+    console.log(`continueFight: called`);
+    // squish the buttons with an in-progress message...
+    this.pushEntry(<span>Fighting...</span>, true);
+    this.props.beGateway.fight(this.props.gameId, this.props.playerId).then((v) => {
+      console.log(`continueFight: v = ${JSON.stringify(v)}`);
+      // put the result last, so it's on top...
+      this.pushEntry(<hr/>, false);
+      this.pushEntry(<span>Armor roll of <b>{v.armorRoll}</b>. {v.armorDegraded ? 'Armor degraded.':''}</span>, false);
+      this.pushEntry(<span>Weapon roll of <b>{v.weaponRoll}</b>. {v.weaponDegraded ? 'Weapon degraded.':''}</span>, false);
+      if (v.award) {
+        console.log(`award = ${JSON.stringify(v.award)}`);
+        this.pushEntry(<span>You won an award!: <i>{v.award.message}</i>. Go to 'trophies' to see more.</span>, false);
+
+      }
+      if (v.status === WIN_STATUS) {
+        // TODO: be should update PlayerState to 'away'.
+        // TODO: show loot
+        this.pushEntry(<span><i>You won!</i> click <button onClick={(e) => this.done()}> here </button> to continue adventuring</span>, true);
+      } else if (v.status === TIE_STATUS) {
+        this.pushEntry(<span>The battle will continue.</span>, false);
+        this.pushEntry(this.makeInterRoundUI(), true);
+      } else if (v.status === DIE_STATUS) {
+        this.pushEntry(<span><i>You're dead, bummer!</i> click <button onClick={(e) => this.onDie()}> here </button> to see your trophies</span>, true);
+      }
+      
+
+
+    });
+  }
+
+  pushEntry(entry, ephemeral) {
+    let logEntries = this.state.logEntries;
+    logEntries.unshift(entry);
+    let isEphemeral = this.state.isEphemeral;
+    isEphemeral.unshift(ephemeral);
+    this.setState({logEntries, isEphemeral});
+  }
+
+  makeInterRoundUI() {
+    return (<span>
+      You can <button onClick={(e) => this.continueFight()} className='fight_button'>Fight On</button>,
+      or you can
+    <button className='run_away_button' onClick={(e) => this.maybeFlee()}>FLEE</button>,
+    </span>);
   }
 
   componentDidMount() {
-    // selected armor and weapon default to the best available.
-    let armorCards = this.props.deck.filter((c) => c.getBase().getRawArmorValue() > 0);
-    let weaponCards = this.props.deck.filter((c) => c.getBase().getRawWeaponValue() > 0);
-    if (armorCards.length > 0) {
-      let bestArmor = null;
-      let bestValue = 0;
-      armorCards.forEach((c) => {
-        if (c.getNetArmorValue() > bestValue) {
-          bestValue = c.getNetArmorValue();
-          bestArmor = c;
-        }
-      });
-      if (bestArmor !== null) {
-        this.setState({ selectedArmor: bestArmor });
-      }
+    if (this.state.logEntries.length === 0) {
+      this.pushEntry(this.makeInterRoundUI(), true);
     }
-    if (weaponCards.length > 0) {
-      let bestWeapon = null;
-      let bestValue = 0;
-      weaponCards.forEach((c) => {
-        if (c.getNetWeaponValue() > bestValue) {
-          bestValue = c.getNetWeaponValue();
-          bestWeapon = c;
-        }
-      });
-      if (bestWeapon !== null) {
-        this.setState({ selectedWeapon: bestWeapon });
-      }
-    }
-
-
   }
 
-  // if there's no monster/weapon/armor card, first choice is to use a base
-  // card image with the given handle, second choice is to use the given card.
-  makeFallback(firstOptionHandle, secondOptionCard) {
-    let firstCard = Object.values(this.props.baseCards)
-      .find((bc) => bc.getHandle() === firstOptionHandle);
-    if (firstCard) {
-      let fake2 = { game_card: firstCard.db };
-      return Card.Of(fake2);
-    }
-    return secondOptionCard;
-  }
-
-  monsterUI(monsterCard) {
-    if (monsterCard.getBase().isNothing()) {
+  monsterUI(monsterBaseCard) {
+    let fakeCard = Card.Of({ game_card: monsterBaseCard.getDb() });
       return (<div>
-        The Monster is dead!
+        You are fighting a level {monsterBaseCard.getLevel()} <b>{monsterBaseCard.getDisplayName()}</b>
         <br />
-        <CardDetail card={monsterCard} baseCards={this.props.baseCards} />
+        <CardDetail card={fakeCard} baseCards={this.props.baseCards} />
       </div>);
-
-    } else {
-      return (<div>
-        The Monster is a level {monsterCard.getBase().getLevel()} <b>{monsterCard.getBase().getDisplayName()}</b>
-        <br />
-        <CardDetail card={monsterCard} baseCards={this.props.baseCards} />
-      </div>);
-    }
   }
 
-  weaponUI(weaponCards, nothingCard) {
-    const NONE = "none";
-    const onWeaponChoice = (val) => {
-      val = val.target.value;
-      console.log(`weaponChoice: ${val}`);
-      if (val === NONE) {
-        this.setState({ selectedWeapon: null });
-      } else {
-        let weaponCard = weaponCards.find((c) => c.getId() === val);
-        if (weaponCard) {
-          this.setState({ selectedWeapon: weaponCard });
-        }
-      }
-    }
-    let weaponOptions = [{ label: 'Bare-handed', value: NONE, selected: !this.state.selectedWeapon }];
-
-    if (weaponCards && weaponCards.length > 0) {
-      weaponCards.forEach((card) => {
-        let optDict = {
-          label: card.terselyDescribe(),
-          value: card.getId(),
-          selected: card === this.state.selectedWeapon
-        }
-        weaponOptions.push(optDict);
-      });
-
-    }
-    // moved away from ant select, too hard to set initial value.weird.
-    let htmlOpts = weaponOptions.map((dict) => {
-      return (<option value={dict.value} selected={dict.selected}>{dict.label}</option>)
-    });
-
-    let weaponCard = this.state.selectedWeapon ? this.state.selectedWeapon
-      : this.makeFallback('decor_fist', nothingCard);
-    //let selectedValue = this.state.selectedWeapon ? this.state.selectedWeapon.getId() : 0;
-
-    return (
-      <span>
-        choose your weapon: <select className='width200' onChange={(val) => onWeaponChoice(val)}>
-          {htmlOpts}
-        </select>
-        <br />
-        <CardDetail card={weaponCard} baseCards={this.props.baseCards} />
-      </span>)
+  weaponUI(weaponCard) {
+      return <span><b>Your weapon:</b><span>{weaponCard ? weaponCard.terselyDescribe() : 'None'}</span></span>
   }
 
-  armorUI(armorCards, nothingCard) {
-    const NONE = "none";
-    const onArmorChoice = (val) => {
-      console.log(`armorChoice: ${val}`);
-      val = val.target.value;
-      if (val === NONE) {
-        this.setState({ selectedArmor: null });
-      } else {
-        let armorCard = armorCards.find((c) => c.getId() === val);
-        if (armorCard) {
-          this.setState({ selectedArmor: armorCard });
-        }
-      }
-    }
-    let selectedValue = this.state.selectedArmor ? this.state.selectedArmor.getId() : 0;
-    let armorOptions = [{ label: 'None', value: NONE, selected: !this.state.selectedArmor }];
-    armorOptions = armorOptions.concat(armorCards.map((c) => {
-      return { label: c.terselyDescribe(), value: c.getId(), selected: c === this.state.selectedArmor }
-    }));
-    let htmlOpts = armorOptions.map((dict) => {
-      return (<option value={dict.value} selected={dict.selected}>{dict.label}</option>)
-    });
-    let armorCard = this.state.selectedArmor ? this.state.selectedArmor
-      : this.makeFallback('decor_no_armor', nothingCard);
+  
+  armorUI(armorCard) {
+    return <span><b>Your armor:</b><span>{armorCard ? armorCard.terselyDescribe() : 'None'}</span></span>
+}
 
+showScenario(monsterBaseCard, weaponCard, armorCard) {
+  return (<div>
+    {this.weaponUI(weaponCard)}
+    <br/>
+    {this.armorUI(armorCard)}
+    <hr/>
+    {this.monsterUI(monsterBaseCard)}
 
-    return (
-      <span>
-        choose your armor: <select className='width200' value={selectedValue}
-          onChange={(val) => onArmorChoice(val)} >
-          {htmlOpts}
-        </select>
-        <br />
-        <CardDetail card={armorCard} baseCards={this.props.baseCards} />
-      </span>)
+  </div>);
+}
+
+showLog() {
+  let entries = [];
+  // not done with .map() for finer control and debugging and to walk parallel arrays
+  for (let i = 0; i < this.state.logEntries.length; i++) {
+    let entry = this.state.logEntries[i];
+    let ephemeral = this.state.isEphemeral[i];
+    if (ephemeral && (i !== 0)) continue;
+    entries.push(<li key={`li_${i}`}>{entry}</li>)
   }
-
-  buttonPart() {
-    const onStartFight = () => {
-      this.setState({ statusMessage: 'fighting...', statusType: 'info', fighting: true });
-
-      const onContinue = () => {
-        console.log(`onContinue: called`);
-        onStartFight();
-      }
-      const onRunAway = () => {
-        console.log(`wants to run away!`);
-        let p = this.props.beGateway.runaway(this.props.gameId, this.props.playerId,
-          this.props.row, this.props.col)
-        p.then((v) => {
-          if (!v.ok) {
-            this.setState({ statusMessage: `backend error: ${v.statusMessage}`, statusType: 'error' });
-          } else {
-            let fightDialogProps = {
-              status: 'RANAWAY',
-              lost: v.lost || [],
-              open: true,
-              onEndFight: (dict) => onEndFight(dict),
-            }
-            this.setState({ fightDialogProps: fightDialogProps, showFightDialog: true, fighting: false });
-          }
-        });
-      }
-
-      const onEndFight = (dict) => {
-        console.log(`onEndFight: dict = ${JSON.stringify(dict)}`);
-        this.setState({ showFightDialog: false, fighting: false });
-        let { reloadDeck, reloadGame, nextPage } = dict;
-        if (reloadDeck) {
-          this.props.onPlayerDeckBEChange();
-        }
-        if (reloadGame) {
-          this.props.onGameDeckBEChange();
-        }
-        if (nextPage) {
-          gotoPage(nextPage);
-        }
-      }
-
-      let p = this.props.beGateway.fight(this.props.gameId, this.props.playerId,
-        this.props.row, this.props.col,
-        this.state.selectedArmor ? this.state.selectedArmor.getId() : null,
-        this.state.selectedWeapon ? this.state.selectedWeapon.getId() : null);
-      p.then((v) => {
-        if (!v.ok) {
-          this.setState({ statusMessage: `backend error: ${v.statusMessage}`, statusType: 'error' });
-        } else {
-          let fightDialogProps = {
-            weaponRoll: v.weaponRoll,
-            armorRoll: v.armorRoll,
-            armorDegraded: v.armorDegraded,
-            weaponDegraded: v.weaponDegraded,
-            armorBonus: v.armorBonus,
-            weaponBonus: v.weaponBonus,
-            lifeLost: v.lifeLost,
-            loot: v.loot,
-            status: v.status,
-            open: true,
-            onEndFight: (dict) => onEndFight(dict),
-            onContinue: () => onContinue(),
-            onRunAway: () => onRunAway()
-          }
-
-          this.setState({ fightDialogProps: fightDialogProps, showFightDialog: true });
-        }
-      });
-    }
-
-    const gotoPage = (page) => {
-      this.setState({ showFightDialog: false });
-      this.props.showPageFunc(page, {});
-    }
-
-    return (
-      <div>
-        <button className='fight_button' disabled={this.state.fighting} onClick={(e) => onStartFight()}>Fight!</button>
-        <FightRoundDialog open={this.state.showFightDialog} fighting={this.state.fighting} {...this.state.fightDialogProps} baseCards={this.props.baseCards} />
-      </div>
-    )
-  }
-
+  return <ul className='fight_log_rows'>
+    {entries}
+  </ul>
+}
 
   render() {
     let affinity = this.props.room.affinity;
-    // find the base card for the monster. Might have gone if rendering after a win...
-
-    let nothingBaseCard = Object.values(this.props.baseCards)
-      .find((bc) => bc.isNothing());
-    // make a fake id card-card so can use CardDetail
-    let fakeDb = { game_card: nothingBaseCard.db }
-    // make a fake 'nothing' card for display
-    let nothingCard = Card.Of(fakeDb);
-    let baseCard = nothingCard;
-    let monsterCard = null;
-    if (this.props.room && this.props.room.owner && this.props.room.owner.handle) {
-      let monsterHandle = this.props.room.owner.handle;
-      baseCard = Object.values(this.props.baseCards)
-        .find((bc) => bc.getHandle() === monsterHandle);
-      if (baseCard) {
-        let fake2 = { game_card: baseCard.db };
-        monsterCard = Card.Of(fake2);
-      }
+    let monsterBaseCard = this.props.baseCards[this.props.room && this.props.room.monster_card_id ? this.props.room.monster_card_id : 0];
+    let weaponId = this.props.room.weapon_id;
+    let weaponCard = null;
+    if (weaponId) {
+      weaponCard = this.props.deck.find((bc) => bc.getId() === weaponId)
     }
-    if (!monsterCard) {
-      monsterCard = this.makeFallback('decor_grave', nothingCard);
+    let armorId = this.props.room.armor_id;
+    let armorCard = null;
+    if (armorId) {
+      armorCard = this.props.deck.find((bc) => bc.getId() === armorId)
     }
-
-    // find the weapon and armor cards....
-    let armorCards = this.props.deck.filter((c) => c.getBase().getRawArmorValue() > 0);
-    let weaponCards = this.props.deck.filter((c) => c.getBase().getRawWeaponValue() > 0);
-    let lifeCards = this.props.deck.filter((c) => c.getBase().isLife());
-    let numLives = lifeCards.length;
-    let lifeMsg = "";
-    switch (numLives) {
-      case 0: lifeMsg = "You are dead!"; break;
-      default:
-        lifeMsg = ""; break;
-      /*
-    case 1: lifeMsg = <span className='warning'>You only have 1 life to live. If the monster gets through your armor, you will die!</span>;
-      break;
-    default:
-      lifeMsg = <span>You have {numLives} lives. If the monster gets through your armor, you will have {numLives - 1} left</span>;
-      */
-    }
-
+    
     return (<div>
+      <table>
+        <tbody>
+          <tr>
+            <td style={{'verticalAlign' : 'top'}}>
+            {this.showScenario(monsterBaseCard, weaponCard, armorCard)}
+            </td>
+            <td style={{'verticalAlign' : 'top'}}>
+              {this.showLog()}
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-
-      <div className='fight_outer' >
-        <table>
-          <tbody>
-            <tr className='fight_top_row'>
-              <td>{this.weaponUI(weaponCards, nothingCard)}</td>
-              <td className='fight_rhs' affinity={affinity} fighting={this.state.fighting}>
-                <span>This fight takes place in the <b>{AffinityNames[affinity]}</b> biome.
-                  {lifeMsg}</span><br />{this.buttonPart()}<br /></td>
-            </tr>
-            <tr className='fight_bottom_row'>
-              <td>{this.armorUI(armorCards, nothingCard)}</td>
-              <td className='fight_rhs'>{this.monsterUI(monsterCard)}</td>
-            </tr>
-          </tbody>
-        </table>
-        <StatusMessage message={this.state.statusMessage} type={this.state.statusType} />
-      </div>
-    </div>
-    )
+    </div>)
   }
 }
 export default FightPage;

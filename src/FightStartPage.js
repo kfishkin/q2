@@ -31,6 +31,9 @@ class FightStartPage extends React.Component {
   }
 
   monsterUI(monsterBaseCard) {
+    if (!monsterBaseCard) {
+      return <div>Unknown monster...</div>
+    }
     let fakeCard = Card.Of({ game_card: monsterBaseCard.getDb() });
       return (<div>
         The Monster is a level {monsterBaseCard.getLevel()} <b>{monsterBaseCard.getDisplayName()}</b>
@@ -113,7 +116,8 @@ class FightStartPage extends React.Component {
   }
 
   render() {
-    let monsterBaseCard = this.props.baseCards[this.props.room.monster_card_id];
+    // (room) can be undefined temporarily on first load. not sure why, but...
+    let monsterBaseCard = this.props.room ? this.props.baseCards[this.props.room.monster_card_id] : null;
     // pull out the weapon backback cards, and the armor backpack cards
     let backpackCards = this.props.deck ? this.props.deck.filter((card) => card.inBackpack()) : [];
     let armorCards = backpackCards.filter((card) => card.getBase().isArmor());

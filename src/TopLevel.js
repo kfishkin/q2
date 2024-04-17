@@ -25,6 +25,7 @@ import LootPage from './LootPage';
 import {
     NAV_ITEM_PAGES,
 } from './NavMenuItemComponent';
+import FightPage from './FightPage';
 
 
 class TopLevel extends React.Component {
@@ -235,6 +236,21 @@ class TopLevel extends React.Component {
         let showButtonBar = loggedIn && haveGame;
         let playerState = this.state.playerState;
         let page = (this.state.currentPage === undefined) ? NAV_ITEM_PAGES.GAME_ADMIN_PAGE : this.state.currentPage;
+        let room = undefined;
+        if (this.state.playerStateBundle && this.state.gameInfo) {
+
+            let affinity = this.state.playerStateBundle.affinity;
+            let ordinality = this.state.playerStateBundle.ordinality;
+
+            if (affinity !== undefined && ordinality !== undefined) {
+                // find the zone for this affinity...
+                let board = this.state.gameInfo.board;
+                let zone = board.zones.find((zone) => zone.affinity === affinity);
+                room = zone.rooms.find((room) => room.ordinality === ordinality);
+            }
+        }
+
+
         switch (page) {
             case NAV_ITEM_PAGES.CASHIER_PAGE:
                 content = <CashierPage beGateway={this.state.beGateway}
@@ -247,17 +263,20 @@ class TopLevel extends React.Component {
                     playerInfo={this.state.playerInfo}></LoginPage>;
                 break;
             case NAV_ITEM_PAGES.FIGHT_PAGE:
-                content = <p>Hello from the fight page</p>
+                content = <FightPage
+                baseCards={this.state.gameInfo.baseCards}
+                beGateway={this.state.beGateway}
+                deck={deckObjs} 
+                gameId={this.state.gameInfo.gameId}
+                onDie={() => this.onDie()}
+                onFlee={() => this.onFlee()}
+                playerId={this.state.playerInfo.playerId}
+                room={room}
+                onWon={() => this.onWonBattle()}
+                />;
                 break;
             case NAV_ITEM_PAGES.FIGHT_START_PAGE:
                 {
-                    let affinity = this.state.playerStateBundle.affinity;
-                    // find the zone for this affinity...
-                    let board = this.state.gameInfo.board;
-                    let zone = board.zones.find((zone) => zone.affinity === affinity);
-                    // and the room for this ordinality.
-                    let ordinality = this.state.playerStateBundle.ordinality;
-                    let room = (zone && (ordinality !== undefined)) ? zone.rooms[ordinality] : null;
                     content = <FightStartPage
                         beGateway={this.state.beGateway}
                         gameId={this.state.gameInfo.gameId}
@@ -358,11 +377,30 @@ class TopLevel extends React.Component {
                 startAdventureFunc={() => this.startAdventure()}
                 endAdventureFunc={() => this.endAdventure()}
                 onFlee={() => this.onFlee()}
+                onStartFighting={() => this.onStartFighting()}
                 showPageFunc={(which, extra) => this.handleShowPage(which, extra)} />,
                 content];
         }
 
         return content;
+    }
+
+    onWonBattle() {
+        // ask BE for new state, and redirect.
+        this.onGameDeckBEChange().then((v) => {
+            let bundle = this.state.playerStateBundle;
+            bundle.state = PlayerStates.AWAY;
+            this.setState({ playerState: PlayerStates.AWAY, playerStateBundle: bundle }, () => this.handleShowPage(NAV_ITEM_PAGES.AWAY_PAGE, {}));
+        });
+    }
+
+    onDie() {
+        // ask BE for new state, and redirect.
+        this.onGameDeckBEChange().then((v) => {
+            let bundle = this.state.playerStateBundle;
+            bundle.state = PlayerStates.DEAD;
+            this.setState({ playerState: PlayerStates.DEAD, playerStateBundle: bundle }, () => this.handleShowPage(NAV_ITEM_PAGES.TROPHY_PAGE, {}));
+        });
     }
 
     onFlee() {
@@ -391,6 +429,18 @@ class TopLevel extends React.Component {
                 this.setState({ playerState: PlayerStates.HOME, playerStateBundle: bundle }, () => this.handleShowPage(NAV_ITEM_PAGES.HOME_PAGE, {}));
             });
         }).catch((e) => console.log(`flee: e=${e}`));
+    }
+
+    onStartFighting() {
+        console.log(`onStartFight: called`);
+        // change state, and then go to the fight page...
+        // signal the BE, and wait...
+        let newState = { state: PlayerStates.FIGHTING };
+        this.state.beGateway.setPlayerState(this.state.gameInfo.gameId, this.state.playerInfo.playerId, newState).then((v) => {
+            console.log(`top.startAdventure: v = ${v}`);
+            let newPage = NAV_ITEM_PAGES.FIGHT_PAGE;
+            this.setState({ playerState: parseInt(v.player_state_bundle.state) }, () => this.handleShowPage(newPage, {}));
+        }).catch((e) => console.log(`startAdventure: e=${e}`));
     }
 
     startAdventure() {

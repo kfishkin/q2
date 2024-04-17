@@ -516,6 +516,10 @@ img[quadrant='se'] {
   top: 216px;
 }
 
+ul.fight_log_rows {
+  list-style-type: none;
+}
+
 ul.map_room_rows {
   list-style-type: none;
 }
