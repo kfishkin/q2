@@ -53,36 +53,41 @@ class FightPage extends React.Component {
     this.pushEntry(<span>Fighting...</span>, true);
     this.props.beGateway.fight(this.props.gameId, this.props.playerId).then((v) => {
       console.log(`continueFight: v = ${JSON.stringify(v)}`);
+      const PBP = 'play_by_play';
       if (v.errorMessage) {
-        this.pushEntry(<span>backend error: {v.errorMessage}</span>, false);
+        if (v.errorMessage.includes('not fighting in game')) {
+          // this can happen if you return to a fight after winning it.
+          this.done();
+          return;
+        }
+        this.pushEntry(<span className={PBP} flavor="bad">backend error: {v.errorMessage}</span>, false);
         this.pushEntry(this.makeInterRoundUI(), true);
         return;
       }
       // put the result last, so it's on top...
       this.pushEntry(<hr/>, false);
-      this.pushEntry(<span>Armor roll of <b>{v.armorRoll}</b>. {v.armorDegraded ? 'Armor degraded.':''}</span>, false);
-      this.pushEntry(<span>Weapon roll of <b>{v.weaponRoll}</b>. {v.weaponDegraded ? 'Weapon degraded.':''}</span>, false);
+      this.pushEntry(<span className={PBP} flavor={v.armorDegraded ? 'warning': 'info'}>Armor roll of <b>{v.armorRoll}</b>. {v.armorDegraded ? 'Armor degraded.':''}</span>, false);
+      this.pushEntry(<span className={PBP} flavor={v.weaponDegraded ? 'warning': 'info'}>Weapon roll of <b>{v.weaponRoll}</b>. {v.weaponDegraded ? 'Weapon degraded.':''}</span>, false);
       if (v.lootBaseIds && v.lootBaseIds.length > 0) {
-        let n = v.lootBaseIds.length;
         let lootNames = v.lootBaseIds.map((id) => this.props.baseCards[id].getDisplayName());
-        this.pushEntry(<span>Loot has been added to your backpack: {lootNames.join()}</span>, false);
+        this.pushEntry(<span className={PBP} flavor="good">Loot has been added to your backpack: {lootNames.join()}</span>, false);
       }
       if (v.award) {
         console.log(`award = ${JSON.stringify(v.award)}`);
-        this.pushEntry(<span>You won an award!: <i>{v.award.message}</i>. Go to 'trophies' to see more.</span>, false);
+        this.pushEntry(<span className={PBP} flavor="good">You won an award!: <i>{v.award.message}</i>. Go to 'trophies' to see more.</span>, false);
       }
       if (v.cleanSweepAwarded) {
-        this.pushEntry(<span><i>You won a clean sweep prize!</i>. Check your backpack...</span>, false);
+        this.pushEntry(<span className={PBP} flavor="good"><i>You won a clean sweep prize!</i>. Check your backpack...</span>, false);
       }
       if (v.status === WIN_STATUS) {
         // TODO: be should update PlayerState to 'away'.
         // TODO: show loot
-        this.pushEntry(<span><i>You won!</i> click <button onClick={(e) => this.done()}> here </button> to continue adventuring</span>, true);
+        this.pushEntry(<span className={PBP} flavor="good"><i>You won!</i> click <button onClick={(e) => this.done()}> here </button> to continue adventuring</span>, true);
       } else if (v.status === TIE_STATUS) {
         this.pushEntry(<span>The battle will continue.</span>, false);
         this.pushEntry(this.makeInterRoundUI(), true);
       } else if (v.status === DIE_STATUS) {
-        this.pushEntry(<span><i>You're dead, bummer!</i> click <button onClick={(e) => this.onDie()}> here </button> to see your trophies</span>, true);
+        this.pushEntry(<span className={PBP} flavor="bad"><i>You're dead, bummer!</i> click <button onClick={(e) => this.onDie()}> here </button> to see your trophies</span>, true);
       }
     });
   }
@@ -153,7 +158,6 @@ showLog() {
 }
 
   render() {
-    let affinity = this.props.room.affinity;
     let monsterBaseCard = this.props.baseCards[this.props.room && this.props.room.monster_card_id ? this.props.room.monster_card_id : 0];
     let weaponId = this.props.room.weapon_id;
     let weaponCard = null;

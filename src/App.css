@@ -789,3 +789,15 @@ img.board_room {
   width:96px;
   margin-left: 10px;
 }
+
+span.play_by_play[flavor="warning"] {
+  background-color: lightyellow;
+}
+
+span.play_by_play[flavor="good"] {
+  background-color: #c9e8c9;
+}
+
+span.play_by_play[flavor="bad"] {
+  background-color: salmon;
+}

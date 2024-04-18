@@ -147,6 +147,14 @@ class ButtonBar extends React.Component {
             <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.FIGHT_START_PAGE)}>View the fight setup</button>,
             <button onClick={(e) => this.onStartFight()} className='fight_button' title='no changes to gear once the fight starts'>Start the Fight</button>,
           ];
+          case PlayerStates.FIGHTING:
+            return [
+              <button className='run_away_button' onClick={(e) => this.maybeFlee()}>FLEE</button>,
+              <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.LOGIN_PAGE)}>Logout</button>,
+              <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.GAME_ADMIN_PAGE)}>Administer Games</button>,
+              <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.BACKPACK_PAGE)}>View your backpack</button>,
+              <button onClick={(e) => this.props.showPageFunc(NAV_ITEM_PAGES.FIGHT_PAGE)}>Return to the fight</button>,
+            ];
       default:
         return '';
     }

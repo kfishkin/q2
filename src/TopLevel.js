@@ -270,7 +270,6 @@ class TopLevel extends React.Component {
                 />;
                 break;
             case NAV_ITEM_PAGES.FIGHT_START_PAGE:
-                {
                     content = <FightStartPage
                         beGateway={this.state.beGateway}
                         gameId={this.state.gameInfo.gameId}
@@ -280,7 +279,6 @@ class TopLevel extends React.Component {
                         room={room}
                         onUpdatePlayerState={(dict) => this.onUpdatePlayerState(dict)}
                         deck={deckObjs} />
-                }
                 break;
             case NAV_ITEM_PAGES.GAME_ADMIN_PAGE:
                 content = <GameChoicePage playerInfo={this.state.playerInfo} beGateway={this.state.beGateway}
@@ -370,6 +368,7 @@ class TopLevel extends React.Component {
                 gameId={this.state.gameInfo.gameId} playerId={this.state.playerInfo.playerId}
                 startAdventureFunc={() => this.startAdventure()}
                 endAdventureFunc={() => this.endAdventure()}
+                onRedraw={() => this.onRedraw()}
                 onFlee={() => this.onFlee()}
                 onStartFighting={() => this.onStartFighting()}
                 showPageFunc={(which, extra) => this.handleShowPage(which, extra)} />,
@@ -377,6 +376,10 @@ class TopLevel extends React.Component {
         }
 
         return content;
+    }
+
+    onRedraw() {
+        this.setState({heartbeat: this.state.heartbeat + 1});
     }
 
     onWonBattle() {

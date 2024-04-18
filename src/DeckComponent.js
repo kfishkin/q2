@@ -161,6 +161,7 @@ export class DeckComponent extends React.Component {
       },
       {
         title: 'obtained', dataIndex: 'obtained',
+        defaultSortOrder: 'descend',
         sorter: (row1, row2) => row1.obtainedMillis - row2.obtainedMillis
       },      
 
