@@ -691,7 +691,7 @@ class BEGateway {
                 // it's an object which isn't 'ok', with a status text
                 return {
                     ok: false,
-                    statusText: msg
+                    errorMessage: msg
                 }
             }
         } catch (e) {

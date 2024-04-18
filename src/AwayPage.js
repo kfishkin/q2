@@ -2,6 +2,7 @@ import React from 'react';
 import StatusMessage from './StatusMessage';
 import { Affinities, AffinityLabels } from './Affinities';
 import { NAV_ITEM_PAGES } from './NavMenuItemComponent';
+import { Progress } from 'antd';
 
 // props
 // beGateway
@@ -61,9 +62,27 @@ class AwayPage extends React.Component {
       </tbody>
     </table>
   }
+
+  renderSweepitude(zone) {
+    if (!zone || !zone.rooms) return '';
+    let numRooms = zone.rooms.length;
+    let cleared = zone.rooms.filter((room) => !room.is_alive).length;
+    if (cleared === 0) return '';
+    let percent = Math.floor((cleared * 100) / numRooms);
+    return <Progress
+      percent={percent}
+      status={percent >= 100 ? 'success' : 'active'}
+      type='line'
+      showInfo={false}
+      steps={numRooms}
+      strokeColor={percent >= 100 ? 'limegreen' : 'dodgerblue'}
+      title={`${cleared}/${numRooms} for clean sweep`}
+    />;
+  }
+
   renderZone(zone) {
     return (<div>
-      <span>--- The {AffinityLabels[zone.affinity]} biome ---</span>
+      <span>--- The {AffinityLabels[zone.affinity]} biome {this.renderSweepitude(zone)} ---</span>
       <br/>
       {this.renderRooms(zone.affinity, zone.rooms)}
     </div>);

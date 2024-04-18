@@ -98,7 +98,7 @@ class TopLevel extends React.Component {
     }
 
     // signal that a player's deck has changed on the BE, need to reload cache.
-    onPlayerDeckBEChange() {
+    async onPlayerDeckBEChange() {
         let playerId = this.state.playerInfo.playerId;
         let gameId = this.state.gameInfo.gameId;
         if (!playerId || !gameId)
@@ -106,23 +106,10 @@ class TopLevel extends React.Component {
 
         // get the awards, i don't care about them, but the BE gateway
         // can use this to stamp the new deck of cards...
-        this.state.beGateway.getAwards(gameId, playerId).then((a) => {
-            this.state.beGateway.oldGetPlayerCardsForGame(gameId, playerId)
-                .then((v) => {
-                    //console.log(`onSetCurrentGame: player deck has ${v.length} cards`);
-                    let newPlayerData = { ...this.state.playerInfo };
-                    newPlayerData.deck = v.map((card) => {
-                        let obj = card;
-                        return obj;
-                    })
-                    // newPlayerData.deck = [...v];
-                    //console.log(`new deck = ${JSON.stringify(newPlayerData.deck)}`);
-                    // set the heartbeat AFTER the player info has changed, just to be sure.
-                    this.setState({ playerInfo: newPlayerData }, () => this.setState({ heartbeat: this.state.heartbeat + 1 }));
-                }).catch((e) => {
-                    console.error(`onPlayerDeckBEChange: e=${e}`);
-                });
-        });
+        await this.state.beGateway.getAwards(gameId, playerId);
+        // and get the new deck
+        let newDeck = await this.state.beGateway.oldGetPlayerCardsForGame(gameId, playerId)
+        this.setPlayerDeck(newDeck);
     }
 
     async onGameDeckBEChange() {
@@ -133,6 +120,13 @@ class TopLevel extends React.Component {
         gameInfo.board = v.board;
         //console.log(`getGameInfo: v = ${v}, ${JSON.stringify(v)}`);
         this.setState({ gameInfo: gameInfo });
+    }
+
+    async reloadAll() {
+        // reload the game deck...
+        await this.onGameDeckBEChange();
+        // reload the player deck
+        await this.onPlayerDeckBEChange();
     }
 
     // mark the given room as traversable
@@ -387,7 +381,7 @@ class TopLevel extends React.Component {
 
     onWonBattle() {
         // ask BE for new state, and redirect.
-        this.onGameDeckBEChange().then((v) => {
+        this.reloadAll().then((v) => {
             let bundle = this.state.playerStateBundle;
             bundle.state = PlayerStates.AWAY;
             this.setState({ playerState: PlayerStates.AWAY, playerStateBundle: bundle }, () => this.handleShowPage(NAV_ITEM_PAGES.AWAY_PAGE, {}));
@@ -396,7 +390,7 @@ class TopLevel extends React.Component {
 
     onDie() {
         // ask BE for new state, and redirect.
-        this.onGameDeckBEChange().then((v) => {
+        this.reloadAll().then((v) => {
             let bundle = this.state.playerStateBundle;
             bundle.state = PlayerStates.DEAD;
             this.setState({ playerState: PlayerStates.DEAD, playerStateBundle: bundle }, () => this.handleShowPage(NAV_ITEM_PAGES.TROPHY_PAGE, {}));
@@ -408,7 +402,7 @@ class TopLevel extends React.Component {
         console.log(`flee: called`);
         this.state.beGateway.flee(this.state.gameInfo.gameId, this.state.playerInfo.playerId).then((v) => {
             // load the new gameInfo - lots may have changed.
-            this.onGameDeckBEChange().then((v) => {
+            this.reloadAll().then((v) => {
                 console.log(`top.flee: v = ${v}`);
                 let bundle = this.state.playerStateBundle;
                 bundle.state = PlayerStates.HOME;
@@ -422,7 +416,7 @@ class TopLevel extends React.Component {
         console.log(`endAdventure: called`);
         this.state.beGateway.goHome(this.state.gameInfo.gameId, this.state.playerInfo.playerId).then((v) => {
             // load the new gameInfo - lots may have changed.
-            this.onGameDeckBEChange().then((v) => {
+            this.reloadAll().then((v) => {
                 console.log(`top.goHome: v = ${v}`);
                 let bundle = this.state.playerStateBundle;
                 bundle.state = PlayerStates.HOME;

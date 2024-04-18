@@ -53,14 +53,26 @@ class FightPage extends React.Component {
     this.pushEntry(<span>Fighting...</span>, true);
     this.props.beGateway.fight(this.props.gameId, this.props.playerId).then((v) => {
       console.log(`continueFight: v = ${JSON.stringify(v)}`);
+      if (v.errorMessage) {
+        this.pushEntry(<span>backend error: {v.errorMessage}</span>, false);
+        this.pushEntry(this.makeInterRoundUI(), true);
+        return;
+      }
       // put the result last, so it's on top...
       this.pushEntry(<hr/>, false);
       this.pushEntry(<span>Armor roll of <b>{v.armorRoll}</b>. {v.armorDegraded ? 'Armor degraded.':''}</span>, false);
       this.pushEntry(<span>Weapon roll of <b>{v.weaponRoll}</b>. {v.weaponDegraded ? 'Weapon degraded.':''}</span>, false);
+      if (v.lootBaseIds && v.lootBaseIds.length > 0) {
+        let n = v.lootBaseIds.length;
+        let lootNames = v.lootBaseIds.map((id) => this.props.baseCards[id].getDisplayName());
+        this.pushEntry(<span>Loot has been added to your backpack: {lootNames.join()}</span>, false);
+      }
       if (v.award) {
         console.log(`award = ${JSON.stringify(v.award)}`);
         this.pushEntry(<span>You won an award!: <i>{v.award.message}</i>. Go to 'trophies' to see more.</span>, false);
-
+      }
+      if (v.cleanSweepAwarded) {
+        this.pushEntry(<span><i>You won a clean sweep prize!</i>. Check your backpack...</span>, false);
       }
       if (v.status === WIN_STATUS) {
         // TODO: be should update PlayerState to 'away'.
@@ -72,9 +84,6 @@ class FightPage extends React.Component {
       } else if (v.status === DIE_STATUS) {
         this.pushEntry(<span><i>You're dead, bummer!</i> click <button onClick={(e) => this.onDie()}> here </button> to see your trophies</span>, true);
       }
-      
-
-
     });
   }
 
@@ -88,7 +97,7 @@ class FightPage extends React.Component {
 
   makeInterRoundUI() {
     return (<span>
-      You can <button onClick={(e) => this.continueFight()} className='fight_button'>Fight On</button>,
+      You can <button onClick={(e) => this.continueFight()} className='fight_button'>Fight</button>,
       or you can
     <button className='run_away_button' onClick={(e) => this.maybeFlee()}>FLEE</button>,
     </span>);
