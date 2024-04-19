@@ -475,6 +475,27 @@ class BEGateway {
     }
     }
 
+    /**
+     * I don't know why I made (buyBulk) take an unrolled list, but musta been a reason.
+     * This version lets you pass in tuples of what you want, and how many.
+     * Does the stupid thing and unrolls them.
+     * @param {ObjectId} gameId 
+     * @param {ObjectId} playerId 
+     * @param {[ObjectId]} baseCardIds 
+     * @param {[Number]} amounts 
+     * @returns 
+     */
+    async buyBulkCondensed(gameId, playerId, baseCardIds, amounts) {
+        let allIds = [];
+        for (let i = 0; i < baseCardIds.length; i++) {
+            let id = baseCardIds[i];
+            let amount = amounts[i];
+            let unrolled = Array(amount).fill(id);
+            allIds.push(...unrolled);
+        }
+        return this.buyBulk(gameId, playerId, allIds);
+    }
+
     // player (playerId) in game (gameId) wants to sell the cards with the given IDs
     // to (merchantId)
     async sell(gameId, playerId, merchantId, cardIds) {

@@ -1,7 +1,7 @@
 import React from 'react';
 import StatusMessage from './StatusMessage';
 import { Affinities, AffinityLabels } from './Affinities';
-import { NAV_ITEM_PAGES } from './NavMenuItemComponent';
+import { APP_PAGES } from './config/AppPages';
 import { Progress } from 'antd';
 
 // props
@@ -47,7 +47,7 @@ class AwayPage extends React.Component {
             this.setState({statusMessage: 'a fight begins!', statusType: 'info'});
             // state has changed on BE, get FE to realize it...
             this.props.onReloadPlayerState();
-            this.props.showPageFunc(NAV_ITEM_PAGES.FIGHT_START_PAGE, {});
+            this.props.showPageFunc(APP_PAGES.FIGHT_START_PAGE, {});
           }
 
         })

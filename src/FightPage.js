@@ -12,6 +12,7 @@ import CardDetail from './CardDetail';
 // onFlee - f() to flee
 // onWon - f() when win.
 // playerId
+// playerStateBundle={this.state.playerInfo.playerStateBundle}
 // room - the room for the fight
 class FightPage extends React.Component {
   // this is called once when the page first loads, NOT each time the parent state changes.
@@ -159,12 +160,12 @@ showLog() {
 
   render() {
     let monsterBaseCard = this.props.baseCards[this.props.room && this.props.room.monster_card_id ? this.props.room.monster_card_id : 0];
-    let weaponId = this.props.room.weapon_id;
+    let weaponId = this.props.playerStateBundle ? this.props.playerStateBundle.weapon_id : null;
     let weaponCard = null;
     if (weaponId) {
       weaponCard = this.props.deck.find((bc) => bc.getId() === weaponId)
     }
-    let armorId = this.props.room.armor_id;
+    let armorId = this.props.playerStateBundle ? this.props.playerStateBundle.armor_id : null;
     let armorCard = null;
     if (armorId) {
       armorCard = this.props.deck.find((bc) => bc.getId() === armorId)

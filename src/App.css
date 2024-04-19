@@ -801,3 +801,12 @@ span.play_by_play[flavor="good"] {
 span.play_by_play[flavor="bad"] {
   background-color: salmon;
 }
+
+button.buy_button {
+  background-color: #c9e8c9;
+}
+
+ol.shopping_cart {
+  list-style-type: decimal;
+
+}

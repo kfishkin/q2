@@ -2,7 +2,6 @@ import React from 'react';
 import Card from './Card';
 import CardsModal from './CardsModal';
 import StatusMessage from './StatusMessage';
-import { DeckComponent, DeckComponentMerchant } from './DeckComponent';
 import RepairComponent from './RepairComponent';
 import SeerComponent from './SeerComponent';
 import ShopperComponent from './ShopperComponent';
@@ -50,13 +49,17 @@ class MerchantPage extends React.Component {
       }
     });
     this.setState({ bankroll });
+    // caller can set initial action if desired
+    if (this.props.merchant) {
+      this.setState({action: this.props.merchant});
+    }
   }
 
   loadMerchantDeck() {
     let gameInfo = this.props.gameInfo;
     if (!this.loadingMerchant) {
+      if (!this.props.owner || !this.props.owner._id) return;
       this.setState({ statusMessage: `loading inventory...`, statusType: 'info' });
-      console.log(`asking for inventory, game.gameId = ${gameInfo.gameId}, game._id=${gameInfo._id}, owner _id = ${this.props.owner._id}`);
       this.loadingMerchant = true;
       this.props.beGateway.oldGetPlayerCardsForGame(gameInfo.gameId, this.props.owner._id)
         .then((v) => {
@@ -195,21 +198,25 @@ class MerchantPage extends React.Component {
   }
 
   render() {
+    /*
     if (!this.props.owner) {
       return <div>Oops, merchant page, but no merchant supplied</div>
     }
+    */
     // modal as in 'what mode are they in in the mall', not modal as in 'a dialog box'.
     let showModalUI = () => {
+      /*
       let setAction = (val) => {
         this.setState({ action: val }
         )
       };
+      */
 
-      let buying = this.state.action === Action.BUYING;
-      let selling = this.state.action === Action.SELLING;
-      let repairing = this.state.action === Action.BLACKSMITH;
-      let seeing = this.state.action === Action.SEER;
-      let shopping = this.state.action === Action.SHOPPER;
+      //let buying = this.state.action === Action.BUYING;
+      //let selling = this.state.action === Action.SELLING;
+      //let repairing = this.state.action === Action.BLACKSMITH;
+      //let seeing = this.state.action === Action.SEER;
+      //let shopping = this.state.action === Action.SHOPPER;
 
       let bankroll = 0;
       this.props.playerInfo.deck.forEach((card) => {
@@ -220,20 +227,30 @@ class MerchantPage extends React.Component {
         }
       });
 
-      return (<div> You have <b>${bankroll}</b>. <button className="merchant" current={buying ? "yes" : "no"} onClick={(e) => setAction(Action.BUYING)}>Buy</button>
+      return (<div> You have <b>${bankroll}</b>. 
+    </div>);
+
+/*
+      return (<div> You have <b>${bankroll}</b>. 
+        <button className="merchant" current={buying ? "yes" : "no"} onClick={(e) => setAction(Action.BUYING)}>Buy</button>
         <button className="merchant" current={selling ? "yes" : "no"} onClick={(e) => setAction(Action.SELLING)}>Sell</button>
         <button className="merchant" current={repairing ? "yes" : "no"} onClick={(e) => setAction(Action.BLACKSMITH)}>Repair</button>
         <button className="merchant" current={seeing ? "yes" : "no"} onClick={(e) => setAction(Action.SEER)}>Use Clue</button>
         <button className="merchant" current={shopping ? "yes" : "no"} onClick={(e) => setAction(Action.SHOPPER)}>Personal Shopper</button>
       </div>);
+      */
 
     }
 
 
-    let buying = this.state.action === Action.BUYING;
-    let selling = this.state.action === Action.SELLING;
+    //let merchantName = this.props.owner ? this.props.owner.name : "Unknown";
+    //let buying = this.state.action === Action.BUYING;
+    //let selling = this.state.action === Action.SELLING;
     let repairing = this.state.action === Action.BLACKSMITH;
     let seeing = this.state.action === Action.SEER;
+    //if (seeing) {
+    //  merchantName = "the Seer's";
+    //}
     let shopping = this.state.action === Action.SHOPPER;
     // TODO: remove once playerInfo.deck is real cards.
     let deckObjs = this.props.playerInfo.deck.map((dbObj) => Card.Of(dbObj));
@@ -242,13 +259,16 @@ class MerchantPage extends React.Component {
     const closeDialog = () => {
       this.setState({ showDialog: false });
     }
-
-    return <div>Hello from the merchant page for merchant {this.props.owner.name}'s store.
-      <br />{showModalUI()}
-      <DeckComponentMerchant deck={this.state.merchantDeck} baseCards={this.props.gameInfo.baseCards} current={buying ? "yes" : "no"}
-        onTransact={(cards) => this.onStartBuy(cards)} />
+/*
       <DeckComponent deck={deckObjs} baseCards={this.props.gameInfo.baseCards} current={selling ? "yes" : "no"}
         onTransact={(cards) => this.onStartSell(cards)} />
+              <DeckComponentMerchant deck={this.state.merchantDeck} baseCards={this.props.gameInfo.baseCards} current={buying ? "yes" : "no"}
+        onTransact={(cards) => this.onStartBuy(cards)} />
+        */
+    return <div>
+      <br />{showModalUI()}
+
+
       <RepairComponent deck={deckObjs} current={repairing ? "yes" : "no"}
         beGateway={this.props.beGateway}
         gameId={this.props.gameInfo.gameId}

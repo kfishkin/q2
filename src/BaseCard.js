@@ -107,6 +107,9 @@ export class BaseCard { // abstract base class
 
     isArmor() { return false; }
 
+    isBulkBuyable() {
+        return this.isBuyable() && (this.getType() === CARD_TYPES.INGREDIENT);
+    }
     isBuyable() {
         return ('buyable' in this.db) ? this.db.buyable : true;
     }

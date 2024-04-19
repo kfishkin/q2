@@ -2,6 +2,7 @@ import React from 'react';
 import 'antd/dist/reset.css';
 import { VERSION } from './AboutPage';
 import { Layout } from 'antd';
+import { APP_PAGES } from './config/AppPages';
 import AwayPage from './AwayPage';
 import BackpackPage from './BackpackPage';
 import { BaseCard } from './BaseCard';
@@ -11,21 +12,19 @@ import Card from './Card';
 import CashierPage from './CashierPage';
 //import ErrorBoundary from './ErrorBoundary';
 import FightStartPage from './FightStartPage';
-import GamePage from './GamePage';
 import GameChoicePage from './GameChoicePage';
 import InventoryPage from './InventoryPage';
 import LoginPage from './LoginPage';
 import MerchantPage from './MerchantPage';
+import { Merchants } from './config/Merchants';
 import NewsPage from './NewsPage';
 import Pile from './pile';
 import { PlayerStates } from './PlayerStates';
 import TrophyPage from './TrophyPage';
 import WorkshopPage from './WorkshopPage';
 import LootPage from './LootPage';
-import {
-    NAV_ITEM_PAGES,
-} from './NavMenuItemComponent';
 import FightPage from './FightPage';
+import CostcoPage from './CostcoPage';
 
 
 class TopLevel extends React.Component {
@@ -35,7 +34,7 @@ class TopLevel extends React.Component {
         console.log(`baseURI=${beURI}`);
         let pile = new Pile();
         this.state = {
-            currentPage: NAV_ITEM_PAGES.LOGIN_PAGE,
+            currentPage: APP_PAGES.LOGIN_PAGE,
             spoilers: false,
             beURI: beURI,
             beGateway: new BEGateway(beURI, pile),
@@ -71,7 +70,7 @@ class TopLevel extends React.Component {
                 playerId: id,
                 displayName: name
             },
-            currentPage: NAV_ITEM_PAGES.GAME_ADMIN_PAGE
+            currentPage: APP_PAGES.GAME_ADMIN_PAGE
         })
     }
 
@@ -86,7 +85,7 @@ class TopLevel extends React.Component {
         console.log('logging out');
         this.setState({
             playerInfo: null,
-            currentPage: NAV_ITEM_PAGES.LOGIN_PAGE
+            currentPage: APP_PAGES.LOGIN_PAGE
         })
     }
 
@@ -202,12 +201,12 @@ class TopLevel extends React.Component {
             newGameData.baseCards = baseCards;
             let page;
             switch (v.playerState) {
-                case PlayerStates.AWAY: page = NAV_ITEM_PAGES.AWAY_PAGE; break;
-                case PlayerStates.DEAD: page = NAV_ITEM_PAGES.TROPHY_PAGE; break;
-                case PlayerStates.FIGHT_START: page = NAV_ITEM_PAGES.FIGHT_START_PAGE; break;
-                case PlayerStates.FIGHTING: page = NAV_ITEM_PAGES.FIGHT_PAGE; break;
-                case PlayerStates.HOME: page = NAV_ITEM_PAGES.HOME_PAGE; break;
-                default: page = NAV_ITEM_PAGES.GAME_ADMIN_PAGE; break;
+                case PlayerStates.AWAY: page = APP_PAGES.AWAY_PAGE; break;
+                case PlayerStates.DEAD: page = APP_PAGES.TROPHY_PAGE; break;
+                case PlayerStates.FIGHT_START: page = APP_PAGES.FIGHT_START_PAGE; break;
+                case PlayerStates.FIGHTING: page = APP_PAGES.FIGHT_PAGE; break;
+                case PlayerStates.HOME: page = APP_PAGES.HOME_PAGE; break;
+                default: page = APP_PAGES.GAME_ADMIN_PAGE; break;
             }
             this.setState({ gameInfo: newGameData, currentPage: page, playerState: v.playerState }, () => { this.onPlayerDeckBEChange(); });
         });
@@ -229,7 +228,7 @@ class TopLevel extends React.Component {
         let haveGame = this.state.gameInfo && this.state.gameInfo.gameId;
         let showButtonBar = loggedIn && haveGame;
         let playerState = this.state.playerState;
-        let page = (this.state.currentPage === undefined) ? NAV_ITEM_PAGES.GAME_ADMIN_PAGE : this.state.currentPage;
+        let page = (this.state.currentPage === undefined) ? APP_PAGES.GAME_ADMIN_PAGE : this.state.currentPage;
         let room = undefined;
         if (this.state.playerStateBundle && this.state.gameInfo) {
 
@@ -246,59 +245,66 @@ class TopLevel extends React.Component {
 
 
         switch (page) {
-            case NAV_ITEM_PAGES.CASHIER_PAGE:
+            case APP_PAGES.CASHIER_PAGE:
                 content = <CashierPage beGateway={this.state.beGateway}
                     deck={this.state.playerInfo.deck} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
                     baseCards={this.state.gameInfo.baseCards} />
                 break;
-            case NAV_ITEM_PAGES.LOGIN_PAGE:
+                case APP_PAGES.COSTCO_PAGE:
+                    content = <CostcoPage
+                        baseCards={this.state.gameInfo.baseCards}
+                        beGateway={this.state.beGateway}
+                        deck={deckObjs}
+                        gameId={this.state.gameInfo.gameId}
+                        playerId={this.state.playerInfo.playerId}
+                        onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
+                        showPageFunc={(which, extra) => this.handleShowPage(which, extra)}
+                    />
+                    break;                
+            case APP_PAGES.LOGIN_PAGE:
                 content = <LoginPage beGateway={this.state.beGateway} onLogin={(id, handle, name) => this.onLogin(id, handle, name)}
                     onLogout={() => this.onLogout()}
                     playerInfo={this.state.playerInfo}></LoginPage>;
                 break;
-            case NAV_ITEM_PAGES.FIGHT_PAGE:
+            case APP_PAGES.FIGHT_PAGE:
                 content = <FightPage
-                baseCards={this.state.gameInfo.baseCards}
-                beGateway={this.state.beGateway}
-                deck={deckObjs} 
-                gameId={this.state.gameInfo.gameId}
-                onDie={() => this.onDie()}
-                onFlee={() => this.onFlee()}
-                playerId={this.state.playerInfo.playerId}
-                room={room}
-                onWon={() => this.onWonBattle()}
+                    baseCards={this.state.gameInfo.baseCards}
+                    beGateway={this.state.beGateway}
+                    deck={deckObjs}
+                    gameId={this.state.gameInfo.gameId}
+                    onDie={() => this.onDie()}
+                    onFlee={() => this.onFlee()}
+                    playerId={this.state.playerInfo.playerId}
+                    playerStateBundle={this.state.playerStateBundle}
+                    room={room}
+                    onWon={() => this.onWonBattle()}
                 />;
                 break;
-            case NAV_ITEM_PAGES.FIGHT_START_PAGE:
-                    content = <FightStartPage
-                        beGateway={this.state.beGateway}
-                        gameId={this.state.gameInfo.gameId}
-                        playerId={this.state.playerInfo.playerId}
-                        baseCards={this.state.gameInfo.baseCards}
-                        playerStateBundle={this.state.playerStateBundle}
-                        room={room}
-                        onUpdatePlayerState={(dict) => this.onUpdatePlayerState(dict)}
-                        deck={deckObjs} />
+            case APP_PAGES.FIGHT_START_PAGE:
+                content = <FightStartPage
+                    beGateway={this.state.beGateway}
+                    gameId={this.state.gameInfo.gameId}
+                    playerId={this.state.playerInfo.playerId}
+                    baseCards={this.state.gameInfo.baseCards}
+                    playerStateBundle={this.state.playerStateBundle}
+                    room={room}
+                    onUpdatePlayerState={(dict) => this.onUpdatePlayerState(dict)}
+                    deck={deckObjs} />
                 break;
-            case NAV_ITEM_PAGES.GAME_ADMIN_PAGE:
+            case APP_PAGES.GAME_ADMIN_PAGE:
                 content = <GameChoicePage playerInfo={this.state.playerInfo} beGateway={this.state.beGateway}
                     gameInfo={this.state.gameInfo}
                     onSetCurrentGame={(gameId, gameName) => this.onSetCurrentGame(gameId, gameName)}
                     onUnloadCurrentGame={() => this.onUnloadCurrentGame()}>
                 </GameChoicePage>
                 break;
-            case NAV_ITEM_PAGES.GAME_PAGE:
-                content = <GamePage playerInfo={this.state.playerInfo} gameInfo={this.state.gameInfo} beGateway={this.state.beGateway}
-                    showPageFunc={(which, extra) => this.handleShowPage(which, extra)}
-                    onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
-                    onPlantFlag={(row, col) => this.onPlantFlag(row, col)} />;
-                break;
-            case NAV_ITEM_PAGES.INVENTORY_PAGE:
+            case APP_PAGES.INVENTORY_PAGE:
                 content = <InventoryPage playerInfo={this.state.playerInfo} gameInfo={this.state.gameInfo} beGateway={this.state.beGateway}
                     baseCards={this.state.gameInfo.baseCards}
                     deck={deckObjs} />;
                 break;
-            case NAV_ITEM_PAGES.MERCHANT_PAGE:
+            case APP_PAGES.MERCHANT_PAGE:
+                /*
                 // the only owner at present is the shop owner at xy (0,0)
                 let owner;
                 if (this.state.extra && this.state.extra.owner) {
@@ -309,34 +315,45 @@ class TopLevel extends React.Component {
                     let col = map.width >> 1;
                     owner = map.rooms[row][col].owner;
                 }
-                content = <MerchantPage owner={owner} beGateway={this.state.beGateway}
+                */
+                content = <MerchantPage action={this.state.extra.merchant} beGateway={this.state.beGateway}
                     gameInfo={this.state.gameInfo} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
                     playerInfo={this.state.playerInfo} />;
                 break;
-            case NAV_ITEM_PAGES.TROPHY_PAGE:
+            case APP_PAGES.REPAIR_PAGE:
+                content = <MerchantPage merchant={Merchants.BLACKSMITH} beGateway={this.state.beGateway}
+                    gameInfo={this.state.gameInfo} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
+                    playerInfo={this.state.playerInfo} />;
+                break;
+            case APP_PAGES.SEER_PAGE:
+                content = <MerchantPage merchant={Merchants.SEER} beGateway={this.state.beGateway}
+                    gameInfo={this.state.gameInfo} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
+                    playerInfo={this.state.playerInfo} />;
+                break;
+            case APP_PAGES.TROPHY_PAGE:
                 content = <TrophyPage beGateway={this.state.beGateway}
                     gameId={this.state.gameInfo.gameId}
                     playerId={this.state.playerInfo.playerId} />
                 break;
-            case NAV_ITEM_PAGES.WORKSHOP_PAGE:
+            case APP_PAGES.WORKSHOP_PAGE:
                 content = <WorkshopPage beGateway={this.state.beGateway}
                     gameInfo={this.state.gameInfo} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
                     baseCards={this.state.gameInfo.baseCards}
                     heartbeat={this.state.heartbeat}
                     playerInfo={this.state.playerInfo} />;
                 break;
-            case NAV_ITEM_PAGES.LOOT_PAGE:
+            case APP_PAGES.LOOT_PAGE:
                 content = <LootPage owner={this.state.extra.owner} beGateway={this.state.beGateway}
                     gameInfo={this.state.gameInfo} playerId={this.state.playerInfo.playerId} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()} />;
                 break;
-            case NAV_ITEM_PAGES.HOME_PAGE:
+            case APP_PAGES.HOME_PAGE:
                 content = <div>There's no place like home.</div>;
                 break;
-            case NAV_ITEM_PAGES.NEWS_PAGE:
+            case APP_PAGES.NEWS_PAGE:
                 content = <NewsPage beGateway={this.state.beGateway}
                     gameId={this.state.gameInfo.gameId} baseCards={this.state.gameInfo.baseCards} playerId={this.state.playerInfo.playerId} />;
                 break;
-            case NAV_ITEM_PAGES.AWAY_PAGE:
+            case APP_PAGES.AWAY_PAGE:
                 content = <AwayPage
                     beGateway={this.state.beGateway}
                     gameId={this.state.gameInfo.gameId}
@@ -347,7 +364,7 @@ class TopLevel extends React.Component {
                     onReloadPlayerState={() => this.onReloadPlayerState()}
                     deck={deckObjs} />
                 break;
-            case NAV_ITEM_PAGES.BACKPACK_PAGE:
+            case APP_PAGES.BACKPACK_PAGE:
                 content = <BackpackPage
                     beGateway={this.state.beGateway}
                     gameId={this.state.gameInfo.gameId}
@@ -366,6 +383,7 @@ class TopLevel extends React.Component {
             content = [<ButtonBar playerState={this.state.playerState} playerName={this.state.playerInfo.displayName}
                 beGateway={this.state.beGateway}
                 gameId={this.state.gameInfo.gameId} playerId={this.state.playerInfo.playerId}
+                gotoMerchant={(which) => this.handleShowPage(this.APP_PAGES.MERCHANT_PAGE, { merchant: which })}
                 startAdventureFunc={() => this.startAdventure()}
                 endAdventureFunc={() => this.endAdventure()}
                 onRedraw={() => this.onRedraw()}
@@ -379,7 +397,7 @@ class TopLevel extends React.Component {
     }
 
     onRedraw() {
-        this.setState({heartbeat: this.state.heartbeat + 1});
+        this.setState({ heartbeat: this.state.heartbeat + 1 });
     }
 
     onWonBattle() {
@@ -387,7 +405,7 @@ class TopLevel extends React.Component {
         this.reloadAll().then((v) => {
             let bundle = this.state.playerStateBundle;
             bundle.state = PlayerStates.AWAY;
-            this.setState({ playerState: PlayerStates.AWAY, playerStateBundle: bundle }, () => this.handleShowPage(NAV_ITEM_PAGES.AWAY_PAGE, {}));
+            this.setState({ playerState: PlayerStates.AWAY, playerStateBundle: bundle }, () => this.handleShowPage(APP_PAGES.AWAY_PAGE, {}));
         });
     }
 
@@ -396,7 +414,7 @@ class TopLevel extends React.Component {
         this.reloadAll().then((v) => {
             let bundle = this.state.playerStateBundle;
             bundle.state = PlayerStates.DEAD;
-            this.setState({ playerState: PlayerStates.DEAD, playerStateBundle: bundle }, () => this.handleShowPage(NAV_ITEM_PAGES.TROPHY_PAGE, {}));
+            this.setState({ playerState: PlayerStates.DEAD, playerStateBundle: bundle }, () => this.handleShowPage(APP_PAGES.TROPHY_PAGE, {}));
         });
     }
 
@@ -409,7 +427,7 @@ class TopLevel extends React.Component {
                 console.log(`top.flee: v = ${v}`);
                 let bundle = this.state.playerStateBundle;
                 bundle.state = PlayerStates.HOME;
-                this.setState({ playerState: PlayerStates.HOME, playerStateBundle: bundle }, () => this.handleShowPage(NAV_ITEM_PAGES.HOME_PAGE, {}));
+                this.setState({ playerState: PlayerStates.HOME, playerStateBundle: bundle }, () => this.handleShowPage(APP_PAGES.HOME_PAGE, {}));
             });
         }).catch((e) => console.log(`flee: e=${e}`));
     }
@@ -423,7 +441,7 @@ class TopLevel extends React.Component {
                 console.log(`top.goHome: v = ${v}`);
                 let bundle = this.state.playerStateBundle;
                 bundle.state = PlayerStates.HOME;
-                this.setState({ playerState: PlayerStates.HOME, playerStateBundle: bundle }, () => this.handleShowPage(NAV_ITEM_PAGES.HOME_PAGE, {}));
+                this.setState({ playerState: PlayerStates.HOME, playerStateBundle: bundle }, () => this.handleShowPage(APP_PAGES.HOME_PAGE, {}));
             });
         }).catch((e) => console.log(`flee: e=${e}`));
     }
@@ -435,7 +453,7 @@ class TopLevel extends React.Component {
         let newState = { state: PlayerStates.FIGHTING };
         this.state.beGateway.setPlayerState(this.state.gameInfo.gameId, this.state.playerInfo.playerId, newState).then((v) => {
             console.log(`top.startAdventure: v = ${v}`);
-            let newPage = NAV_ITEM_PAGES.FIGHT_PAGE;
+            let newPage = APP_PAGES.FIGHT_PAGE;
             this.setState({ playerState: parseInt(v.player_state_bundle.state) }, () => this.handleShowPage(newPage, {}));
         }).catch((e) => console.log(`startAdventure: e=${e}`));
     }
@@ -446,7 +464,7 @@ class TopLevel extends React.Component {
         let newState = { state: PlayerStates.AWAY };
         this.state.beGateway.setPlayerState(this.state.gameInfo.gameId, this.state.playerInfo.playerId, newState).then((v) => {
             console.log(`top.startAdventure: v = ${v}`);
-            let newPage = NAV_ITEM_PAGES.AWAY_PAGE;
+            let newPage = APP_PAGES.AWAY_PAGE;
             this.setState({ playerState: parseInt(v.player_state_bundle.state) }, () => this.handleShowPage(newPage, {}));
         }).catch((e) => console.log(`startAdventure: e=${e}`));
     }
@@ -467,7 +485,7 @@ class TopLevel extends React.Component {
         if (isDead) {
             console.log(`you are dead`);
         }
-        let fighting = (NAV_ITEM_PAGES.FIGHT_PAGE === this.state.currentPage);
+        let fighting = (APP_PAGES.FIGHT_PAGE === this.state.currentPage);
 
         console.log(`current page = [${this.state.currentPage}]`);
         let headerText = loggedIn ? `Welcome, ${this.state.playerInfo.displayName}` : "Please log in to start";
