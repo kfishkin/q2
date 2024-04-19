@@ -23,7 +23,6 @@ class RetailPage extends React.Component {
       bankroll: UNKNOWN,
       inventory: [], // [Card]
       prices: {}, // card id --> price. In future, this will come from BE.
-      cart: [], // [CartItem]
       loading: false,
       buying: false,
     }

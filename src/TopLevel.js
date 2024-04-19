@@ -20,6 +20,7 @@ import { Merchants } from './config/Merchants';
 import NewsPage from './NewsPage';
 import Pile from './pile';
 import { PlayerStates } from './PlayerStates';
+import SellPage from './SellPage';
 import TrophyPage from './TrophyPage';
 import WorkshopPage from './WorkshopPage';
 import LootPage from './LootPage';
@@ -341,6 +342,16 @@ class TopLevel extends React.Component {
                     gameInfo={this.state.gameInfo} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
                     playerInfo={this.state.playerInfo} />;
                 break;
+                case APP_PAGES.SELL_PAGE:
+                    content = <SellPage
+                        baseCards={this.state.gameInfo.baseCards}
+                        beGateway={this.state.beGateway}
+                        deck={deckObjs}
+                        gameId={this.state.gameInfo.gameId}
+                        playerId={this.state.playerInfo.playerId}
+                        onSold={() => this.reloadAll()}
+                    />
+                    break;                   
             case APP_PAGES.TROPHY_PAGE:
                 content = <TrophyPage beGateway={this.state.beGateway}
                     gameId={this.state.gameInfo.gameId}

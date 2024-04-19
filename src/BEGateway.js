@@ -496,14 +496,12 @@ class BEGateway {
     }
 
     // player (playerId) in game (gameId) wants to sell the cards with the given IDs
-    // to (merchantId)
-    async sell(gameId, playerId, merchantId, cardIds) {
+    async sell(gameId, playerId, cardIds) {
         const url = this.beURI
             + "cards/sell";
         let body = {
             gameId: gameId,
             playerId: playerId,
-            merchantId: merchantId,
             cardIds: cardIds
         };
         const requestOptions = {
