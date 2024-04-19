@@ -20,5 +20,6 @@ export const APP_PAGES = {
   SEER_PAGE: "seer",
   REPAIR_PAGE: "repair",
   COSTCO_PAGE: "costco",
+  RETAIL_PAGE: "retail",
 }
 

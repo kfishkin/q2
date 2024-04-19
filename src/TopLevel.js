@@ -25,6 +25,7 @@ import WorkshopPage from './WorkshopPage';
 import LootPage from './LootPage';
 import FightPage from './FightPage';
 import CostcoPage from './CostcoPage';
+import RetailPage from './RetailPage';
 
 
 class TopLevel extends React.Component {
@@ -325,6 +326,16 @@ class TopLevel extends React.Component {
                     gameInfo={this.state.gameInfo} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
                     playerInfo={this.state.playerInfo} />;
                 break;
+                case APP_PAGES.RETAIL_PAGE:
+                    content = <RetailPage
+                        baseCards={this.state.gameInfo.baseCards}
+                        beGateway={this.state.beGateway}
+                        deck={deckObjs}
+                        gameId={this.state.gameInfo.gameId}
+                        playerId={this.state.playerInfo.playerId}
+                        onBought={() => this.reloadAll()}
+                    />
+                    break;                
             case APP_PAGES.SEER_PAGE:
                 content = <MerchantPage merchant={Merchants.SEER} beGateway={this.state.beGateway}
                     gameInfo={this.state.gameInfo} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}

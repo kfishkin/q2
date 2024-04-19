@@ -429,13 +429,12 @@ class BEGateway {
 
     // player (playerId) in game (gameId) wants to buy the cards with the given IDs
     // from (ownerId)
-    async buy(gameId, playerId, ownerId, cardIds) {
+    async buy(gameId, playerId, cardIds) {
         const url = this.beURI
             + "cards/buy";
         let body = {
             gameId: gameId,
             playerId: playerId,
-            ownerId: ownerId,
             cardIds: cardIds
         };
         const requestOptions = {
@@ -892,6 +891,22 @@ class BEGateway {
         } else {
             return response.json();
         }
+    }
+
+    /**
+     * Get the retail stock for the game.
+     * @param {ObjectId} gameId 
+     * @returns {[CardDb]}
+     */
+    async getRetail(gameId) {
+        const url = this.beURI
+            + "/games/" + gameId
+            + "/retail";
+        const requestOptions = {
+            method: 'GET',
+        };
+        const response = await fetch(url, requestOptions);
+        return response.json();
     }
 }
 export default BEGateway;
