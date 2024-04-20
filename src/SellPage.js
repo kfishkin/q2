@@ -59,7 +59,7 @@ class SellPage extends React.Component {
   }
 
   sellUI() {
-    return <div><hr/>      <DeckComponent deck={this.props.deck} baseCards={this.props.baseCards} current="yes"
+    return <div><hr/>      <DeckComponent deck={this.props.deck.filter((card) => card.getBase().isSellable())} baseCards={this.props.baseCards} current="yes"
     onTransact={(cards) => this.onStartSell(cards)} />
       </div>
   }
