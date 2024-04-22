@@ -9,7 +9,7 @@ export const CARD_TYPES = {
     RECIPE_OUTLINE: 5,
     RECIPE: 6,
     WEAPON: 7,
-    BATTLE_MODIFIER: 8, // dead
+    BOOK: 8,
     INGREDIENT: 9,
     LEARNING: 10,
     SCORE: 11,
@@ -233,6 +233,8 @@ export class BaseCard { // abstract base class
                     console.warn(`unknown category handle: ${db.handle}`);
                     return new CardTypeNothing(db)
               }
+              case CARD_TYPES.BOOK:
+                return new CardTypeBook(db);
             default:
                 console.warn(`gc.type of ${type} unknown`);
                 return new CardTypeNothing(db);
@@ -283,6 +285,19 @@ class CardTypeDecor extends BaseCard {
     isNothing() { return true; }
     descriptionBackgroundImageURL() {
         return `pix/card_backgrounds/${this.getHandle()}.png`;
+    }
+}
+
+
+class CardTypeBook extends BaseCard {
+    constructor(db) {
+        super(CARD_TYPES.BOOK, db);
+    }
+
+    altText() { return "book" }
+    isNothing() { return false; }
+    descriptionBackgroundImageURL() {
+        return `pix/card_backgrounds/book.jpg`;
     }
 }
 

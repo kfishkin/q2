@@ -117,7 +117,6 @@ class TopLevel extends React.Component {
         let gameId = this.state.gameInfo.gameId;
         let v = await this.state.beGateway.getGameInfo(gameId)
         let gameInfo = this.state.gameInfo;
-        gameInfo.map = v.map;
         gameInfo.board = v.board;
         //console.log(`getGameInfo: v = ${v}, ${JSON.stringify(v)}`);
         this.setState({ gameInfo: gameInfo });
@@ -178,12 +177,11 @@ class TopLevel extends React.Component {
         let playerState = playerStateBundle.state;
         console.log(`playerState = ${playerState}`);
         let gameInfo = await this.state.beGateway.getGameInfo(gameId);
-        let map = gameInfo.map;
         let board = gameInfo.board;
         //console.log(`map = ${JSON.stringify(map)}`);
         let rawBaseCards = await this.state.beGateway.getBaseCardsFor(gameId);
         //console.log(`rawBaseCards = ${JSON.stringify(rawBaseCards)}`);
-        return { playerState: playerStateBundle.state, map, board, rawBaseCards };
+        return { playerState: playerStateBundle.state, board, rawBaseCards };
     }
 
     onSetCurrentGame(gameId, gameName) {
@@ -193,7 +191,6 @@ class TopLevel extends React.Component {
             console.log(`getGameData: v = ${v}`);
             let newGameData = {
                 gameId: gameId, name: gameName,
-                map: v.map,
                 board: v.board,
             };
             let baseCards = {};
@@ -306,18 +303,6 @@ class TopLevel extends React.Component {
                     deck={deckObjs} />;
                 break;
             case APP_PAGES.MERCHANT_PAGE:
-                /*
-                // the only owner at present is the shop owner at xy (0,0)
-                let owner;
-                if (this.state.extra && this.state.extra.owner) {
-                    owner = this.state.extra.owner;
-                } else {
-                    let map = this.state.gameInfo.map;
-                    let row = map.height >> 1;
-                    let col = map.width >> 1;
-                    owner = map.rooms[row][col].owner;
-                }
-                */
                 content = <MerchantPage action={this.state.extra.merchant} beGateway={this.state.beGateway}
                     gameInfo={this.state.gameInfo} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
                     playerInfo={this.state.playerInfo} />;
