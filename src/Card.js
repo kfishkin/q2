@@ -1,8 +1,9 @@
 
 
-import { Affinities, AffinityLabels } from './Affinities';
+import { Affinities, AffinityLabels } from './types/Affinities';
 import StepDisplay from './StepDisplay';
 import dayjs from 'dayjs';
+import { LoreTypes } from './types/LoreTypes';
 const BaseCard = require('./BaseCard');
 var localizedFormat = require('dayjs/plugin/localizedFormat')
 dayjs.extend(localizedFormat);
@@ -49,20 +50,28 @@ export class Card { // abstract base class
                 return new CardWeapon(db);
             case BaseCard.CARD_TYPES.LEARNING:
                 return new CardLearning(db);
+            case BaseCard.CARD_TYPES.LORE:
+                return new CardLore(db);
             case BaseCard.CARD_TYPES.RECIPE:
                 if (db.game_card.handle.startsWith('horn_of_plenty_')) {
                     return new CardHornOfPlenty(db);
                 } else {
-                    return new Card(db);
+                    return new CardRecipe(db);
                 }
             default:
                 return new Card(db);
         }
     }
 
+    descriptionBackgroundImageURL() {
+        return this.getBase().descriptionBackgroundImageURL();
+    }
+
     fullyDescribe(baseCards) {
         return this.baseCard.fullyDescribe(baseCards);
     }
+
+    
 
     getPlayerId() {
         return this.playerId;
@@ -140,6 +149,10 @@ export class Card { // abstract base class
         return false;
     }
 
+    isLocked() {
+        return this.db.is_locked;
+    }
+
     setBackpack(val) {
         this.db.in_backpack = val;
     }
@@ -212,6 +225,27 @@ let baseOutlineCard = Object.values(baseCards).find((bc) => {
     isLearningFor(baseCardId) {
         let info = this.getDb().learning_info;
         return (info && info.outline_id === baseCardId);
+    }
+}
+
+class CardLore extends Card {
+    fullyDescribe(baseCards) {
+        let lore_info = this.db.lore_info;
+        let parts = [];
+        parts.push(<span><span className='lore_value'>{lore_info.value}</span>{(lore_info.value === 1 ? 'point ' : 'points ')}</span>);
+        let type = this.getBase().getDb().lore_info.type;
+        let ofWhat = '';
+        switch (type) {
+            case LoreTypes.MUNDANE: ofWhat = 'generic'; break;
+            case LoreTypes.TO_AFFINITY: ofWhat = 'affinity-bound'; break;
+            case LoreTypes.TO_RECIPE: ofWhat = 'recipe-bound'; break;
+            default: ofWhat = 'Unknown'; break;
+        }
+        parts.push(<span> of <span className='lore_type'>{ofWhat}</span> lore</span>);
+        if (lore_info.how_obtained) {
+            parts.push(<br/>, <span>Obtained: {lore_info.how_obtained}</span>);
+        }
+        return (<div>{parts}</div>)
     }
 }
 
@@ -315,6 +349,31 @@ class CardWeapon extends Card {
     }    
 }
 
+class CardRecipe extends Card {
+    fullyDescribe(baseCards) {
+        if (!this.isLocked()) {
+            return super.fullyDescribe(baseCards);
+        }
+        let recipe = this.getBase().getRecipe();
+        let cost = (recipe && ('lore_cost' in recipe)) ? recipe.lore_cost: 'Unknown';
+        return (<div>
+                <span className='recipe_name'>{this.getBase().getDisplayName()} recipe.</span>
+            <br/>{this.getBase().getDescription()}
+            <hr/>
+            <span>Locked: to unlock this and make it usable costs
+                <span className='recipe_cost'>{cost}</span><span> lore points: unlock using the 'unlock recipe' button when at home.</span>
+            </span>
+        </div>);
+    }
+
+    descriptionBackgroundImageURL() {
+        if (!this.isLocked()) {
+            return super.descriptionBackgroundImageURL();
+        }
+        return "pix/card_backgrounds/locked_recipe.png";
+
+    }
+}
 
 class CardScore extends Card {
     fullyDescribe(baseCards) {

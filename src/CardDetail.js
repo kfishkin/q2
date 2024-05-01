@@ -65,7 +65,7 @@ class CardDetail extends React.Component {
     parts.push(<div className='card_face_description'>
       {card.fullyDescribe(this.props.baseCards)}
     </div>);
-    let imgUrl = baseCard.descriptionBackgroundImageURL();
+    let imgUrl = card.descriptionBackgroundImageURL();
     if (imgUrl) {
       parts.push(
         <div className="card_face_description_bg">

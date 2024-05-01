@@ -1,6 +1,6 @@
 import React from 'react';
 import StatusMessage from './StatusMessage';
-import { Affinities, AffinityLabels } from './Affinities';
+import { Affinities, AffinityLabels } from './types/Affinities';
 import { APP_PAGES } from './config/AppPages';
 import { Progress } from 'antd';
 

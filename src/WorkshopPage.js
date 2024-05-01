@@ -1,4 +1,5 @@
 import React from 'react';
+import { Switch } from 'antd';
 import CardsModal from './CardsModal';
 import Card from './Card';
 import CardDetail from './CardDetail';
@@ -28,6 +29,7 @@ class WorkshopPage extends React.Component {
       modalTopHtml: '',
       modalBottomHtml: '',
       modalCards: {},
+      showLocked: false,
     }
   }
 
@@ -41,6 +43,10 @@ class WorkshopPage extends React.Component {
   }
 
   onMachineSelect(card) {
+    // show recipes that are locked, but does nothing to click on them.
+    if (card.isLocked()) {
+      return;
+    }
     let canTryNow = (card.getBase().getNumInputs() === 0);
     let statusMessage = `Workshop for the ${card.game_card.display_name}`;
     // fire off a request to see if it's immediately usable...
@@ -73,6 +79,9 @@ class WorkshopPage extends React.Component {
   chooseMachineCard() {
     // sort the cards by level desc, within that name asc.
     let cards = this.state.machineCards || [];
+    if (!this.state.showLocked) {
+      cards = cards.filter((card) => !card.isLocked());
+    }
     cards.sort((mach1, mach2) => {
       let delta = mach2.getLevel() - mach1.getLevel();
       if (delta > 0 || delta < 0) return delta;
@@ -83,8 +92,14 @@ class WorkshopPage extends React.Component {
     let cardBoxes = cards.map((card) => {
       return (<li key={card.getId()} style={{ "display": "inline-block" }} onClick={(e) => this.onMachineSelect(card)}><CardDetail card={card.getDb()} baseCards={this.props.gameInfo.baseCards} deck={this.props.gameInfo.deck} /></li>)
     })
+    const onShowLockedChange = (checked) => {
+      console.log(`onShowLockedChange: checked = ${checked}`);
+      this.setState({showLocked: checked});
+    }
+
     return (<div>
       Click on the card you would like to use:
+      <span className='show_locked_toggle'> (Show locked recipes? NO <Switch defaultChecked onChange={onShowLockedChange}/> YES) </span>
       <ul className='machine_select'>
         {cardBoxes}
       </ul>

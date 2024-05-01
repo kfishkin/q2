@@ -1,4 +1,5 @@
-import { Affinities, AffinityByName, AffinityLabels, AffinityLevels } from "./Affinities";
+import { Affinities, AffinityByName, AffinityLabels, AffinityLevels } from "./types/Affinities";
+import { LoreTypes } from "./types/LoreTypes";
 // this must match the similar enum in the BE
 export const CARD_TYPES = {
     NONE: 0,
@@ -9,7 +10,7 @@ export const CARD_TYPES = {
     RECIPE_OUTLINE: 5,
     RECIPE: 6,
     WEAPON: 7,
-    BOOK: 8,
+    LORE: 8,
     INGREDIENT: 9,
     LEARNING: 10,
     SCORE: 11,
@@ -19,6 +20,8 @@ export const CARD_TYPES = {
     CATEGORY: 15,
     NUMBER: 16
 };
+
+
 
 /**
  * Describes the base cards - the 'platonic' cards which are then instanced in the game.
@@ -233,8 +236,8 @@ export class BaseCard { // abstract base class
                     console.warn(`unknown category handle: ${db.handle}`);
                     return new CardTypeNothing(db)
               }
-              case CARD_TYPES.BOOK:
-                return new CardTypeBook(db);
+              case CARD_TYPES.LORE:
+                return new CardTypeLore(db);
             default:
                 console.warn(`gc.type of ${type} unknown`);
                 return new CardTypeNothing(db);
@@ -289,17 +292,6 @@ class CardTypeDecor extends BaseCard {
 }
 
 
-class CardTypeBook extends BaseCard {
-    constructor(db) {
-        super(CARD_TYPES.BOOK, db);
-    }
-
-    altText() { return "book" }
-    isNothing() { return false; }
-    descriptionBackgroundImageURL() {
-        return `pix/card_backgrounds/book.jpg`;
-    }
-}
 
 // a Life card
 class CardTypeLife extends BaseCard {
@@ -312,6 +304,50 @@ class CardTypeLife extends BaseCard {
         return `pix/card_backgrounds/life2.png`;
     }
     isLife() { return true; }
+}
+
+class CardTypeLore extends BaseCard {
+    constructor(db) {
+        super(CARD_TYPES.LORE, db);
+    }
+
+    altText() { return "lore" }
+    isNothing() { return false; }
+    iconURL() {
+        return "pix/card_types/lore.png";
+    }
+    descriptionBackgroundImageURL() {
+        const BASE = "pix/card_backgrounds/lore/";
+        let url = BASE + 'default.png';
+        if (!this.db || !this.db.lore_info || !(('type' in this.db.lore_info))) {
+            return url;
+        }
+        let type = this.db.lore_info.type;
+        switch (type) {
+            case LoreTypes.MUNDANE:
+                url = BASE + "mundane.png";
+                break;
+            case LoreTypes.TO_AFFINITY:
+                switch (this.db.affinity) {
+                    case Affinities.AIR:
+                        url = BASE + "affinity_air.png";
+                        break;
+                    case Affinities.EARTH:
+                        url = BASE + "affinity_earth.png";
+                        break;
+                    case Affinities.FIRE:
+                        url = BASE + "affinity_fire.png";
+                        break;
+                    case Affinities.ICE:
+                        default:
+                        url = BASE + "affinity_ice.png";
+                }
+                break;
+                default:
+                    break;
+        }
+        return url;
+    }
 }
 
 // a Clue card
@@ -470,7 +506,7 @@ class CardTypeRecipeForensics extends CardTypeRecipe {
     fullyDescribe(baseCards) {
         return (<div>
             Given a piece of armor or weaponry of level &le; {this.getLevel()},
-            returns a recipe outline for how to make that piece,
+            returns a locked recipe for how to make that piece,
             if one exists. The input is <i>destroyed</i> in the process.
         </div>) 
     }

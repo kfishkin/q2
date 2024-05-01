@@ -1,6 +1,6 @@
 import React from 'react';
 import { DeckComponentBackpack, DeckComponentBackpackable } from './DeckComponent';
-import { PlayerStates } from './PlayerStates';
+import { PlayerStates } from './types/PlayerStates';
 import StatusMessage from './StatusMessage';
 
 /**

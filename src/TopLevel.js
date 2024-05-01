@@ -19,7 +19,7 @@ import MerchantPage from './MerchantPage';
 import { Merchants } from './config/Merchants';
 import NewsPage from './NewsPage';
 import Pile from './pile';
-import { PlayerStates } from './PlayerStates';
+import { PlayerStates } from './types/PlayerStates';
 import SellPage from './SellPage';
 import TrophyPage from './TrophyPage';
 import WorkshopPage from './WorkshopPage';
@@ -27,6 +27,7 @@ import LootPage from './LootPage';
 import FightPage from './FightPage';
 import CostcoPage from './CostcoPage';
 import RetailPage from './RetailPage';
+import StudyPage from './StudyPage';
 
 
 class TopLevel extends React.Component {
@@ -249,17 +250,17 @@ class TopLevel extends React.Component {
                     deck={this.state.playerInfo.deck} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
                     baseCards={this.state.gameInfo.baseCards} />
                 break;
-                case APP_PAGES.COSTCO_PAGE:
-                    content = <CostcoPage
-                        baseCards={this.state.gameInfo.baseCards}
-                        beGateway={this.state.beGateway}
-                        deck={deckObjs}
-                        gameId={this.state.gameInfo.gameId}
-                        playerId={this.state.playerInfo.playerId}
-                        onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
-                        showPageFunc={(which, extra) => this.handleShowPage(which, extra)}
-                    />
-                    break;                
+            case APP_PAGES.COSTCO_PAGE:
+                content = <CostcoPage
+                    baseCards={this.state.gameInfo.baseCards}
+                    beGateway={this.state.beGateway}
+                    deck={deckObjs}
+                    gameId={this.state.gameInfo.gameId}
+                    playerId={this.state.playerInfo.playerId}
+                    onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
+                    showPageFunc={(which, extra) => this.handleShowPage(which, extra)}
+                />
+                break;
             case APP_PAGES.LOGIN_PAGE:
                 content = <LoginPage beGateway={this.state.beGateway} onLogin={(id, handle, name) => this.onLogin(id, handle, name)}
                     onLogout={() => this.onLogout()}
@@ -312,31 +313,40 @@ class TopLevel extends React.Component {
                     gameInfo={this.state.gameInfo} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
                     playerInfo={this.state.playerInfo} />;
                 break;
-                case APP_PAGES.RETAIL_PAGE:
-                    content = <RetailPage
-                        baseCards={this.state.gameInfo.baseCards}
-                        beGateway={this.state.beGateway}
-                        deck={deckObjs}
-                        gameId={this.state.gameInfo.gameId}
-                        playerId={this.state.playerInfo.playerId}
-                        onBought={() => this.reloadAll()}
-                    />
-                    break;                
+            case APP_PAGES.RETAIL_PAGE:
+                content = <RetailPage
+                    baseCards={this.state.gameInfo.baseCards}
+                    beGateway={this.state.beGateway}
+                    deck={deckObjs}
+                    gameId={this.state.gameInfo.gameId}
+                    playerId={this.state.playerInfo.playerId}
+                    onBought={() => this.reloadAll()}
+                />
+                break;
             case APP_PAGES.SEER_PAGE:
                 content = <MerchantPage merchant={Merchants.SEER} beGateway={this.state.beGateway}
                     gameInfo={this.state.gameInfo} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
                     playerInfo={this.state.playerInfo} />;
                 break;
-                case APP_PAGES.SELL_PAGE:
-                    content = <SellPage
-                        baseCards={this.state.gameInfo.baseCards}
-                        beGateway={this.state.beGateway}
-                        deck={deckObjs}
-                        gameId={this.state.gameInfo.gameId}
-                        playerId={this.state.playerInfo.playerId}
-                        onSold={() => this.reloadAll()}
-                    />
-                    break;                   
+            case APP_PAGES.SELL_PAGE:
+                content = <SellPage
+                    baseCards={this.state.gameInfo.baseCards}
+                    beGateway={this.state.beGateway}
+                    deck={deckObjs}
+                    gameId={this.state.gameInfo.gameId}
+                    playerId={this.state.playerInfo.playerId}
+                    onSold={() => this.reloadAll()}
+                />
+                break;
+            case APP_PAGES.STUDY_PAGE:
+                content = <StudyPage
+                    beGateway={this.state.beGateway}
+                    deck={deckObjs}
+                    gameId={this.state.gameInfo.gameId}
+                    onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
+                    playerId={this.state.playerInfo.playerId}
+                />
+                break;
             case APP_PAGES.TROPHY_PAGE:
                 content = <TrophyPage beGateway={this.state.beGateway}
                     gameId={this.state.gameInfo.gameId}

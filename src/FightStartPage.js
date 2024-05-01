@@ -1,7 +1,7 @@
 import React from 'react';
 import Card from './Card';
 import CardDetail from './CardDetail';
-import { AffinityLabels } from './Affinities';
+import { AffinityLabels } from './types/Affinities';
 
 // props
 // baseCards { id --> BaseCard}

@@ -4,7 +4,7 @@ import Card from './Card';
 import CardDetail from './CardDetail';
 import StatusMessage from './StatusMessage';
 import CardsModal from './CardsModal';
-import { Affinities, AffinityLabels } from './Affinities';
+import { Affinities, AffinityLabels } from './types/Affinities';
 
 // props:
 // deck - array of cards
