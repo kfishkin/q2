@@ -229,7 +229,9 @@ export class BaseCard { // abstract base class
                 case 'category_armor': return new CardTypeCategoryArmor(db);
                 case 'category_clue': return new CardTypeCategoryClue(db);
                 case 'category_gear': return new CardTypeCategoryGear(db);
+                case 'category_lore': return new CardTypeCategoryLore(db);
                 case 'category_outline': return new CardTypeCategoryOutline(db);
+                case 'category_recipe': return new CardTypeCategoryRecipe(db);
                 case 'category_weapon': return new CardTypeCategoryWeapon(db);
                 case 'category_number': return new CardTypeCategoryNumber(db);
                 default:
@@ -686,10 +688,24 @@ class CardTypeCategoryGear extends CardTypeCategory {
     }    
 }
 
+class CardTypeCategoryLore extends CardTypeCategory {
+    getDisplayName() { return 'a Lore card' };
+    ContainedInDeck(cards) {
+        return super.cardsOfType(cards, CARD_TYPES.LORE);
+    }    
+}
+
 class CardTypeCategoryOutline extends CardTypeCategory {
     getDisplayName() { return 'a Recipe Outline card' };
     ContainedInDeck(cards) {
         return super.cardsOfType(cards, CARD_TYPES.RECIPE_OUTLINE);
+    }    
+}
+
+class CardTypeCategoryRecipe extends CardTypeCategory {
+    getDisplayName() { return 'a Recipe card' };
+    ContainedInDeck(cards) {
+        return super.cardsOfType(cards, CARD_TYPES.RECIPE);
     }    
 }
 
