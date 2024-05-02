@@ -94,7 +94,7 @@ class StudyPage extends React.Component {
         <tbody>
           <tr>
             <td>
-              <img src={imgUrl} />
+              <img src={imgUrl} alt='' />
             </td>
             <td>
               {this.studyUI()}

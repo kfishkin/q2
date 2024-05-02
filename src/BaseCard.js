@@ -119,6 +119,26 @@ export class BaseCard { // abstract base class
     isCategory() {
         return false;
     }
+
+    isDistillable() {
+        // TODO: set this in the BE, read on the FE.
+        switch (this.getType()) {
+            case CARD_TYPES.CATEGORY:
+            case CARD_TYPES.CLUE:
+            case CARD_TYPES.DECOR:
+            case CARD_TYPES.LEARNING:
+            case CARD_TYPES.LIVES:
+            case CARD_TYPES.LORE:
+            case CARD_TYPES.MONEY:
+            case CARD_TYPES.MONSTER:
+            case CARD_TYPES.RECIPE:
+            case CARD_TYPES.RECIPE_OUTLINE:
+                return false;
+            default:
+                return true;
+        }
+    }
+
     isMoney() {
         return false;
     }

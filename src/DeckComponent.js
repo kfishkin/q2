@@ -389,3 +389,38 @@ export class DeckComponentBackpackable extends DeckComponent {
   }  
   
 }
+
+// deck view that only has stuff that can be dissassembled (distilled)
+export class DeckComponentDistillable extends DeckComponent {
+  constructor(props) {
+    super(props);
+    this.flavor = "disassembleable";
+    this.state.verb = "mark for dissassembly";
+  }
+
+  componentDidMount() {
+    if (!this.props.ronly)
+      this.setState({ statusMessage: "click items to mark for disassembly", type: "info" });
+  }
+
+  onSelectedRows(rows) {
+    if (!rows || rows.length === 0) {
+      this.setState({ statusMessage: "click items to mark for disassembly", statusType: "info" });
+      return;
+    }
+    let numChecked = rows.length;
+    this.setState({ statusMessage: `${this.state.verb} ${numChecked}`, statusType: 'clickable' });
+  }
+
+  preambleFor(deck) {
+    switch (deck.length) {
+      case 0:
+        return <span>Nothing left that can be dissassembled</span>;
+      case 1:
+        return <span>1 item could be dissassembled:</span>;
+      default:
+        return <span>{deck.length} items could be dissassembled:</span>;
+    }
+  }  
+  
+}

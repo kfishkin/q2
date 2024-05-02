@@ -28,6 +28,7 @@ import FightPage from './FightPage';
 import CostcoPage from './CostcoPage';
 import RetailPage from './RetailPage';
 import StudyPage from './StudyPage';
+import DistillPage from './DistillPage';
 
 
 class TopLevel extends React.Component {
@@ -261,6 +262,16 @@ class TopLevel extends React.Component {
                     showPageFunc={(which, extra) => this.handleShowPage(which, extra)}
                 />
                 break;
+                case APP_PAGES.DISTILL_PAGE:
+                    content = <DistillPage
+                        baseCards={this.state.gameInfo.baseCards}
+                        beGateway={this.state.beGateway}
+                        deck={deckObjs}
+                        gameId={this.state.gameInfo.gameId}
+                        playerId={this.state.playerInfo.playerId}
+                        onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
+                    />
+                    break;                
             case APP_PAGES.LOGIN_PAGE:
                 content = <LoginPage beGateway={this.state.beGateway} onLogin={(id, handle, name) => this.onLogin(id, handle, name)}
                     onLogout={() => this.onLogout()}
