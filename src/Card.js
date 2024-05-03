@@ -63,6 +63,10 @@ export class Card { // abstract base class
         }
     }
 
+    canUseToUnlockRecipe(recipeBaseCard) {
+        return false;
+    }
+
     descriptionBackgroundImageURL() {
         return this.getBase().descriptionBackgroundImageURL();
     }
@@ -71,7 +75,7 @@ export class Card { // abstract base class
         return this.baseCard.fullyDescribe(baseCards);
     }
 
-    
+
 
     getPlayerId() {
         return this.playerId;
@@ -229,6 +233,27 @@ let baseOutlineCard = Object.values(baseCards).find((bc) => {
 }
 
 class CardLore extends Card {
+    terselyDescribe() {
+        let parts = [];
+        parts.push(this.getBase().getDisplayName());
+
+        let lore_info = this.db.lore_info;
+        let type = this.getBase().getDb().lore_info.type;
+
+        switch (type) {
+            case LoreTypes.TO_AFFINITY:
+                parts.push(` (${AffinityLabels[this.getAffinity()]} affinity)`);
+                break;
+            // TODO: recipe bound
+            default:
+                break;
+        }
+
+        let english = lore_info.value === 1 ? 'point' : 'points';
+        parts.push(` (${lore_info.value} ${english})`);
+        return parts.join('');
+    }
+
     fullyDescribe(baseCards) {
         let lore_info = this.db.lore_info;
         let parts = [];
@@ -243,9 +268,44 @@ class CardLore extends Card {
         }
         parts.push(<span> of <span className='lore_type'>{ofWhat}</span> lore</span>);
         if (lore_info.how_obtained) {
-            parts.push(<br/>, <span>Obtained by {lore_info.how_obtained}</span>);
+            parts.push(<br />, <span>Obtained by {lore_info.how_obtained}</span>);
         }
         return (<div>{parts}</div>)
+    }
+
+    /**
+     * Checks if this card can help unlock the given recipe base card
+     * @param {BaseCard} recipeBaseCard 
+     * @returns {String} an explanation of why NOT. If empty, then it's ok to use.
+     */
+
+    canUseToUnlockRecipe(recipeBaseCard) {
+        if (!recipeBaseCard || !recipeBaseCard.isRecipe()) {
+            return "not a recipe";
+        }
+        let type = this.getBase().getDb().lore_info.type;
+        switch (type) {
+            case LoreTypes.MUNDANE:
+                return '';
+            case LoreTypes.TO_AFFINITY:
+                // my affinity needs to be the same as the recipes, and can't be NONE.
+                let meAff = this.getBase().getAffinity();
+                let theyAff = recipeBaseCard.getAffinity();
+                // eslint-disable-next-line
+                if (meAff != theyAff) {
+                    return 'affinity mismatch';
+                }
+                // eslint-disable-next-line
+                if (meAff == Affinities.NONE) {
+                    return 'has no affinity';
+                }
+                return '';
+            case LoreTypes.TO_RECIPE:
+                let desiredId = this.getDb().lore_info.to_recipe_id;
+                return desiredId === recipeBaseCard.getId() ? '' : 'wrong recipe';
+            default:
+                return '??';
+        }
     }
 }
 
@@ -346,7 +406,7 @@ class CardWeapon extends Card {
     }
     isBackpackable() {
         return true;
-    }    
+    }
 }
 
 class CardRecipe extends Card {
@@ -355,13 +415,13 @@ class CardRecipe extends Card {
             return super.fullyDescribe(baseCards);
         }
         let recipe = this.getBase().getRecipe();
-        let cost = (recipe && ('lore_cost' in recipe)) ? recipe.lore_cost: 'Unknown';
+        let cost = (recipe && ('lore_cost' in recipe)) ? recipe.lore_cost : 'Unknown';
         return (<div>
-                <span className='recipe_name'>{this.getBase().getDisplayName()} recipe.</span>
-            <br/>{this.getBase().getDescription()}
-            <hr/>
-            <span>Locked: to unlock this and make it usable costs
-                <span className='recipe_cost'>{cost}</span><span> lore points: unlock using the 'unlock recipe' button when at home.</span>
+            <span className='recipe_name'>{this.getBase().getDisplayName()} recipe.</span>
+            <br />{this.getBase().getDescription()}
+            <hr />
+            <span>Locked:
+                <span className='recipe_cost'>{cost}</span><span> lore points to unlock.</span>
             </span>
         </div>);
     }

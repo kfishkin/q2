@@ -29,6 +29,7 @@ import CostcoPage from './CostcoPage';
 import RetailPage from './RetailPage';
 import StudyPage from './StudyPage';
 import DistillPage from './DistillPage';
+import UnlockPage from './UnlockPage';
 
 
 class TopLevel extends React.Component {
@@ -363,6 +364,16 @@ class TopLevel extends React.Component {
                     gameId={this.state.gameInfo.gameId}
                     playerId={this.state.playerInfo.playerId} />
                 break;
+                case APP_PAGES.UNLOCK_PAGE:
+                    content = <UnlockPage
+                        baseCards={this.state.gameInfo.baseCards}
+                        beGateway={this.state.beGateway}
+                        deck={deckObjs}
+                        gameId={this.state.gameInfo.gameId}
+                        playerId={this.state.playerInfo.playerId}
+                        onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}
+                    />
+                    break;                   
             case APP_PAGES.WORKSHOP_PAGE:
                 content = <WorkshopPage beGateway={this.state.beGateway}
                     gameInfo={this.state.gameInfo} onPlayerDeckBEChange={() => this.onPlayerDeckBEChange()}

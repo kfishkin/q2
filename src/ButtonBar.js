@@ -131,6 +131,7 @@ class ButtonBar extends React.Component {
           <button key="hBlack" onClick={(e) => this.props.showPageFunc(APP_PAGES.REPAIR_PAGE)}>Go to the Blacksmith</button>,
           <button key="hStudy" onClick={(e) => this.props.showPageFunc(APP_PAGES.STUDY_PAGE)}>Study lore</button>,
           <button key="hDistill" onClick={(e) => this.props.showPageFunc(APP_PAGES.DISTILL_PAGE)}>Dissassemble stuff</button>,
+          <button key="hUnlock" onClick={(e) => this.props.showPageFunc(APP_PAGES.UNLOCK_PAGE)}>Unlock recipes</button>,
           <button key="hSee" onClick={(e) => this.props.showPageFunc(APP_PAGES.SEER_PAGE)}>Go to the Seer</button>,
           <button key="hNews" onClick={(e) => this.props.showPageFunc(APP_PAGES.NEWS_PAGE)}>{newsText}</button>,
           <button key="hTroph" onClick={(e) => this.props.showPageFunc(APP_PAGES.TROPHY_PAGE)}>View Trophies</button>

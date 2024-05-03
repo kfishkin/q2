@@ -139,6 +139,10 @@ export class BaseCard { // abstract base class
         }
     }
 
+    isLore() {
+        return false;
+    }
+
     isMoney() {
         return false;
     }
@@ -334,6 +338,7 @@ class CardTypeLore extends BaseCard {
     }
 
     altText() { return "lore" }
+    isLore() { return true; }
     isNothing() { return false; }
     iconURL() {
         return "pix/card_types/lore.png";

@@ -834,3 +834,7 @@ span.show_locked_toggle {
 option[disabled] {
   background-color: lightgray;
 }
+
+div.preamble {
+  text-align: left;
+}

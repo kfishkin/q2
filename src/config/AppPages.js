@@ -24,5 +24,6 @@ export const APP_PAGES = {
   SEER_PAGE: "seer",
   SELL_PAGE: "sell",
   STUDY_PAGE: "study",
+  UNLOCK_PAGE: "unlock",
 }
 
