@@ -261,12 +261,21 @@ class CardLore extends Card {
         let type = this.getBase().getDb().lore_info.type;
         let ofWhat = '';
         switch (type) {
-            case LoreTypes.MUNDANE: ofWhat = 'generic'; break;
-            case LoreTypes.TO_AFFINITY: ofWhat = 'affinity-bound'; break;
-            case LoreTypes.TO_RECIPE: ofWhat = 'recipe-bound'; break;
+            case LoreTypes.MUNDANE: ofWhat = 'generic lore'; break;
+            case LoreTypes.TO_AFFINITY: ofWhat = 'affinity-bound lore'; break;
+            case LoreTypes.TO_RECIPE: {
+                ofWhat = 'recipe-bound';
+                // find the recipe it points to.
+                let to_id = lore_info.to_recipe_id;
+                let toBase = baseCards[to_id];
+                if (toBase) {
+                    ofWhat = `towards the ${toBase.getLevel()} level '${toBase.getDisplayName()}' recipe`;
+                }
+            }
+            break;
             default: ofWhat = 'Unknown'; break;
         }
-        parts.push(<span> of <span className='lore_type'>{ofWhat}</span> lore</span>);
+        parts.push(<span> <span className='lore_type'>{ofWhat}</span> </span>);
         if (lore_info.how_obtained) {
             parts.push(<br />, <span>Obtained by {lore_info.how_obtained}</span>);
         }

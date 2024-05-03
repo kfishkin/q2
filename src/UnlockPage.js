@@ -74,7 +74,7 @@ class UnlockPage extends React.Component {
       let loreChosen = this.state.loreChosen.map((v) => false);
       this.setState({selectedRecipe: recipe, loreChosen}, () => this.checkScore());
     }
-    if (this.state.recipes.lengh < 1) {
+    if (this.state.recipes.length < 1) {
       return (<div>(No locked recipes at present)</div>);
     } else {
       let options = this.state.recipes.map((card) => {
@@ -109,7 +109,27 @@ class UnlockPage extends React.Component {
         this.props.beGateway.unlock(this.props.gameId, this.props.playerId, recipeCardId, loreCardIds).then((v) => {
           console.log(`unlock: v= ${JSON.stringify(v)}`);
           if (v.ok) {
-            this.setState({ statusText: 'unlocked!', statusType: 'success', unlocking: false });
+            const makeMessage = (v) => {
+              let msg = '';
+              if (v && v.card && ('is_locked' in v.card) && !v.card.is_locked) {
+                msg = 'Recipe unlocked';
+              } else {
+                msg = `weird card value: ${JSON.stringify(v.card)}`;
+              }
+              let numEaten = ('deleted' in v) ? v.deleted.length : 0;
+              switch (numEaten) {
+                case 0: break;
+                case 1: msg = msg + ': 1 Lore card used';
+                default:
+                  msg = `${msg}: ${numEaten} Lore cards used`
+              }
+              if ((v.ledTo && v.ledTo.length > 0) || (v.loreTo && v.loreTo.length > 0)) {
+                msg = `${msg}. And you made new discoveries! Check inventory.`;
+              }
+              return msg;
+            }
+            let msg = makeMessage(v);
+            this.setState({ statusText: msg, statusType: 'success', unlocking: false });
           } else {
             this.setState({ statusText: v.why, statusType: 'error', unlocking: false });
           }
@@ -152,7 +172,7 @@ class UnlockPage extends React.Component {
       </div>)
     }
 
-    if (this.state.loreCards.lengh < 1) {
+    if (this.state.loreCards.length < 1) {
       return (<div>(No lore cards)</div>);
     } else {
       let rows = this.state.loreCards.map((card, i) => loreCardUI(card, i));
