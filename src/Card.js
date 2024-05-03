@@ -243,7 +243,7 @@ class CardLore extends Card {
         }
         parts.push(<span> of <span className='lore_type'>{ofWhat}</span> lore</span>);
         if (lore_info.how_obtained) {
-            parts.push(<br/>, <span>Obtained: {lore_info.how_obtained}</span>);
+            parts.push(<br/>, <span>Obtained by {lore_info.how_obtained}</span>);
         }
         return (<div>{parts}</div>)
     }

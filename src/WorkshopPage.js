@@ -99,7 +99,7 @@ class WorkshopPage extends React.Component {
 
     return (<div>
       Click on the card you would like to use:
-      <span className='show_locked_toggle'> (Show locked recipes? NO <Switch defaultChecked onChange={onShowLockedChange}/> YES) </span>
+      <span className='show_locked_toggle'> (Show locked recipes? NO <Switch onChange={onShowLockedChange}/> YES) </span>
       <ul className='machine_select'>
         {cardBoxes}
       </ul>
