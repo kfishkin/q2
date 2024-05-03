@@ -120,6 +120,7 @@ class UnlockPage extends React.Component {
               switch (numEaten) {
                 case 0: break;
                 case 1: msg = msg + ': 1 Lore card used';
+                break;
                 default:
                   msg = `${msg}: ${numEaten} Lore cards used`
               }
