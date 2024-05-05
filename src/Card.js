@@ -269,7 +269,7 @@ class CardLore extends Card {
                 let to_id = lore_info.to_recipe_id;
                 let toBase = baseCards[to_id];
                 if (toBase) {
-                    ofWhat = `towards the ${toBase.getLevel()} level '${toBase.getDisplayName()}' recipe`;
+                    ofWhat = `towards the level ${toBase.getLevel()} '${toBase.getDisplayName()}' recipe`;
                 }
             }
             break;

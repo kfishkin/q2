@@ -838,3 +838,18 @@ option[disabled] {
 div.preamble {
   text-align: left;
 }
+
+button[disabled] span.ant-switch-inner {
+  background-color: darkgray;
+}
+
+/* nasty, but this works. the default bg color
+for a selectable switch.... */
+button.ant-switch:not([disabled]) span.ant-switch-inner {
+  background-color: hsla(160, 51%, 60%, 0.363);
+}
+
+/* and then this takes priority if it's checked */
+button.ant-switch-checked:not([disabled]) span.ant-switch-inner {
+  background-color: aquamarine ;
+}

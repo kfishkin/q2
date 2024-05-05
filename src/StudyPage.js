@@ -23,7 +23,8 @@ class StudyPage extends React.Component {
     };
   }
 
-  componentDidMount() {
+  computeBankroll() {
+    console.log(`compute bankroll: called`);
     let bankroll = 0;
     this.props.deck.filter((card) => card.getBase().isMoney()).forEach((moneyCard) => {
       bankroll += moneyCard.getBase().getSellValue();
@@ -37,6 +38,10 @@ class StudyPage extends React.Component {
         console.log(`study: e = ${JSON.stringify(e)}`);
 
       });
+  }
+
+  componentDidMount() {
+    this.computeBankroll();
 
   }
 
@@ -54,8 +59,11 @@ class StudyPage extends React.Component {
       this.setState({statusText: 'studying...', statusType: 'info', studying: true}, () => {
         this.props.beGateway.study(this.props.gameId, this.props.playerId, price).then((v) => {
           console.log(`study: v= ${JSON.stringify(v)}`);
-          this.props.onPlayerDeckBEChange();
-          this.setState({statusText: 'done!', statusType: 'success', studying: false});
+          this.props.onPlayerDeckBEChange().then(() => {
+            this.computeBankroll();
+            this.setState({statusText: 'done!', statusType: 'success', studying: false});
+          });
+
         }).catch((e) => {
           console.log(`err: e = ${e}`);
           this.setState({statusText: `error! ${e}`, statusType: 'error', studying: false});

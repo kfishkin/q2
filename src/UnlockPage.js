@@ -1,5 +1,5 @@
 import React from 'react';
-import {Switch} from 'antd';
+import { Switch } from 'antd';
 import StatusMessage from './StatusMessage';
 import CardDetail from './CardDetail';
 
@@ -23,6 +23,7 @@ class UnlockPage extends React.Component {
       statusText: null,
       statusType: 'info',
       recipes: [],
+      selectedLore: null,
       selectedRecipe: null,
       loreCards: [],
       loreChosen: [], // array of booleans, on = chosen. parallel to (lorecards)
@@ -33,12 +34,24 @@ class UnlockPage extends React.Component {
 
   componentDidMount() {
     let recipes = this.props.deck.filter((card) => {
-      return card.getBase().isRecipe() && card.isLocked() });
+      return card.getBase().isRecipe() && card.isLocked()
+    });
     let loreCards = this.props.deck.filter((card) =>
       card.getBase().isLore());
-      let loreChosen = new Array(loreCards.length).fill(false);
+    // sort by alpha, this will clump similar types together.
+    // and within that, by value desc, why not.
+    loreCards.sort((lore1, lore2) => {
+      let name1 = lore1.getBase().getDisplayName();
+      let name2 = lore2.getBase().getDisplayName();
+      let cmp = name1.localeCompare(name2);
+      if (cmp !== 0) return cmp;
+      let val1 = lore1.getDb().lore_info.value;
+      let val2 = lore2.getDb().lore_info.value;
+      return val2 - val1;
+    });
 
-      this.setState({recipes, loreCards, loreChosen});
+    let loreChosen = new Array(loreCards.length).fill(false);
+    this.setState({ recipes, loreCards, loreChosen });
   }
 
   checkScore() {
@@ -46,7 +59,7 @@ class UnlockPage extends React.Component {
     // recompute the current score, and set state accordingly.
     console.log(`checkScore: called`);
     if (!this.state.selectedRecipe) {
-      this.setState({loreGoal: 0, loreHave: 0});
+      this.setState({ loreGoal: 0, loreHave: 0 });
       return;
     }
     let loreGoal = this.state.selectedRecipe.getBase().getRecipe().lore_cost;
@@ -62,7 +75,7 @@ class UnlockPage extends React.Component {
       console.log(`val = ${val}`);
       loreHave += val;
     }
-    this.setState({loreGoal, loreHave});
+    this.setState({ loreGoal, loreHave });
   }
 
   recipeUI() {
@@ -72,7 +85,7 @@ class UnlockPage extends React.Component {
       let recipe = this.state.recipes.find((card) => card.getId() === option.target.value);
       // changing the recipe resets all the selections...
       let loreChosen = this.state.loreChosen.map((v) => false);
-      this.setState({selectedRecipe: recipe, loreChosen}, () => this.checkScore());
+      this.setState({ selectedRecipe: recipe, loreChosen }, () => this.checkScore());
     }
     if (this.state.recipes.length < 1) {
       return (<div>(No locked recipes at present)</div>);
@@ -85,7 +98,7 @@ class UnlockPage extends React.Component {
       return (<div>
         <select className='width200' onChange={(val) => onRecipeChoose(val)}>{options}</select>
         {this.state.selectedRecipe ? <CardDetail card={this.state.selectedRecipe} baseCards={this.props.baseCards} /> : ''}
-        </div>
+      </div>
       );
     }
   }
@@ -105,7 +118,7 @@ class UnlockPage extends React.Component {
         loreCardIds.push(this.state.loreCards[i].getId());
       }
 
-      this.setState({ statusText: 'distilling...', statusType: 'info', unlocking: true }, () => {
+      this.setState({ statusText: 'unlocking...', statusType: 'info', unlocking: true }, () => {
         this.props.beGateway.unlock(this.props.gameId, this.props.playerId, recipeCardId, loreCardIds).then((v) => {
           console.log(`unlock: v= ${JSON.stringify(v)}`);
           if (v.ok) {
@@ -120,7 +133,7 @@ class UnlockPage extends React.Component {
               switch (numEaten) {
                 case 0: break;
                 case 1: msg = msg + ': 1 Lore card used';
-                break;
+                  break;
                 default:
                   msg = `${msg}: ${numEaten} Lore cards used`
               }
@@ -149,11 +162,15 @@ class UnlockPage extends React.Component {
     }
     return (<div>
       <span>Needed: {this.state.loreGoal}</span>
-      <br/>
+      <br />
       <span>Selected: {this.state.loreHave}</span>
-      <br/>
+      <br />
       {buttonUI()}
     </div>);
+  }
+
+  maybeShowLoreCard() {
+    return this.state.selectedLore ? <tr><td><CardDetail card={this.state.selectedLore} baseCards={this.props.baseCards} /></td></tr> : '';
   }
 
   loreUI() {
@@ -162,13 +179,17 @@ class UnlockPage extends React.Component {
         console.log(`card ${card.terselyDescribe()}, checked = ${checked}`);
         let loreChosen = this.state.loreChosen;
         loreChosen[i] = checked;
-        this.setState({loreChosen}, () => this.checkScore());
+        this.setState({ loreChosen }, () => this.checkScore());
+        // show the most recently chosen one on the side for more deets...
+        if (checked) {
+          this.setState({ selectedLore: card });
 
+        }
       }
       let whyNot = this.state.selectedRecipe ? card.canUseToUnlockRecipe(this.state.selectedRecipe.getBase()) : 'no recipe chosen';
 
-      return (<div style={{textAlign: 'left'}}>
-        <span><Switch disabled={!!whyNot} checked={this.state.loreChosen[i]} title={whyNot} onChange={(checked) => onLoreCardCheckChange(card, i, checked)}/></span>
+      return (<div style={{ textAlign: 'left' }}>
+        <span><Switch disabled={!!whyNot} checked={this.state.loreChosen[i]} title={whyNot} onChange={(checked) => onLoreCardCheckChange(card, i, checked)} /></span>
         <span>{card.terselyDescribe()}</span>
       </div>)
     }
@@ -179,9 +200,16 @@ class UnlockPage extends React.Component {
       let rows = this.state.loreCards.map((card, i) => loreCardUI(card, i));
       return (<div>
         <span>Lore cards in your deck:</span>
-        <hr/>
-        {rows}
-        </div>
+        <hr />
+        <table>
+          <tbody>
+            {this.maybeShowLoreCard()}
+            <tr>
+              <td>{rows}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
       );
     }
   }
@@ -194,27 +222,27 @@ class UnlockPage extends React.Component {
         Not all Lore cards apply to all recipes:
         <ul>
           <li><i>Affinity</i> lore can only be used to unlock spells of that Affinity.
-          For example, a 'Fire lore' card can only be used to unlock spells like 'Fire enchant'</li>
+            For example, a 'Fire lore' card can only be used to unlock spells like 'Fire enchant'</li>
           <li><i>Recipe</i> lore can only be used to unlock a particular recipe.
-          For example, a 'Dagger' lore card can only be used to unlock the Dagger recipe.</li>
+            For example, a 'Dagger' lore card can only be used to unlock the Dagger recipe.</li>
         </ul>
-        Below, pick the recipe you wish to unlock. Then use the toggle switches indicate which lore to use. <i>No 'change' is given</i>.
+        Below, pick the recipe to unlock. Then use the toggle switches indicate which lore to use. <i>No 'change' is given</i>.
         The switches are disabled if the lore card isn't usable for the current recipe.
       </div>
     }
     return <div>
       {preamble()}
-      <hr/>
+      <hr />
       {this.state.statusText ? <StatusMessage message={this.state.statusText} type={this.state.statusType} /> : ''}
       <table>
         <tbody>
           <tr>
-            <td>{this.recipeUI()}</td>
+            <td style={{verticalAlign: 'top'}}>{this.recipeUI()}</td>
             <td>{this.scoreUI()}</td>
             <td>{this.loreUI()}</td>
           </tr>
         </tbody>
-        </table>
+      </table>
     </div>
   }
 
