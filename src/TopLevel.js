@@ -534,6 +534,7 @@ class TopLevel extends React.Component {
         };
         commonProps.showPageFunc = (which, extra) => this.handleShowPage(which, extra);
 
+        const APP_NAME='Clean Sweep'
         return (
             <Layout>
                 <Header>
@@ -542,7 +543,7 @@ class TopLevel extends React.Component {
                 <Layout>
                     <Content>{this.renderContent()}</Content>
                 </Layout>
-                <Footer style={{ 'textAlign': 'left' }}><span>Q2 version {VERSION}</span></Footer>
+                <Footer style={{ 'textAlign': 'left' }}><span>{APP_NAME} version {VERSION}</span></Footer>
             </Layout>
         );
 

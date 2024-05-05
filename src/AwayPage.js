@@ -99,9 +99,11 @@ class AwayPage extends React.Component {
     let neZone = board.zones.find((zone) => zone.affinity === Affinities.FIRE);
     let swZone = board.zones.find((zone) => zone.affinity === Affinities.ICE);
     let seZone = board.zones.find((zone) => zone.affinity === Affinities.AIR);
+    let allDead = board.zones.every((zone) => 
+      zone.rooms.every((room) => !room.is_alive));
+    let intro = allDead ? `You've swept every zone clean! When ready, hit 'go home' and collect your loot.` : "Pick a room to enter. If you clear all the rooms in a biome on this trip, you get a 'clean sweep' prize";
     return (<div>
-      <p>Pick a room to enter. If you clear all the rooms in a biome on this trip, you get a prize.
-        Do this in more than one biome and get moar prize.
+      <p>{intro}
       </p>
       {this.state.statusMessage ? <StatusMessage message={this.state.statusMessage} type={this.state.statusType}/> : ''}
       <table>
