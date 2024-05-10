@@ -86,6 +86,18 @@ class FightPage extends React.Component {
         this.pushEntry(<span className={PBP} flavor="good"><i>You won!</i> click <button onClick={(e) => this.done()}> here </button> to continue adventuring</span>, true);
       } else if (v.status === TIE_STATUS) {
         this.pushEntry(<span>The battle will continue.</span>, false);
+        let armor = v.netArmorValue;
+        console.log(`armorValue = ${armor}`);
+        let english = (armor === 1) ? 'point' : 'points';
+        if (v.armorDegraded) {
+          if (parseInt(armor) === -1) {
+            // you weren't wearing armor.
+          } else if (parseInt(armor) === 0) {
+            this.pushEntry(<span className={PBP} flavor='warning'>You have <i>no</i> protective armor left - if the monster hits you again you die.</span>);
+          } else {
+            this.pushEntry(<span className={PBP} flavor='info'>You now have {armor} {english} of armor left</span>);
+          }
+        }
         this.pushEntry(this.makeInterRoundUI(), true);
       } else if (v.status === DIE_STATUS) {
         this.pushEntry(<span className={PBP} flavor="bad"><i>You're dead, bummer!</i> click <button onClick={(e) => this.onDie()}> here </button> to see your trophies</span>, true);

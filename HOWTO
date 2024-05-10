@@ -6,3 +6,6 @@ git add --all
 npm start -- start on localhost
 
 git push
+
+git tag FOO # tag FOO to current commit
+git push --tags
