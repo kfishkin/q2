@@ -114,7 +114,8 @@ class ButtonBar extends React.Component {
           <button  key="dAdmin" onClick={(e) => this.props.showPageFunc(APP_PAGES.GAME_ADMIN_PAGE)}>Administer Games</button>,
           <button  key="dInv"onClick={(e) => this.props.showPageFunc(APP_PAGES.INVENTORY_PAGE)}>See your inventory</button>,
           <button key="dNews" onClick={(e) => this.props.showPageFunc(APP_PAGES.NEWS_PAGE)}>{newsText}</button>,
-          <button key="dTrophy" onClick={(e) => this.props.showPageFunc(APP_PAGES.TROPHY_PAGE)}>View Trophies</button>
+          <button key="dTrophy" onClick={(e) => this.props.showPageFunc(APP_PAGES.TROPHY_PAGE)}>View Trophies</button>,
+          <button key="dGuide" onClick={(e) => this.props.showPageFunc(APP_PAGES.GUIDE_PAGE)}>See the User Guide</button>,
         ];      
       case PlayerStates.HOME:
         return [
@@ -129,12 +130,13 @@ class ButtonBar extends React.Component {
           <button key="hCash" onClick={(e) => this.props.showPageFunc(APP_PAGES.CASHIER_PAGE)}>See the Cashier</button>,
           <button key="hWork" onClick={(e) => this.props.showPageFunc(APP_PAGES.WORKSHOP_PAGE)}>Go to the Workshop</button>,
           <button key="hBlack" onClick={(e) => this.props.showPageFunc(APP_PAGES.REPAIR_PAGE)}>Go to the Blacksmith</button>,
+          <button key="hUnlock" onClick={(e) => this.props.showPageFunc(APP_PAGES.UNLOCK_PAGE)}>Unlock recipes</button>,
           <button key="hStudy" onClick={(e) => this.props.showPageFunc(APP_PAGES.STUDY_PAGE)}>Study lore</button>,
           <button key="hDistill" onClick={(e) => this.props.showPageFunc(APP_PAGES.DISTILL_PAGE)}>Dissassemble stuff</button>,
-          <button key="hUnlock" onClick={(e) => this.props.showPageFunc(APP_PAGES.UNLOCK_PAGE)}>Unlock recipes</button>,
           // <button key="hSee" onClick={(e) => this.props.showPageFunc(APP_PAGES.SEER_PAGE)}>Go to the Seer</button>,
           <button key="hNews" onClick={(e) => this.props.showPageFunc(APP_PAGES.NEWS_PAGE)}>{newsText}</button>,
-          <button key="hTroph" onClick={(e) => this.props.showPageFunc(APP_PAGES.TROPHY_PAGE)}>View Trophies</button>
+          <button key="hTroph" onClick={(e) => this.props.showPageFunc(APP_PAGES.TROPHY_PAGE)}>View Trophies</button>,
+          <button key="hGuide" onClick={(e) => this.props.showPageFunc(APP_PAGES.GUIDE_PAGE)}>See the User Guide</button>,
         ];
         case PlayerStates.AWAY:
           return [
@@ -144,7 +146,8 @@ class ButtonBar extends React.Component {
             <button key="aBoard" onClick={(e) => this.props.showPageFunc(APP_PAGES.AWAY_PAGE)}>View the game board</button>,
             <button key="aHome" onClick={(e) => this.maybeEndAdventure()}>Go Home</button>,
             <button key="aNews" onClick={(e) => this.props.showPageFunc(APP_PAGES.NEWS_PAGE)}>{newsText}</button>,
-            <button key="aTroph" onClick={(e) => this.props.showPageFunc(APP_PAGES.TROPHY_PAGE)}>View Trophies</button>
+            <button key="aTroph" onClick={(e) => this.props.showPageFunc(APP_PAGES.TROPHY_PAGE)}>View Trophies</button>,
+            <button key="aGuide" onClick={(e) => this.props.showPageFunc(APP_PAGES.GUIDE_PAGE)}>See the User Guide</button>,
           ]
         case PlayerStates.FIGHT_START:
           return [
@@ -154,6 +157,7 @@ class ButtonBar extends React.Component {
             <button key="fsBack" onClick={(e) => this.props.showPageFunc(APP_PAGES.BACKPACK_PAGE)}>View your backpack</button>,
             <button key="fsSetup" onClick={(e) => this.props.showPageFunc(APP_PAGES.FIGHT_START_PAGE)}>View the fight setup</button>,
             <button key="fsDo" onClick={(e) => this.onStartFight()} className='fight_button' title='no changes to gear once the fight starts'>Start the Fight</button>,
+            <button key="fsGuide" onClick={(e) => this.props.showPageFunc(APP_PAGES.GUIDE_PAGE)}>See the User Guide</button>,
           ];
           case PlayerStates.FIGHTING:
             return [
@@ -162,6 +166,7 @@ class ButtonBar extends React.Component {
               <button key="FiAdmin" onClick={(e) => this.props.showPageFunc(APP_PAGES.GAME_ADMIN_PAGE)}>Administer Games</button>,
               <button key="FiBack" onClick={(e) => this.props.showPageFunc(APP_PAGES.BACKPACK_PAGE)}>View your backpack</button>,
               <button key="FiFigh" onClick={(e) => this.props.showPageFunc(APP_PAGES.FIGHT_PAGE)}>Return to the fight</button>,
+              <button key="FiGuide" onClick={(e) => this.props.showPageFunc(APP_PAGES.GUIDE_PAGE)}>See the User Guide</button>,
             ];
       default:
         return '';

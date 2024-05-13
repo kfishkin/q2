@@ -25,5 +25,6 @@ export const APP_PAGES = {
   SELL_PAGE: "sell",
   STUDY_PAGE: "study",
   UNLOCK_PAGE: "unlock",
+  GUIDE_PAGE: "guide",
 }
 

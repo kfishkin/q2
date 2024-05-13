@@ -101,7 +101,7 @@ class AwayPage extends React.Component {
     let seZone = board.zones.find((zone) => zone.affinity === Affinities.AIR);
     let allDead = board.zones.every((zone) => 
       zone.rooms.every((room) => !room.is_alive));
-    let intro = allDead ? `You've swept every zone clean! When ready, hit 'go home' and collect your loot.` : "Pick a room to enter. If you clear all the rooms in a biome on this trip, you get a 'clean sweep' prize";
+    let intro = allDead ? `You've swept every zone clean! When ready, hit 'go home' and collect your loot.` : "The cards with '?' on them represent the 'front lines' of your adventuring. Pick one to fight the monster in it. If you clear all the rooms in a biome on this trip, you get a 'clean sweep' prize";
     return (<div>
       <p>{intro}
       </p>

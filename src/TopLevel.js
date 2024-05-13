@@ -13,6 +13,7 @@ import CashierPage from './CashierPage';
 //import ErrorBoundary from './ErrorBoundary';
 import FightStartPage from './FightStartPage';
 import GameChoicePage from './GameChoicePage';
+import GuidePage from './GuidePage';
 import InventoryPage from './InventoryPage';
 import LoginPage from './LoginPage';
 import MerchantPage from './MerchantPage';
@@ -310,6 +311,10 @@ class TopLevel extends React.Component {
                     onUnloadCurrentGame={() => this.onUnloadCurrentGame()}>
                 </GameChoicePage>
                 break;
+                case APP_PAGES.GUIDE_PAGE:
+                    content = <GuidePage>
+                    </GuidePage>
+                    break;                
             case APP_PAGES.INVENTORY_PAGE:
                 content = <InventoryPage playerInfo={this.state.playerInfo} gameInfo={this.state.gameInfo} beGateway={this.state.beGateway}
                     baseCards={this.state.gameInfo.baseCards}

@@ -89,14 +89,16 @@ class FightPage extends React.Component {
         let armor = v.netArmorValue;
         console.log(`armorValue = ${armor}`);
         let english = (armor === 1) ? 'point' : 'points';
-        if (v.armorDegraded) {
-          if (parseInt(armor) === -1) {
-            // you weren't wearing armor.
-          } else if (parseInt(armor) === 0) {
-            this.pushEntry(<span className={PBP} flavor='warning'>You have <i>no</i> protective armor left - if the monster hits you again you die.</span>);
-          } else {
-            this.pushEntry(<span className={PBP} flavor='info'>You now have {armor} {english} of armor left</span>);
+        if (parseInt(armor) === -1) {
+          // you weren't wearing armor.
+        } else if (parseInt(armor) === 0) {
+          this.pushEntry(<span className={PBP} flavor='warning'>You have <i>no</i> protective armor left - if the monster hits you again you die.</span>);
+          if (v.toWin) {
+            this.pushEntry(<span>You have to roll a <b>{v.toWin}</b> or more to kill the monster next round.</span>);
+            this.pushEntry(<span>If you don't, the monster will kill you if your armor roll is less than {v.toDie}</span>);
           }
+        } else {
+          this.pushEntry(<span className={PBP} flavor='info'>You have {armor} {english} of armor left</span>);
         }
         this.pushEntry(this.makeInterRoundUI(), true);
       } else if (v.status === DIE_STATUS) {
